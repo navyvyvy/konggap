@@ -44,7 +44,9 @@ Use Naver Shopping and Coupang first because the first product value is current 
 
 Specialty green bean shops are second priority. Use them to enrich flavor, origin, process, roast, and description data when needed.
 
-If normal access is blocked or incomplete, use the `insane-search` workflow as a fallback for Naver, Coupang, or protected shop pages.
+Do not require the official Naver Shopping API for the MVP. Use the `insane-search` workflow for query-time crawling/search access, especially for Naver, Coupang, and protected shop pages. Search queries must target green beans explicitly, for example `생두`, `커피 생두`, or a user query suffixed with `생두` when the user did not already specify it.
+
+Validation note from the planning session: the `insane-search` curl grid reached Naver search but got a soft-captcha verdict. The Playwright browser path rendered the Naver `생두` search page and showed shopping sections. The crawler should therefore support the full `insane-search` escalation path, not only plain HTTP fetch.
 
 ## Data Flow
 
@@ -189,7 +191,7 @@ Desktop and mobile use the same component with responsive layout, not separate p
 
 ## Implementation Order
 
-1. Build query-time data fetch with a small source adapter.
+1. Build query-time crawling with a small `insane-search` source adapter.
 2. Parse current offer fields: title, price, shipping, link, seller, source, possible weight.
 3. Normalize offers and calculate final cost.
 4. Render dense responsive list.
@@ -197,4 +199,3 @@ Desktop and mobile use the same component with responsive layout, not separate p
 6. Add loading, empty, and error states.
 7. Add flavor/roast cache for stable descriptive data.
 8. Add AI-assisted tag/note extraction only in the data preparation path, not as an in-app recommender.
-

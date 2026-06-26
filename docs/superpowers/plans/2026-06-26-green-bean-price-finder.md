@@ -4,9 +4,9 @@
 
 **Goal:** Build a small responsive green bean offer list that fetches current purchasable offers at query time and links each row to the seller.
 
-**Architecture:** Use a minimal Next.js App Router app. Keep business logic in pure TypeScript modules, expose query-time offers through one route handler, and render a dense client-side list with infinite scroll. Start with Naver Shopping API because it is structured and supports `display=100`; keep the source adapter boundary small so Coupang/protected sources can be added without rewriting the UI.
+**Architecture:** Use a minimal Next.js App Router app. Keep business logic in pure TypeScript modules, expose query-time offers through one route handler, and render a dense client-side list with infinite scroll. Fetch data through a small local crawler adapter that follows the installed `insane-search` workflow for Naver/Coupang/protected shopping pages instead of requiring official API keys: engine first, Playwright render/recon when the engine reports `must_invoke_playwright_mcp`.
 
-**Tech Stack:** Next.js App Router, React, TypeScript, plain CSS, Node built-in test runner with `tsx`.
+**Tech Stack:** Next.js App Router, React, TypeScript, plain CSS, Playwright for local crawler rendering, Node built-in test runner with `tsx`.
 
 ---
 
@@ -17,7 +17,8 @@
 - Create `app/layout.tsx`, `app/page.tsx`, `app/globals.css`: app shell and visual system.
 - Create `app/api/offers/route.ts`: GET endpoint for query-time offer fetch.
 - Create `src/lib/offers.ts`: types, normalization, pagination helpers.
-- Create `src/lib/sources/naver.ts`: Naver Shopping source adapter.
+- Create `src/lib/sources/insane-search.ts`: local crawler adapter for green-bean shopping searches.
+- Create `scripts/crawl-green-beans.mjs`: Playwright render/recon script used when Naver/Coupang blocks plain fetch.
 - Create `src/lib/flavor-cache.ts`: conservative flavor/roast note cache.
 - Create `components/OfferSearch.tsx`: client fetch, filters, infinite scroll.
 - Create `components/OfferRow.tsx`: responsive row/card link.
@@ -53,6 +54,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "playwright": "^1.55.0",
     "tsx": "^4.20.0",
     "typescript": "^5.0.0"
   }
@@ -306,75 +308,143 @@ git add src/lib/offers.ts tests/offers.test.ts
 git commit -m "feat: add offer normalization"
 ```
 
-## Task 3: Query-Time Naver Source And API Route
+## Task 3: Query-Time Insane-Search Crawler And API Route
 
 **Files:**
-- Create: `src/lib/sources/naver.ts`
+- Create: `src/lib/sources/insane-search.ts`
+- Create: `scripts/crawl-green-beans.mjs`
 - Create: `app/api/offers/route.ts`
 
-- [ ] **Step 1: Create Naver source adapter**
+- [ ] **Step 1: Create Playwright crawler script**
 
-```ts
-// src/lib/sources/naver.ts
-import type { RawOffer } from "../offers";
+```js
+// scripts/crawl-green-beans.mjs
+import { chromium } from "playwright";
 
-type NaverItem = {
-  title: string;
-  link: string;
-  lprice: string;
-  mallName: string;
-  productId: string;
-};
+function greenBeanQuery(query) {
+  const trimmed = query.trim() || "생두";
+  return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
+}
 
-type NaverResponse = {
-  items: NaverItem[];
-};
+function parseWon(text) {
+  const match = text.replace(/,/g, "").match(/(\d+)\s*원/);
+  return match ? Number(match[1]) : 0;
+}
 
-export async function fetchNaverOffers(query: string, fetchedAt = new Date().toISOString()): Promise<RawOffer[]> {
-  const clientId = process.env.NAVER_CLIENT_ID;
-  const clientSecret = process.env.NAVER_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    throw new Error("NAVER_CLIENT_ID and NAVER_CLIENT_SECRET are required");
-  }
-
-  const url = new URL("https://openapi.naver.com/v1/search/shop.json");
-  url.searchParams.set("query", query);
-  url.searchParams.set("display", "100");
-  url.searchParams.set("sort", "asc");
-  url.searchParams.set("exclude", "used:rental:cbshop");
-
-  const response = await fetch(url, {
-    headers: {
-      "X-Naver-Client-Id": clientId,
-      "X-Naver-Client-Secret": clientSecret,
-    },
+async function main() {
+  const query = greenBeanQuery(process.argv.slice(2).join(" "));
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ locale: "ko-KR" });
+  await page.goto(`https://search.naver.com/search.naver?where=nexearch&query=${encodeURIComponent(query)}`, {
+    waitUntil: "networkidle",
+    timeout: 30000,
   });
 
-  if (!response.ok) {
-    throw new Error(`Naver Shopping request failed: ${response.status}`);
+  const offers = await page.evaluate(() => {
+    const sections = [...document.querySelectorAll("section, div")].filter((node) =>
+      /네이버 가격비교|네이버플러스 스토어|관련 광고/.test(node.textContent ?? "")
+    );
+    const roots = sections.length ? sections : [document.body];
+    const links = roots.flatMap((root) => [...root.querySelectorAll("a[href]")]);
+
+    return links
+      .map((link) => {
+        const text = (link.textContent ?? "").replace(/\s+/g, " ").trim();
+        const href = link.getAttribute("href") ?? "";
+        return { text, href };
+      })
+      .filter((item) => item.href && /원/.test(item.text) && /생두|커피|원두/.test(item.text))
+      .slice(0, 100);
+  });
+
+  await browser.close();
+
+  const normalized = offers.map((item, index) => ({
+    title: item.text,
+    link: new URL(item.href, "https://search.naver.com").toString(),
+    price: parseWon(item.text),
+    shippingFee: null,
+    seller: "네이버",
+    source: "naver",
+    index,
+  })).filter((item) => item.price > 0);
+
+  process.stdout.write(JSON.stringify({ offers: normalized }, null, 2));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+```
+
+- [ ] **Step 2: Create insane-search source adapter**
+
+```ts
+// src/lib/sources/insane-search.ts
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import type { RawOffer } from "../offers";
+
+const execFileAsync = promisify(execFile);
+
+export type CrawledOffer = {
+  title: string;
+  link: string;
+  price: number;
+  shippingFee?: number | null;
+  seller?: string;
+  source?: string;
+};
+
+function greenBeanQuery(query: string) {
+  const trimmed = query.trim() || "생두";
+  return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
+}
+
+export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString()): Promise<RawOffer[]> {
+  const skillDir =
+    process.env.INSANE_SEARCH_DIR ??
+    "C:\\Users\\zdiso\\.codex\\plugins\\cache\\gptaku-codex\\insane-search-codex\\0.8.2\\skills\\insane-search";
+  const searchUrl = `https://search.naver.com/search.naver?where=nexearch&query=${encodeURIComponent(greenBeanQuery(query))}`;
+
+  const probe = await execFileAsync("python", ["-m", "engine", searchUrl, "--trace", "--json", "--timeout", "20", "--max-attempts", "8"], {
+    cwd: skillDir,
+    timeout: 60_000,
+    maxBuffer: 10 * 1024 * 1024,
+  }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
+
+  const probeResult = JSON.parse(probe.stdout) as { offers?: CrawledOffer[]; must_invoke_playwright_mcp?: boolean };
+  let offers = probeResult.offers ?? [];
+
+  if (!offers.length || probeResult.must_invoke_playwright_mcp) {
+    const crawl = await execFileAsync("node", ["scripts/crawl-green-beans.mjs", greenBeanQuery(query)], {
+      timeout: 60_000,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    offers = (JSON.parse(crawl.stdout) as { offers: CrawledOffer[] }).offers;
   }
 
-  const data = (await response.json()) as NaverResponse;
-  return data.items.map((item) => ({
-    id: `naver-${item.productId}`,
+  return offers.slice(0, 100).map((item, index) => ({
+    id: `${item.source ?? "crawl"}-${index}-${item.link}`,
     name: item.title,
-    seller: item.mallName,
-    source: "naver",
+    seller: item.seller ?? item.source ?? "판매처",
+    source: item.source === "coupang" ? "coupang" : "naver",
     sourceUrl: item.link,
-    price: Number(item.lprice),
-    shippingFee: null,
+    price: item.price,
+    shippingFee: item.shippingFee ?? null,
     fetchedAt,
   }));
 }
 ```
 
-- [ ] **Step 2: Create API route**
+- [ ] **Step 3: Create API route**
 
 ```ts
 // app/api/offers/route.ts
 import { NextResponse } from "next/server";
 import { normalizeOffer } from "../../../src/lib/offers";
-import { fetchNaverOffers } from "../../../src/lib/sources/naver";
+import { fetchCrawledOffers } from "../../../src/lib/sources/insane-search";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -382,7 +452,7 @@ export async function GET(request: Request) {
   const fetchedAt = new Date().toISOString();
 
   try {
-    const rawOffers = await fetchNaverOffers(query, fetchedAt);
+    const rawOffers = await fetchCrawledOffers(query, fetchedAt);
     const offers = rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0);
     return NextResponse.json({ fetchedAt, offers });
   } catch (error) {
@@ -392,7 +462,7 @@ export async function GET(request: Request) {
 }
 ```
 
-- [ ] **Step 3: Verify without credentials**
+- [ ] **Step 4: Verify without external API keys**
 
 Run:
 
@@ -401,13 +471,13 @@ npm run typecheck
 npm run build
 ```
 
-Expected: build passes. Runtime API returns a 500 JSON error until `NAVER_CLIENT_ID` and `NAVER_CLIENT_SECRET` are set.
+Expected: build passes. Runtime API returns a 500 JSON error only if the local `insane-search` engine path or crawler result parsing is unavailable.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```powershell
-git add src/lib/sources/naver.ts app/api/offers/route.ts
-git commit -m "feat: add query-time offer API"
+git add src/lib/sources/insane-search.ts scripts/crawl-green-beans.mjs app/api/offers/route.ts
+git commit -m "feat: add query-time offer crawler"
 ```
 
 ## Task 4: Responsive Offer List UI
@@ -748,21 +818,20 @@ Expected: Next.js dev server prints a localhost URL.
 
 Open the printed localhost URL in the in-app browser.
 
-Expected without Naver credentials: error state explains missing `NAVER_CLIENT_ID` and `NAVER_CLIENT_SECRET`.
+Expected if the local crawler is unavailable: error state explains that the `insane-search` crawler path or parser failed.
 
-- [ ] **Step 3: Verify with credentials**
+- [ ] **Step 3: Verify with the local crawler**
 
-Set environment variables:
+Optionally override the skill path:
 
 ```powershell
-$env:NAVER_CLIENT_ID='your-client-id'
-$env:NAVER_CLIENT_SECRET='your-client-secret'
+$env:INSANE_SEARCH_DIR='C:\Users\zdiso\.codex\plugins\cache\gptaku-codex\insane-search-codex\0.8.2\skills\insane-search'
 npm run dev
 ```
 
 Expected:
 
-- Query loads up to 100 current Naver Shopping offers.
+- Query loads up to 100 current green-bean offers from Naver/Coupang crawling.
 - First 25 render.
 - Scrolling loads the next 25.
 - Row click opens the seller link in a new tab.
@@ -781,4 +850,6 @@ If no fixes were needed, skip this commit.
 ## References Checked
 
 - Next.js App Router route handlers and client component rules: Context7 `/vercel/next.js`
-- Naver Shopping Search API: https://developers.naver.com/docs/serviceapi/search/shopping/shopping.md
+- Playwright launch, navigation, and `page.evaluate`: Context7 `/microsoft/playwright`
+- Insane Search Codex skill: `C:\Users\zdiso\.codex\plugins\cache\gptaku-codex\insane-search-codex\0.8.2\skills\insane-search\SKILL.md`
+
