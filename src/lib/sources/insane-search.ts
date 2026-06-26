@@ -71,7 +71,7 @@ async function runEngine(query: string) {
 
 async function runPlaywrightCrawler(query: string) {
   const result = await execFileAsync("node", ["scripts/crawl-green-beans.mjs", query], {
-    timeout: 60_000,
+    timeout: 120_000,
     maxBuffer: 10 * 1024 * 1024,
   });
   return JSON.parse(result.stdout || "{}") as { offers?: CrawledOffer[] };
