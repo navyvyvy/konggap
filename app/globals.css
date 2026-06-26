@@ -7,4 +7,103 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; }
-.page { max-width: 980px; margin: 0 auto; padding: 18px; }
+.page { max-width: 980px; margin: 0 auto; padding: 16px; }
+.searchBar { display: flex; gap: 8px; margin-bottom: 10px; }
+.searchBar input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #c9c9c2;
+  border-radius: 8px;
+  padding: 9px 10px;
+}
+.searchBar button {
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #2f4a33;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.timestamp { margin: 0 0 8px; color: #62625b; font-size: 13px; }
+.state {
+  background: #fff;
+  border: 1px solid #d9d9d2;
+  border-radius: 8px;
+  padding: 16px;
+}
+.offerList {
+  background: #fff;
+  border: 1px solid #d9d9d2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.offerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e2dd;
+  cursor: pointer;
+}
+.offerRow:last-child { border-bottom: 0; }
+.offerTitle {
+  font-size: 20px;
+  line-height: 1.32;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.tag {
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 12px;
+}
+.flavorTag { background: #f1f1ed; }
+.roastTag { background: #e6efe7; border: 1px solid #bad2bf; }
+.tasteNote {
+  margin-top: 7px;
+  color: #5b5b54;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.pricePanel {
+  border-left: 1px solid #d9d9d2;
+  padding-left: 14px;
+}
+.priceLabel { color: #66665f; font-size: 12px; }
+.finalPrice {
+  white-space: nowrap;
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 950;
+}
+.costLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.costLine span { white-space: nowrap; }
+.shippingFee { display: inline-flex; align-items: center; gap: 4px; }
+.truckIcon {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+.sentinel { height: 1px; }
+@media (max-width: 720px) {
+  .page { padding: 14px; }
+  .offerRow { grid-template-columns: 1fr; gap: 9px; padding: 12px; }
+  .pricePanel {
+    border-left: 0;
+    border-top: 1px solid #dcdcd5;
+    padding: 10px 0 0;
+  }
+  .offerTitle { font-size: 20px; }
+  .finalPrice { font-size: 32px; }
+}

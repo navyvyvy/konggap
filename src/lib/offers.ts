@@ -23,19 +23,28 @@ export type Offer = Omit<RawOffer, "flavorTags" | "roastTags" | "tasteNote"> & {
   shippingKnown: boolean;
 };
 
+type StableMetadata = {
+  flavorTags: string[];
+  roastTags: string[];
+  tasteNote: string;
+};
+
+const metadataCache = new Map<string, StableMetadata>();
+
 export function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
 
 export function normalizeOffer(raw: RawOffer): Offer {
   const shippingFee = raw.shippingFee ?? 0;
+  const inferred = getStableMetadata(raw);
 
   return {
     ...raw,
     name: stripHtml(raw.name),
-    flavorTags: raw.flavorTags ?? [],
-    roastTags: raw.roastTags ?? [],
-    tasteNote: raw.tasteNote ?? "",
+    flavorTags: unique([...(raw.flavorTags ?? []), ...inferred.flavorTags]),
+    roastTags: unique([...(raw.roastTags ?? []), ...inferred.roastTags]),
+    tasteNote: raw.tasteNote ?? inferred.tasteNote,
     finalPrice: raw.price + shippingFee,
     shippingKnown: raw.shippingFee !== null,
   };
@@ -52,4 +61,47 @@ export function buildFlavorCacheKey(name: string) {
   const withoutWeight = cleaned.replace(/\b\d+(\.\d+)?\s*(g|kg)\b/gi, "").replace(/\s+/g, " ").trim();
 
   return `${withoutWeight}|${grade}|${process}`;
+}
+
+export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">) {
+  const key = buildFlavorCacheKey(raw.name);
+  const cached = metadataCache.get(key);
+  const text = stripHtml(`${raw.name} ${raw.rawDescription ?? ""}`).toLowerCase();
+  const flavorTags = unique([...(cached?.flavorTags ?? []), ...inferFlavorTags(text)]);
+  const roastTags = unique([...(cached?.roastTags ?? []), ...inferRoastTags(text)]);
+  const tasteNote = cached?.tasteNote || inferTasteNote(text);
+  const metadata = { flavorTags, roastTags, tasteNote };
+
+  metadataCache.set(key, metadata);
+  return metadata;
+}
+
+function inferFlavorTags(text: string) {
+  const tags: string[] = [];
+  if (/(내추럴|natural)/i.test(text)) tags.push("내추럴");
+  if (/(워시드|washed)/i.test(text)) tags.push("워시드");
+  if (/(허니|honey)/i.test(text)) tags.push("허니");
+  if (/(디카페인|decaf|decaffeinated)/i.test(text)) tags.push("디카페인");
+  return tags;
+}
+
+function inferRoastTags(text: string) {
+  const tags: string[] = [];
+  if (/(약배전|라이트\s*로스트|light\s*roast)/i.test(text)) tags.push("약배전");
+  if (/(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text)) tags.push("중배전");
+  if (/(강배전|다크\s*로스트|dark\s*roast)/i.test(text)) tags.push("강배전");
+  return tags;
+}
+
+function inferTasteNote(text: string) {
+  const notes = [
+    "꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과",
+    "카라멜", "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디",
+  ].filter((note) => text.includes(note.toLowerCase()));
+
+  return notes.length ? notes.slice(0, 4).join(", ") : "";
+}
+
+function unique(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
 }

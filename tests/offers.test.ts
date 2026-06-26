@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildFlavorCacheKey,
+  getStableMetadata,
   normalizeOffer,
   paginateOffers,
   stripHtml,
@@ -66,6 +67,45 @@ test("buildFlavorCacheKey separates grade and process", () => {
     buildFlavorCacheKey("에티오피아 예가체프 G1 내추럴 생두 2kg"),
     buildFlavorCacheKey("에티오피아 예가체프 G2 워시드 생두 2kg"),
   );
+});
+
+test("getStableMetadata extracts process, roast, and taste text when present", () => {
+  const metadata = getStableMetadata({
+    name: "에티오피아 예가체프 G1 내추럴 생두 1kg",
+    rawDescription: "약배전 추천. 꽃향, 시트러스, 꿀 같은 산미가 있습니다.",
+  });
+
+  assert.deepEqual(metadata.flavorTags, ["내추럴"]);
+  assert.deepEqual(metadata.roastTags, ["약배전"]);
+  assert.equal(metadata.tasteNote, "꽃향, 시트러스, 꿀, 산미");
+});
+
+test("normalizeOffer merges explicit tags with stable metadata", () => {
+  const offer = normalizeOffer({
+    id: "n-3",
+    name: "콜롬비아 디카페인 생두 1kg",
+    seller: "테스트몰",
+    source: "naver",
+    sourceUrl: "https://example.com",
+    price: 21100,
+    shippingFee: 3000,
+    flavorTags: ["슈가케인"],
+    fetchedAt: "2026-06-26T12:00:00.000Z",
+  });
+
+  assert.deepEqual(offer.flavorTags, ["슈가케인", "디카페인"]);
+});
+
+test("getStableMetadata enriches cached entries when later descriptions exist", () => {
+  const base = getStableMetadata({ name: "브라질 세하도 내추럴 생두 1kg" });
+  const enriched = getStableMetadata({
+    name: "브라질 세하도 내추럴 생두 1kg",
+    rawDescription: "중배전에서 초콜릿, 견과 향미가 좋습니다.",
+  });
+
+  assert.deepEqual(base.flavorTags, ["내추럴"]);
+  assert.deepEqual(enriched.roastTags, ["중배전"]);
+  assert.equal(enriched.tasteNote, "초콜릿, 견과");
 });
 
 test("toGreenBeanQuery appends green bean intent when missing", () => {

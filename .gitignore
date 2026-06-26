@@ -7,4 +7,6 @@ out/
 .playwright-mcp/
 .superpowers/
 preview-server*.log
+next-dev*.log
+ui-*.png
 brainstorm-*.html
