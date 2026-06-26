@@ -54,6 +54,11 @@ export function paginateOffers<T>(offers: T[], offset: number, pageSize: number)
   return offers.slice(offset, offset + pageSize);
 }
 
+export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers: T[], direction: "asc" | "desc" = "asc") {
+  const multiplier = direction === "asc" ? 1 : -1;
+  return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
+}
+
 export function buildFlavorCacheKey(name: string) {
   const cleaned = stripHtml(name).toLowerCase();
   const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";

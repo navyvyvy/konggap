@@ -5,6 +5,7 @@ import {
   getStableMetadata,
   normalizeOffer,
   paginateOffers,
+  sortOffersByFinalPrice,
   stripHtml,
 } from "../src/lib/offers";
 import {
@@ -59,6 +60,23 @@ test("paginateOffers returns the requested slice", () => {
   assert.deepEqual(
     paginateOffers(offers, 25, 25).map((offer) => offer.id),
     ["25", "26", "27", "28", "29"],
+  );
+});
+
+test("sortOffersByFinalPrice sorts by final payment amount", () => {
+  const offers = [
+    { id: "expensive", finalPrice: 28000 },
+    { id: "cheap", finalPrice: 12200 },
+    { id: "middle", finalPrice: 19500 },
+  ];
+
+  assert.deepEqual(
+    sortOffersByFinalPrice(offers).map((offer) => offer.id),
+    ["cheap", "middle", "expensive"],
+  );
+  assert.deepEqual(
+    sortOffersByFinalPrice(offers, "desc").map((offer) => offer.id),
+    ["expensive", "middle", "cheap"],
   );
 });
 

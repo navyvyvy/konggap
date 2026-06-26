@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Offer } from "../src/lib/offers";
+import { sortOffersByFinalPrice, type Offer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 
 const PAGE_SIZE = 25;
@@ -18,6 +18,7 @@ export function OfferSearch() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedAt, setFetchedAt] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +67,8 @@ export function OfferSearch() {
     return () => observer.disconnect();
   }, [offers.length]);
 
-  const visibleOffers = useMemo(() => offers.slice(0, visibleCount), [offers, visibleCount]);
+  const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
+  const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
 
   return (
     <main className="page">
@@ -82,6 +84,23 @@ export function OfferSearch() {
       </form>
 
       {fetchedAt ? <div className="timestamp">{new Date(fetchedAt).toLocaleString("ko-KR")} 기준</div> : null}
+
+      {offers.length ? (
+        <div className="resultBar">
+          <span>{offers.length.toLocaleString("ko-KR")}개</span>
+          <select
+            value={sortOrder}
+            onChange={(event) => {
+              setSortOrder(event.target.value as "asc" | "desc");
+              setVisibleCount(PAGE_SIZE);
+            }}
+            aria-label="정렬"
+          >
+            <option value="asc">최종가 낮은순</option>
+            <option value="desc">최종가 높은순</option>
+          </select>
+        </div>
+      ) : null}
 
       {status === "loading" ? <div className="state">조회 중</div> : null}
       {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}

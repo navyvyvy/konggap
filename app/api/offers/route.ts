@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { normalizeOffer } from "../../../src/lib/offers";
+import { normalizeOffer, sortOffersByFinalPrice } from "../../../src/lib/offers";
 import { fetchCrawledOffers } from "../../../src/lib/sources/insane-search";
 
 export async function GET(request: Request) {
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   try {
     const rawOffers = await fetchCrawledOffers(query, fetchedAt);
-    const offers = rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0);
+    const offers = sortOffersByFinalPrice(rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0));
     return NextResponse.json({ fetchedAt, offers });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown offer fetch error";
