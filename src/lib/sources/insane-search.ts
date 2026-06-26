@@ -11,6 +11,10 @@ export type CrawledOffer = {
   shippingFee?: number | null;
   seller?: string;
   source?: string;
+  flavorTags?: string[];
+  roastTags?: string[];
+  tasteNote?: string;
+  rawDescription?: string;
 };
 
 type EngineResult = {
@@ -39,6 +43,10 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
         sourceUrl: item.link,
         price: item.price,
         shippingFee: item.shippingFee ?? null,
+        flavorTags: item.flavorTags,
+        roastTags: item.roastTags,
+        tasteNote: item.tasteNote,
+        rawDescription: item.rawDescription,
         fetchedAt,
       };
     });
@@ -71,11 +79,12 @@ async function runPlaywrightCrawler(query: string) {
 
 export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString()) {
   const greenQuery = toGreenBeanQuery(query);
-  const engineResult = await runEngine(greenQuery);
-  let offers = engineResult.offers ?? [];
+  const crawlerResult = await runPlaywrightCrawler(greenQuery);
+  let offers = crawlerResult.offers ?? [];
 
-  if (!offers.length || engineResult.must_invoke_playwright_mcp) {
-    offers = (await runPlaywrightCrawler(greenQuery)).offers ?? [];
+  if (!offers.length) {
+    const engineResult = await runEngine(greenQuery);
+    offers = engineResult.offers ?? [];
   }
 
   return mapCrawledOffers(offers, fetchedAt);

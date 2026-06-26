@@ -71,8 +71,9 @@ export function buildFlavorCacheKey(name: string) {
 export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">) {
   const key = buildFlavorCacheKey(raw.name);
   const cached = metadataCache.get(key);
+  const nameText = stripHtml(raw.name).toLowerCase();
   const text = stripHtml(`${raw.name} ${raw.rawDescription ?? ""}`).toLowerCase();
-  const flavorTags = unique([...(cached?.flavorTags ?? []), ...inferFlavorTags(text)]);
+  const flavorTags = unique([...(cached?.flavorTags ?? []), ...inferFlavorTags(nameText)]);
   const roastTags = unique([...(cached?.roastTags ?? []), ...inferRoastTags(text)]);
   const tasteNote = cached?.tasteNote || inferTasteNote(text);
   const metadata = { flavorTags, roastTags, tasteNote };
@@ -95,7 +96,7 @@ function inferRoastTags(text: string) {
   if (/(약배전|라이트\s*로스트|light\s*roast)/i.test(text)) tags.push("약배전");
   if (/(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text)) tags.push("중배전");
   if (/(강배전|다크\s*로스트|dark\s*roast)/i.test(text)) tags.push("강배전");
-  return tags;
+  return tags.length > 2 ? [] : tags;
 }
 
 function inferTasteNote(text: string) {

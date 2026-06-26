@@ -9,4 +9,5 @@ out/
 preview-server*.log
 next-dev*.log
 ui-*.png
+data/*.json
 brainstorm-*.html

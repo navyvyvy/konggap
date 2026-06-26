@@ -141,6 +141,8 @@ test("mapCrawledOffers keeps only priced crawled offers", () => {
         shippingFee: 3000,
         seller: "테스트몰",
         source: "naver",
+        flavorTags: ["워시드"],
+        rawDescription: "약배전에서 꽃향이 좋습니다.",
       },
       {
         title: "가격 없는 글",
@@ -155,4 +157,6 @@ test("mapCrawledOffers keeps only priced crawled offers", () => {
   assert.equal(offers[0]?.source, "naver");
   assert.equal(offers[0]?.shippingFee, 3000);
   assert.equal(offers[0]?.name, "에티오피아 예가체프 생두 2kg");
+  assert.deepEqual(offers[0]?.flavorTags, ["워시드"]);
+  assert.equal(offers[0]?.rawDescription, "약배전에서 꽃향이 좋습니다.");
 });
