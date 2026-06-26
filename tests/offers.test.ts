@@ -6,6 +6,10 @@ import {
   paginateOffers,
   stripHtml,
 } from "../src/lib/offers";
+import {
+  mapCrawledOffers,
+  toGreenBeanQuery,
+} from "../src/lib/sources/insane-search";
 
 test("stripHtml removes markup and collapses whitespace", () => {
   assert.equal(stripHtml("<b>예가체프</b>   생두 2kg"), "예가체프 생두 2kg");
@@ -62,4 +66,35 @@ test("buildFlavorCacheKey separates grade and process", () => {
     buildFlavorCacheKey("에티오피아 예가체프 G1 내추럴 생두 2kg"),
     buildFlavorCacheKey("에티오피아 예가체프 G2 워시드 생두 2kg"),
   );
+});
+
+test("toGreenBeanQuery appends green bean intent when missing", () => {
+  assert.equal(toGreenBeanQuery("예가체프"), "예가체프 생두");
+  assert.equal(toGreenBeanQuery("커피 생두"), "커피 생두");
+});
+
+test("mapCrawledOffers keeps only priced crawled offers", () => {
+  const offers = mapCrawledOffers(
+    [
+      {
+        title: "에티오피아 예가체프 생두 2kg",
+        link: "https://example.com/a",
+        price: 25000,
+        shippingFee: 3000,
+        seller: "테스트몰",
+        source: "naver",
+      },
+      {
+        title: "가격 없는 글",
+        link: "https://example.com/b",
+        price: 0,
+      },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers.length, 1);
+  assert.equal(offers[0]?.source, "naver");
+  assert.equal(offers[0]?.shippingFee, 3000);
+  assert.equal(offers[0]?.name, "에티오피아 예가체프 생두 2kg");
 });
