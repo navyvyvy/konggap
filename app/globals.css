@@ -292,8 +292,8 @@ button, input, select { font: inherit; }
 }
 .favoriteButton {
   position: absolute;
-  top: 0;
-  left: 8px;
+  top: 10px;
+  left: 14px;
   border: 1px solid #c1c8ba;
   border-radius: 999px;
   background: #fff;
@@ -456,8 +456,8 @@ button, input, select { font: inherit; }
     text-align: right;
   }
   .favoriteButton {
-    top: 7px;
-    left: 8px;
+    top: 8px;
+    left: 10px;
     width: 25px;
     height: 25px;
   }
