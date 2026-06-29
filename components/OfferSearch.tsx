@@ -5,6 +5,7 @@ import { sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/
 import { OfferRow } from "./OfferRow";
 
 const PAGE_SIZE = 25;
+const COLLAPSED_FAVORITES = 3;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
 
 type ApiResult = {
@@ -21,6 +22,7 @@ export function OfferSearch() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [favorites, setFavorites] = useState<Offer[]>([]);
+  const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -86,6 +88,7 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => offer.sourceUrl)), [favorites]);
+  const visibleFavorites = showAllFavorites ? favorites : favorites.slice(0, COLLAPSED_FAVORITES);
   const fetchedAtLabel = fetchedAt ? `${new Date(fetchedAt).toLocaleString("ko-KR")} 기준` : "";
 
   return (
@@ -136,10 +139,16 @@ export function OfferSearch() {
         <section className="favoritesBlock" aria-label="찜 목록">
           <div className="sectionHeader">
             <h2>찜 목록</h2>
-            <span>{favorites.length.toLocaleString("ko-KR")}개</span>
+            {favorites.length > COLLAPSED_FAVORITES ? (
+              <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
+                {showAllFavorites ? "접기" : `${favorites.length - COLLAPSED_FAVORITES}개 더 보기`}
+              </button>
+            ) : (
+              <span>{favorites.length.toLocaleString("ko-KR")}개</span>
+            )}
           </div>
           <div className="offerList favoriteList">
-            {favorites.map((offer) => (
+            {visibleFavorites.map((offer) => (
               <OfferRow
                 key={offer.sourceUrl}
                 offer={offer}

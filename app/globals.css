@@ -133,6 +133,15 @@ button, input, select { font: inherit; }
   font-size: 13px;
   font-weight: 700;
 }
+.linkButton {
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  padding: 0;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
 .offerList {
   background: var(--surface);
   border: 1px solid var(--line-strong);
@@ -311,12 +320,12 @@ button, input, select { font: inherit; }
   }
   .offerRow {
     grid-template-columns: 1fr;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 6px;
+    margin-bottom: 7px;
     border: 1px solid var(--line-strong);
     border-radius: 8px;
     background: var(--surface);
-    padding: 11px;
+    padding: 10px;
   }
   .offerRow:nth-child(even) {
     background: var(--surface);
@@ -325,7 +334,22 @@ button, input, select { font: inherit; }
     border-bottom: 1px solid var(--line-strong);
   }
   .offerTitle {
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1.24;
+  }
+  .offerMeta {
+    margin-bottom: 4px;
+  }
+  .offerMeta span,
+  .tag {
+    padding: 1px 6px;
+    font-size: 11px;
+  }
+  .tags {
+    margin-top: 5px;
+  }
+  .tasteNote {
+    margin-top: 4px;
   }
   .pricePanel {
     display: grid;
@@ -334,17 +358,18 @@ button, input, select { font: inherit; }
     align-items: end;
     border-left: 0;
     border-top: 1px solid var(--line);
-    padding: 32px 0 0;
+    padding: 25px 0 0;
     text-align: right;
   }
   .favoriteButton {
-    top: 8px;
+    top: 6px;
     right: 0;
+    padding: 2px 7px;
   }
   .priceLabel { grid-column: 2; }
   .finalPrice {
     grid-column: 2;
-    font-size: 30px;
+    font-size: 28px;
   }
   .costLine {
     grid-column: 1;
