@@ -25,6 +25,10 @@ type ApiResult = {
   error?: string;
 };
 
+function formatWon(value: number) {
+  return `${value.toLocaleString("ko-KR")}원`;
+}
+
 function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
   const step = LOADING_STEPS[Math.floor(elapsedSeconds / 6) % LOADING_STEPS.length];
 
@@ -140,7 +144,19 @@ export function OfferSearch() {
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
   const hasCollapsedFavorites = favorites.length > COLLAPSED_FAVORITES && !showAllFavorites;
-  const fetchedAtLabel = fetchedAt ? `${new Date(fetchedAt).toLocaleString("ko-KR")} 기준` : "";
+  const fetchedAtLabel = fetchedAt
+    ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
+    : "";
+  const summary = useMemo(() => {
+    const naverCount = offers.filter((offer) => offer.source === "naver").length;
+    const cheapest = sortOffersByFinalPrice(offers)[0];
+
+    return {
+      naverCount,
+      shopCount: offers.length - naverCount,
+      lowestFinalPrice: cheapest?.finalPrice ?? 0,
+    };
+  }, [offers]);
 
   return (
     <main className="page">
@@ -163,6 +179,27 @@ export function OfferSearch() {
       {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
       {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
       {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
+
+      {status === "ready" ? (
+        <section className="summaryBar" aria-label="조회 요약">
+          <div>
+            <span>기준</span>
+            <strong>{fetchedAtLabel}</strong>
+          </div>
+          <div>
+            <span>전체</span>
+            <strong>{offers.length.toLocaleString("ko-KR")}개</strong>
+          </div>
+          <div>
+            <span>최저</span>
+            <strong>{formatWon(summary.lowestFinalPrice)}</strong>
+          </div>
+          <div>
+            <span>출처</span>
+            <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
+          </div>
+        </section>
+      ) : null}
 
       {favorites.length ? (
         <section className="favoritesBlock" aria-label="찜 목록">
@@ -192,9 +229,7 @@ export function OfferSearch() {
       {status === "ready" ? (
         <section>
           <div className="sectionHeader">
-            <div className="sectionTitle">
-              {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
-            </div>
+            <div className="sectionTitle" />
             <div className="sectionTools">
               <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
               <select
