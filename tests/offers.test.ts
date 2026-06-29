@@ -88,6 +88,13 @@ test("buildFlavorCacheKey separates grade and process", () => {
   );
 });
 
+test("buildFlavorCacheKey ignores listing noise", () => {
+  assert.equal(
+    buildFlavorCacheKey("[New Crop / 생두] 에티오피아 예가체프 아리차 G1 워시드 2025/2026 1kg, 1개 판매가 19,600원"),
+    buildFlavorCacheKey("에티오피아 예가체프 아리차 G1 워시드 생두 500g"),
+  );
+});
+
 test("getStableMetadata extracts process, roast, and taste text when present", () => {
   const metadata = getStableMetadata({
     name: "에티오피아 예가체프 G1 내추럴 생두 1kg",

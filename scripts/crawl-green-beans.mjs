@@ -305,8 +305,11 @@ function coffeeKey(title) {
   return title
     .replace(/\[[^\]]+\]/g, " ")
     .replace(/\b\d+(\.\d+)?\s*(kg|g)\b/gi, " ")
-    .replace(/\b\d+\s*개\b/g, " ")
-    .replace(/커피생두|생두|뉴크롭|프리미엄|할인|판매가|외\s*\d+종/g, " ")
+    .replace(/\d+\s*개/g, " ")
+    .replace(/\bnew\s*crop\b|커피생두|생두|뉴크롭|프리미엄|할인|판매가|외\s*\d+종/gi, " ")
+    .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
+    .replace(/\d[\d,]*원/g, " ")
+    .replace(/[,，]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 60);

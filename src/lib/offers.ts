@@ -63,7 +63,16 @@ export function buildFlavorCacheKey(name: string) {
   const cleaned = stripHtml(name).toLowerCase();
   const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";
   const process = /(내추럴|natural|워시드|washed|허니|honey|디카페인|decaf|mwp|슈가케인|sugarcane|무산소|anaerobic)/i.exec(cleaned)?.[0] ?? "";
-  const withoutWeight = cleaned.replace(/\b\d+(\.\d+)?\s*(g|kg)\b/gi, "").replace(/\s+/g, " ").trim();
+  const withoutWeight = cleaned
+    .replace(/\[[^\]]+\]/g, " ")
+    .replace(/\bnew\s*crop\b|커피생두|생두|뉴크롭|프리미엄|할인|판매가|외\s*\d+종/gi, " ")
+    .replace(/\d+\s*개/g, " ")
+    .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
+    .replace(/\d[\d,]*원/g, " ")
+    .replace(/\b\d+(\.\d+)?\s*(g|kg)\b/gi, " ")
+    .replace(/[,，]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   return `${withoutWeight}|${grade}|${process}`;
 }
