@@ -7,6 +7,12 @@ import { OfferRow } from "./OfferRow";
 const PAGE_SIZE = 25;
 const COLLAPSED_FAVORITES = 3;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
+const LOADING_STEPS = [
+  "네이버 검색 결과 확인 중",
+  "전문몰 목록 수집 중",
+  "중복 링크 정리 중",
+  "가격순으로 정리 중",
+];
 
 type ApiResult = {
   fetchedAt: string;
@@ -14,12 +20,14 @@ type ApiResult = {
   error?: string;
 };
 
-function LoadingRows() {
+function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
+  const step = LOADING_STEPS[Math.min(Math.floor(elapsedSeconds / 8), LOADING_STEPS.length - 1)];
+
   return (
     <section className="loadingBlock" aria-live="polite">
       <div className="sectionHeader">
         <h2>크롤링 중</h2>
-        <span>가격을 가져오는 중</span>
+        <span>{elapsedSeconds}초 경과 · {step}</span>
       </div>
       <div className="offerList loadingList">
         {Array.from({ length: 4 }, (_, index) => (
@@ -51,6 +59,7 @@ export function OfferSearch() {
   const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -72,6 +81,11 @@ export function OfferSearch() {
     setStatus("loading");
     setError("");
     setVisibleCount(PAGE_SIZE);
+    setElapsedSeconds(0);
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
 
     fetch(`/api/offers?q=${encodeURIComponent(submittedQuery)}`)
       .then(async (response) => {
@@ -90,10 +104,14 @@ export function OfferSearch() {
         setOffers([]);
         setError(fetchError.message);
         setStatus("error");
+      })
+      .finally(() => {
+        window.clearInterval(timer);
       });
 
     return () => {
       cancelled = true;
+      window.clearInterval(timer);
     };
   }, [submittedQuery]);
 
@@ -137,6 +155,7 @@ export function OfferSearch() {
 
       {offers.length ? (
         <div className="resultBar">
+          <span className="resultCount">총 {offers.length.toLocaleString("ko-KR")}개</span>
           <select
             value={sortOrder}
             onChange={(event) => {
@@ -151,7 +170,7 @@ export function OfferSearch() {
         </div>
       ) : null}
 
-      {status === "loading" ? <LoadingRows /> : null}
+      {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
       {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
       {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
 

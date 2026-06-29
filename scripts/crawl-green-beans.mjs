@@ -80,7 +80,7 @@ function isBuyableGreenBeanOffer(title, source = "naver") {
 }
 
 function isBlockedShoppingTitle(title) {
-  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스)|당일\s*로스팅|당일로스팅)/i.test(title);
+  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|홀빈|볶은|볶음|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
 }
 
 function parseOfferFromLines(lines, link, query) {

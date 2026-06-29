@@ -75,8 +75,15 @@ button, input, select { font: inherit; }
 }
 .resultBar {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin: 0 0 10px;
+}
+.resultCount {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
 }
 .resultBar select {
   border: 1px solid #b9c0b1;
@@ -266,7 +273,7 @@ button, input, select { font: inherit; }
 .favoriteButton {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 8px;
   border: 1px solid #c1c8ba;
   border-radius: 999px;
   background: #fff;
@@ -421,7 +428,7 @@ button, input, select { font: inherit; }
   }
   .favoriteButton {
     top: 7px;
-    left: 0;
+    left: 8px;
     width: 25px;
     height: 25px;
   }

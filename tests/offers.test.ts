@@ -232,6 +232,8 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
       { title: "콜드브루 드립백 세트 10개", link: "https://example.com/c", price: 12000 },
       { title: "커피 로스팅 망", link: "https://example.com/d", price: 9000 },
       { title: "브라질 세하도 생두 1kg 3개", link: "https://example.com/e", price: 49000 },
+      { title: "에티오피아 예가체프 생두 홀빈 1kg", link: "https://example.com/f", price: 19000 },
+      { title: "브라질 세하도 볶은 생두 1kg", link: "https://example.com/g", price: 19000 },
     ],
     "2026-06-26T12:00:00.000Z",
   );
@@ -239,4 +241,5 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
   assert.deepEqual(offers.map((offer) => offer.name), ["에티오피아 예가체프 생두 2kg"]);
   assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg"), true);
   assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg 3개"), false);
+  assert.equal(isBuyableGreenBeanOffer("에티오피아 예가체프 생두 홀빈 1kg"), false);
 });
