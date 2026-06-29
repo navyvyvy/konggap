@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import { canonicalOfferUrl, type RawOffer, type OfferSource } from "../offers";
 
 const execFileAsync = promisify(execFile);
+const MAX_REASONABLE_PRICE = 1_000_000;
 
 export type CrawledOffer = {
   title: string;
@@ -37,7 +38,7 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
   const seen = new Set<string>();
 
   return items
-    .filter((item) => item.price > 0 && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
+    .filter((item) => item.price > 0 && item.price <= MAX_REASONABLE_PRICE && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
     .filter((item) => {
       const keys = dedupeKeys(item);
       if (keys.some((key) => seen.has(key))) return false;

@@ -216,6 +216,11 @@ button, input, select { font: inherit; }
   max-height: min(680px, calc(100vh - 190px));
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollList::-webkit-scrollbar {
+  display: none;
 }
 .favoriteList {
   border-color: #d0b05d;

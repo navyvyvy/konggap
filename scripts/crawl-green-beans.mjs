@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const MAX_OFFERS = 200;
+const MAX_REASONABLE_PRICE = 1_000_000;
 const DATA_DIR = "data";
 const MOBILE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
@@ -357,7 +358,7 @@ function inferMetadata(text) {
 
 function dedupeOffers(offers) {
   const seen = new Set();
-  return offers.filter((offer) => {
+  return offers.filter((offer) => offer.price > 0 && offer.price <= MAX_REASONABLE_PRICE).filter((offer) => {
     const keys = dedupeKeys(offer);
     if (keys.some((key) => seen.has(key))) return false;
     keys.forEach((key) => seen.add(key));

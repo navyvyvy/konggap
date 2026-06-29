@@ -283,6 +283,7 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
       { title: "브라질 세하도 생두 1kg 3개", link: "https://example.com/e", price: 49000 },
       { title: "에티오피아 예가체프 생두 홀빈 1kg", link: "https://example.com/f", price: 19000 },
       { title: "브라질 세하도 볶은 생두 1kg", link: "https://example.com/g", price: 19000 },
+      { title: "자메이카 블루마운틴 생두 1kg", link: "https://example.com/h", price: 1000001 },
     ],
     "2026-06-26T12:00:00.000Z",
   );
