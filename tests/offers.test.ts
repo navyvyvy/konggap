@@ -97,6 +97,10 @@ test("canonicalOfferUrl keeps product identity and removes tracking noise", () =
     "https://smartstore.naver.com/wondoobj/products/11962494180",
   );
   assert.equal(
+    canonicalOfferUrl("https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=6733912415&query=%EC%83%9D%EB%91%90&t=a"),
+    "naver:nv_mid:6733912415",
+  );
+  assert.equal(
     canonicalOfferUrl("https://coffeeplant.co.kr/shop_view/?idx=982&utm=tracking"),
     "https://coffeeplant.co.kr/?idx=982",
   );
@@ -222,6 +226,51 @@ test("mapCrawledOffers removes duplicate canonical links", () => {
   );
 
   assert.equal(offers.length, 1);
+});
+
+test("mapCrawledOffers removes duplicate naver shopping and ad links", () => {
+  const offers = mapCrawledOffers(
+    [
+      {
+        title: "커피생두 1Kg 뉴크롭 필더컵 베트남 마운틴 라이온 G1 외 17종",
+        link: "https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=6733912415&query=a&t=1",
+        price: 9200,
+        shippingFee: 3000,
+        source: "naver",
+      },
+      {
+        title: "커피생두 1Kg 뉴크롭 필더컵 베트남 마운틴 라이온 G1 외 17종",
+        link: "https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=6733912415&query=b&t=2",
+        price: 9200,
+        shippingFee: 3000,
+        source: "naver",
+      },
+      {
+        title: "커피생두 1Kg 뉴크롭 필더컵 베트남 마운틴 라이온 G1 외 17종",
+        link: "https://ader.naver.com/v1/same-item-ad",
+        price: 9200,
+        shippingFee: 3000,
+        source: "naver",
+      },
+      {
+        title: "[커피생두] 에티오피아 예가체프 코케허니 G1 내추럴 1kg, 1개",
+        link: "https://ader.naver.com/v1/ad-a",
+        price: 24900,
+        shippingFee: 3000,
+        source: "naver",
+      },
+      {
+        title: "[커피생두] 에티오피아 예가체프 코케허니 G1 내추럴 1kg, 1개",
+        link: "https://ader.naver.com/v1/ad-b",
+        price: 24900,
+        shippingFee: 3000,
+        source: "naver",
+      },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers.length, 2);
 });
 
 test("mapCrawledOffers filters non green-bean shopping results", () => {

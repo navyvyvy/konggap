@@ -101,6 +101,25 @@ button, input, select { font: inherit; }
 .loadingBlock {
   margin-top: 10px;
 }
+.loadingStatus {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--green-soft);
+  padding: 12px 14px;
+}
+.loadingStatus strong {
+  font-size: 17px;
+}
+.loadingStatus span {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 800;
+}
 .loadingRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 176px;
@@ -379,6 +398,12 @@ button, input, select { font: inherit; }
   }
   .loadingPrice {
     align-items: flex-start;
+  }
+  .loadingStatus {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+    padding: 11px 12px;
   }
   .favoriteList {
     margin-bottom: 4px;

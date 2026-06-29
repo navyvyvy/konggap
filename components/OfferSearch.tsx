@@ -25,8 +25,8 @@ function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
 
   return (
     <section className="loadingBlock" aria-live="polite">
-      <div className="sectionHeader">
-        <h2>크롤링 중</h2>
+      <div className="loadingStatus">
+        <strong>크롤링 중</strong>
         <span>{elapsedSeconds}초 경과 · {step}</span>
       </div>
       <div className="offerList loadingList">

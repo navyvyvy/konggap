@@ -130,9 +130,10 @@ async function collectNaverPageOffers(page, query) {
     .map((item) => {
       const lines = item.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
       const titles = lines.filter((line) => /생두|커피생두/.test(line) && /\d+\s*(kg|g)/i.test(line));
-      const link = [...item.querySelectorAll("a[href]")]
-        .map((anchor) => anchor.href)
-        .find((href) => /ader\.naver\.com|shopping\.naver\.com\/v2\/bridge/.test(href));
+      const links = [...item.querySelectorAll("a[href]")].map((anchor) => anchor.href);
+      const link =
+        links.find((href) => /shopping\.naver\.com\/v2\/bridge/.test(href) && /[?&]nv_mid=/.test(href)) ??
+        links.find((href) => /ader\.naver\.com|shopping\.naver\.com\/v2\/bridge/.test(href));
       return { lines, link, titleCount: titles.length };
     })
     .filter((item) => item.link && item.titleCount === 1 && item.lines.some((line) => /원$/.test(line))));
@@ -357,12 +358,19 @@ function inferMetadata(text) {
 function dedupeOffers(offers) {
   const seen = new Set();
   return offers.filter((offer) => {
-    const link = canonicalOfferUrl(offer.link ?? "");
-    const key = link ? `link:${link}` : `item:${offer.source}:${offer.title}:${offer.price}:${offer.shippingFee ?? ""}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
+    const keys = dedupeKeys(offer);
+    if (keys.some((key) => seen.has(key))) return false;
+    keys.forEach((key) => seen.add(key));
     return true;
   }).slice(0, MAX_OFFERS);
+}
+
+function dedupeKeys(offer) {
+  const linkKey = canonicalOfferUrl(offer.link ?? "");
+  if (offer.source !== "naver") return [`link:${linkKey}`];
+  const title = offer.title.replace(/\s+/g, " ").trim().toLowerCase();
+  const itemKey = `naver:item:${title}:${offer.price}:${offer.shippingFee ?? ""}`;
+  return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
 
 function canonicalOfferUrl(url) {
@@ -371,6 +379,7 @@ function canonicalOfferUrl(url) {
     const host = parsed.hostname.replace(/^(m|www)\./, "");
     const origin = `${parsed.protocol}//${host}`;
     if (host === "smartstore.naver.com" && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
+    if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
     if (host === "coffeelibre.kr" && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;

@@ -39,9 +39,9 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
   return items
     .filter((item) => item.price > 0 && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
     .filter((item) => {
-      const key = canonicalOfferUrl(item.link);
-      if (seen.has(key)) return false;
-      seen.add(key);
+      const keys = dedupeKeys(item);
+      if (keys.some((key) => seen.has(key))) return false;
+      keys.forEach((key) => seen.add(key));
       return true;
     })
     .slice(0, 200)
@@ -64,6 +64,14 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
         fetchedAt,
       };
     });
+}
+
+function dedupeKeys(item: CrawledOffer) {
+  const linkKey = canonicalOfferUrl(item.link);
+  if (item.source !== "naver") return [`link:${linkKey}`];
+  const title = item.title.replace(/\s+/g, " ").trim().toLowerCase();
+  const itemKey = `naver:item:${title}:${item.price}:${item.shippingFee ?? ""}`;
+  return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
 
 function isBlockedShoppingTitle(title: string) {
