@@ -34,12 +34,12 @@ export function OfferRow({ offer }: { offer: Offer }) {
         ) : null}
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
-      <div className="pricePanel">
+      <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
         <div className="priceLabel">{offer.shippingKnown ? "최종 비용" : "상품가 기준"}</div>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
           <span>{formatWon(offer.price)}</span>
-          <span className="shippingFee">
+          <span className={`shippingFee ${offer.shippingKnown ? "" : "shippingUnknown"}`}>
             <TruckIcon />
             {offer.shippingKnown ? formatWon(offer.shippingFee ?? 0) : "확인 필요"}
           </span>

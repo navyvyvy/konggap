@@ -96,8 +96,8 @@ export function OfferSearch() {
             }}
             aria-label="정렬"
           >
-            <option value="asc">최종가 낮은순</option>
-            <option value="desc">최종가 높은순</option>
+            <option value="asc">낮은 가격순</option>
+            <option value="desc">높은 가격순</option>
           </select>
         </div>
       ) : null}
