@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildFlavorCacheKey,
+  canonicalOfferUrl,
   getStableMetadata,
   normalizeOffer,
   paginateOffers,
@@ -88,6 +89,29 @@ test("toggleFavoriteOffer toggles by sourceUrl", () => {
 
   assert.deepEqual(toggleFavoriteOffer([], first), [first]);
   assert.deepEqual(toggleFavoriteOffer([first], duplicateLink), []);
+});
+
+test("canonicalOfferUrl keeps product identity and removes tracking noise", () => {
+  assert.equal(
+    canonicalOfferUrl("https://smartstore.naver.com/wondoobj/products/11962494180?NaPm=tracking"),
+    "https://smartstore.naver.com/wondoobj/products/11962494180",
+  );
+  assert.equal(
+    canonicalOfferUrl("https://coffeeplant.co.kr/shop_view/?idx=982&utm=tracking"),
+    "https://coffeeplant.co.kr/?idx=982",
+  );
+  assert.equal(
+    canonicalOfferUrl("https://m.coffeelibre.kr/product/detail.html?product_no=7347&cate_no=56&display_group=1"),
+    "https://coffeelibre.kr/product/detail.html?product_no=7347",
+  );
+  assert.equal(
+    canonicalOfferUrl("https://m.rehmcoffee.co.kr/product/ethiopia-g1/114/category/1/display/9/?icid=MAIN.product_listmain_8"),
+    "https://rehmcoffee.co.kr/product/ethiopia-g1/114",
+  );
+  assert.equal(
+    canonicalOfferUrl("https://www.coffeecg.com/product/%EC%83%9D%EB%91%90/1461/category/802/display/1/"),
+    "https://coffeecg.com/product/%EC%83%9D%EB%91%90/1461",
+  );
 });
 
 test("buildFlavorCacheKey separates grade and process", () => {
@@ -186,6 +210,18 @@ test("mapCrawledOffers keeps only priced crawled offers", () => {
   assert.equal(offers[0]?.name, "에티오피아 예가체프 생두 2kg");
   assert.deepEqual(offers[0]?.flavorTags, ["워시드"]);
   assert.equal(offers[0]?.rawDescription, "약배전에서 꽃향이 좋습니다.");
+});
+
+test("mapCrawledOffers removes duplicate canonical links", () => {
+  const offers = mapCrawledOffers(
+    [
+      { title: "에티오피아 예가체프 생두 1kg", link: "https://smartstore.naver.com/wondoobj/products/11962494180?NaPm=a", price: 25000 },
+      { title: "에티오피아 예가체프 생두 1kg", link: "https://smartstore.naver.com/wondoobj/products/11962494180?NaPm=b", price: 25000 },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers.length, 1);
 });
 
 test("mapCrawledOffers filters non green-bean shopping results", () => {

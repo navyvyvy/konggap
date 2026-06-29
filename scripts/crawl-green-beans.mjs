@@ -357,12 +357,31 @@ function inferMetadata(text) {
 function dedupeOffers(offers) {
   const seen = new Set();
   return offers.filter((offer) => {
-    const link = offer.link?.trim();
+    const link = canonicalOfferUrl(offer.link ?? "");
     const key = link ? `link:${link}` : `item:${offer.source}:${offer.title}:${offer.price}:${offer.shippingFee ?? ""}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   }).slice(0, MAX_OFFERS);
+}
+
+function canonicalOfferUrl(url) {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^(m|www)\./, "");
+    const origin = `${parsed.protocol}//${host}`;
+    if (host === "smartstore.naver.com" && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
+    if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
+    if (host === "coffeelibre.kr" && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
+    if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
+    if (/(rehmcoffee|momos)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
+      const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
+      if (productPath) return `${origin}${productPath}`;
+    }
+    return url.trim();
+  } catch {
+    return url.trim();
+  }
 }
 
 async function saveJson(name, data) {

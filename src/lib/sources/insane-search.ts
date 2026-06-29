@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { RawOffer, OfferSource } from "../offers";
+import { canonicalOfferUrl, type RawOffer, type OfferSource } from "../offers";
 
 const execFileAsync = promisify(execFile);
 
@@ -34,8 +34,16 @@ export function isBuyableGreenBeanOffer(title: string, source?: string) {
 }
 
 export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawOffer[] {
+  const seen = new Set<string>();
+
   return items
     .filter((item) => item.price > 0 && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
+    .filter((item) => {
+      const key = canonicalOfferUrl(item.link);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .slice(0, 200)
     .map((item, index) => {
       const source: OfferSource =

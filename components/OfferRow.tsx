@@ -33,6 +33,7 @@ export function OfferRow({
   onToggleFavorite?: (offer: Offer) => void;
 }) {
   const hasTags = offer.flavorTags.length > 0 || offer.roastTags.length > 0;
+  const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
 
   return (
     <div
@@ -47,7 +48,7 @@ export function OfferRow({
       <div className="offerInfo">
         <div className="offerMeta">
           <span>{offer.seller}</span>
-          <span>{offer.source === "naver" ? "네이버" : "전문몰"}</span>
+          {sourceLabel !== offer.seller ? <span>{sourceLabel}</span> : null}
         </div>
         <div className="offerTitle">{offer.name}</div>
         {hasTags ? (

@@ -60,9 +60,29 @@ export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers:
 }
 
 export function toggleFavoriteOffer<T extends { sourceUrl: string }>(favorites: T[], offer: T) {
-  return favorites.some((favorite) => favorite.sourceUrl === offer.sourceUrl)
-    ? favorites.filter((favorite) => favorite.sourceUrl !== offer.sourceUrl)
+  const target = canonicalOfferUrl(offer.sourceUrl);
+  return favorites.some((favorite) => canonicalOfferUrl(favorite.sourceUrl) === target)
+    ? favorites.filter((favorite) => canonicalOfferUrl(favorite.sourceUrl) !== target)
     : [offer, ...favorites];
+}
+
+export function canonicalOfferUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^(m|www)\./, "");
+    const origin = `${parsed.protocol}//${host}`;
+    if (host === "smartstore.naver.com" && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
+    if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
+    if (host === "coffeelibre.kr" && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
+    if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
+    if (/(rehmcoffee|momos)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
+      const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
+      if (productPath) return `${origin}${productPath}`;
+    }
+    return url.trim();
+  } catch {
+    return url.trim();
+  }
 }
 
 export function buildFlavorCacheKey(name: string) {

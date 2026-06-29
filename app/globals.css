@@ -313,7 +313,10 @@ button, input, select { font: inherit; }
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
-  padding-right: 32px;
+}
+.favoriteButton ~ .priceLabel,
+.favoriteButton ~ .finalPrice {
+  margin-right: 34px;
 }
 .pricePanelUnknown .priceLabel {
   color: var(--amber);

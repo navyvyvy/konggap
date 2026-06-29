@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
+import { canonicalOfferUrl, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 
 const PAGE_SIZE = 25;
@@ -113,7 +113,7 @@ export function OfferSearch() {
 
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
-  const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => offer.sourceUrl)), [favorites]);
+  const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
   const visibleFavorites = showAllFavorites ? favorites : favorites.slice(0, COLLAPSED_FAVORITES);
   const fetchedAtLabel = fetchedAt ? `${new Date(fetchedAt).toLocaleString("ko-KR")} 기준` : "";
 
@@ -197,7 +197,7 @@ export function OfferSearch() {
               <OfferRow
                 key={offer.id}
                 offer={offer}
-                favorite={favoriteUrls.has(offer.sourceUrl)}
+                favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
                 onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
               />
             ))}
