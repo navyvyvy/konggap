@@ -319,7 +319,7 @@ function focusDescription(key, text) {
     .map((line) => line.trim())
     .filter((line) =>
       tokens.some((token) => line.includes(token)) ||
-      /향미|산미|단맛|바디|배전|로스팅|가공|내추럴|워시드|허니|프로세스/.test(line),
+      /컵노트|향미|산미|단맛|바디|배전|로스팅|가공|내추럴|워시드|허니|프로세스|무산소|슈가케인|MWP/i.test(line),
     )
     .slice(0, 40)
     .join("\n")
@@ -333,13 +333,16 @@ function inferMetadata(text) {
     /(워시드|washed)/i.test(text) && "워시드",
     /(허니|honey)/i.test(text) && "허니",
     /(디카페인|decaf|decaffeinated)/i.test(text) && "디카페인",
+    /\bmwp\b/i.test(text) && "MWP",
+    /(슈가케인|sugar\s*cane|sugarcane)/i.test(text) && "슈가케인",
+    /(무산소|anaerobic)/i.test(text) && "무산소",
   ].filter(Boolean);
   const roastTags = [
     /(약배전|라이트\s*로스트|light\s*roast)/i.test(text) && "약배전",
     /(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text) && "중배전",
     /(강배전|다크\s*로스트|dark\s*roast)/i.test(text) && "강배전",
   ].filter(Boolean);
-  const tasteNote = ["꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과", "카라멜", "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디"]
+  const tasteNote = ["꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과", "자스민", "복숭아", "포도", "사탕수수", "캐러멜", "카라멜", "바닐라", "딸기", "체리", "오렌지", "대추야자", "건자두", "레드와인", "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디"]
     .filter((note) => lower.includes(note.toLowerCase()))
     .slice(0, 4)
     .join(", ");

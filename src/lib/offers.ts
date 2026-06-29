@@ -62,7 +62,7 @@ export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers:
 export function buildFlavorCacheKey(name: string) {
   const cleaned = stripHtml(name).toLowerCase();
   const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";
-  const process = /(내추럴|natural|워시드|washed|허니|honey)/i.exec(cleaned)?.[0] ?? "";
+  const process = /(내추럴|natural|워시드|washed|허니|honey|디카페인|decaf|mwp|슈가케인|sugarcane|무산소|anaerobic)/i.exec(cleaned)?.[0] ?? "";
   const withoutWeight = cleaned.replace(/\b\d+(\.\d+)?\s*(g|kg)\b/gi, "").replace(/\s+/g, " ").trim();
 
   return `${withoutWeight}|${grade}|${process}`;
@@ -88,6 +88,9 @@ function inferFlavorTags(text: string) {
   if (/(워시드|washed)/i.test(text)) tags.push("워시드");
   if (/(허니|honey)/i.test(text)) tags.push("허니");
   if (/(디카페인|decaf|decaffeinated)/i.test(text)) tags.push("디카페인");
+  if (/\bmwp\b/i.test(text)) tags.push("MWP");
+  if (/(슈가케인|sugar\s*cane|sugarcane)/i.test(text)) tags.push("슈가케인");
+  if (/(무산소|anaerobic)/i.test(text)) tags.push("무산소");
   return tags;
 }
 
@@ -102,7 +105,9 @@ function inferRoastTags(text: string) {
 function inferTasteNote(text: string) {
   const notes = [
     "꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과",
-    "카라멜", "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디",
+    "자스민", "복숭아", "포도", "사탕수수", "캐러멜", "카라멜", "바닐라",
+    "딸기", "체리", "오렌지", "대추야자", "건자두", "레드와인",
+    "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디",
   ].filter((note) => text.includes(note.toLowerCase()));
 
   return notes.length ? notes.slice(0, 4).join(", ") : "";

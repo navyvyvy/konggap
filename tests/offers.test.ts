@@ -127,6 +127,16 @@ test("getStableMetadata enriches cached entries when later descriptions exist", 
   assert.equal(enriched.tasteNote, "초콜릿, 견과");
 });
 
+test("getStableMetadata extracts common cup notes and process tags", () => {
+  const metadata = getStableMetadata({
+    name: "과테말라 우에우에테낭고 SHB 디카페인 MWP 무산소 생두 1kg",
+    rawDescription: "컵노트 : 자스민, 복숭아, 포도, 사탕수수, 바닐라",
+  });
+
+  assert.deepEqual(metadata.flavorTags, ["디카페인", "MWP", "무산소"]);
+  assert.equal(metadata.tasteNote, "자스민, 복숭아, 포도, 사탕수수");
+});
+
 test("toGreenBeanQuery appends green bean intent when missing", () => {
   assert.equal(toGreenBeanQuery("예가체프"), "예가체프 생두");
   assert.equal(toGreenBeanQuery("커피 생두"), "커피 생두");
