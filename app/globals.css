@@ -314,18 +314,74 @@ button, input, select { font: inherit; }
 .scrollList::-webkit-scrollbar {
   display: none;
 }
-.favoriteList {
-  border-color: #d0b05d;
-}
-.favoriteListCollapsed {
-  max-height: 180px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+.favoriteStrip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-.favoriteListCollapsed::-webkit-scrollbar {
+.favoriteStrip::-webkit-scrollbar {
   display: none;
+}
+.favoriteStripExpanded {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  overflow: visible;
+}
+.favoriteCard {
+  position: relative;
+  min-width: 0;
+  min-height: 84px;
+  border: 1px solid #d0b05d;
+  border-top: 2px solid #b78111;
+  border-radius: 8px;
+  background: #fffdf5;
+  padding: 9px 34px 9px 10px;
+  cursor: pointer;
+}
+.favoriteCard span {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 3px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.favoriteCard strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 950;
+}
+.favoriteCard p {
+  display: -webkit-box;
+  margin: 6px 0 0;
+  color: #30352d;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 800;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.favoriteRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #dcc47e;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--amber);
+  line-height: 1;
+  font-weight: 950;
+  cursor: pointer;
 }
 .offerRow {
   display: grid;
@@ -491,6 +547,12 @@ button, input, select { font: inherit; }
   .searchBar {
     padding: 7px;
   }
+  .heroFacts div {
+    padding: 8px;
+  }
+  .heroFacts strong {
+    font-size: 14px;
+  }
   .toolPanel {
     padding: 9px;
   }
@@ -538,12 +600,19 @@ button, input, select { font: inherit; }
     gap: 3px;
     padding: 11px 12px;
   }
-  .favoriteList {
-    margin-bottom: 4px;
+  .favoriteStrip {
+    grid-auto-columns: minmax(190px, 78%);
+    margin-bottom: 2px;
   }
-  .favoriteListCollapsed {
-    max-height: 150px;
-    overflow-y: auto;
+  .favoriteStripExpanded {
+    grid-template-columns: 1fr;
+  }
+  .favoriteCard {
+    min-height: 78px;
+    padding: 8px 32px 8px 9px;
+  }
+  .favoriteCard strong {
+    font-size: 20px;
   }
   .offerRow {
     grid-template-columns: 1fr;
@@ -615,9 +684,3 @@ button, input, select { font: inherit; }
     animation: none;
   }
 }
-  .heroFacts div {
-    padding: 8px;
-  }
-  .heroFacts strong {
-    font-size: 14px;
-  }

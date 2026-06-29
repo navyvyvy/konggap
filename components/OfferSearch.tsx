@@ -57,6 +57,35 @@ function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
   );
 }
 
+function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Offer) => void }) {
+  return (
+    <div
+      className="favoriteCard"
+      role="link"
+      tabIndex={0}
+      onClick={() => window.open(offer.sourceUrl, "_blank", "noreferrer")}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
+      }}
+    >
+      <button
+        className="favoriteRemove"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onRemove(offer);
+        }}
+        aria-label="찜 해제"
+      >
+        ×
+      </button>
+      <span>{offer.seller}</span>
+      <strong>{formatWon(offer.finalPrice)}</strong>
+      <p>{offer.name}</p>
+    </div>
+  );
+}
+
 export function OfferSearch() {
   const [query, setQuery] = useState("생두");
   const [submittedQuery, setSubmittedQuery] = useState("생두");
@@ -143,7 +172,7 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
-  const hasCollapsedFavorites = favorites.length > COLLAPSED_FAVORITES && !showAllFavorites;
+  const visibleFavorites = showAllFavorites ? favorites : favorites.slice(0, COLLAPSED_FAVORITES);
   const fetchedAtLabel = fetchedAt
     ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
     : "";
@@ -230,13 +259,12 @@ export function OfferSearch() {
                 <span>{favorites.length.toLocaleString("ko-KR")}개</span>
               )}
             </div>
-            <div className={`offerList favoriteList ${hasCollapsedFavorites ? "favoriteListCollapsed" : ""}`}>
-              {favorites.map((offer) => (
-                <OfferRow
+            <div className={`favoriteStrip ${showAllFavorites ? "favoriteStripExpanded" : ""}`}>
+              {visibleFavorites.map((offer) => (
+                <FavoriteCard
                   key={offer.sourceUrl}
                   offer={offer}
-                  favorite
-                  onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                  onRemove={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
                 />
               ))}
             </div>
