@@ -160,9 +160,16 @@ export function OfferSearch() {
 
   return (
     <main className="page">
-      <header className="appHeader">
-        <div className="brandLine">
+      <nav className="siteNav" aria-label="사이트">
+        <strong>Green Bean Desk</strong>
+        <span>query snapshot</span>
+      </nav>
+
+      <header className="heroPanel">
+        <div className="heroCopy">
+          <span>GREEN BEAN PRICE</span>
           <h1>생두 가격비교</h1>
+          <p>최종 비용과 판매처를 먼저 보고, 향미와 배전 단서는 필요한 만큼만 붙입니다.</p>
         </div>
         <form
           className="searchBar"
@@ -176,12 +183,13 @@ export function OfferSearch() {
         </form>
       </header>
 
-      {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
-      {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
-      {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
+      <section className="toolPanel">
+        {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
+        {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
+        {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
 
-      {status === "ready" ? (
-        <section className="summaryBar" aria-label="조회 요약">
+        {status === "ready" ? (
+          <section className="summaryBar" aria-label="조회 요약">
           <div>
             <span>기준</span>
             <strong>{fetchedAtLabel}</strong>
@@ -198,11 +206,11 @@ export function OfferSearch() {
             <span>출처</span>
             <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
           </div>
-        </section>
-      ) : null}
+          </section>
+        ) : null}
 
-      {favorites.length ? (
-        <section className="favoritesBlock" aria-label="찜 목록">
+        {favorites.length ? (
+          <section className="favoritesBlock" aria-label="찜 목록">
           <div className="sectionHeader">
             <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
             {favorites.length > COLLAPSED_FAVORITES ? (
@@ -223,11 +231,11 @@ export function OfferSearch() {
               />
             ))}
           </div>
-        </section>
-      ) : null}
+          </section>
+        ) : null}
 
-      {status === "ready" ? (
-        <section>
+        {status === "ready" ? (
+          <section>
           <div className="sectionHeader">
             <div className="sectionTitle" />
             <div className="sectionTools">
@@ -256,8 +264,11 @@ export function OfferSearch() {
             ))}
             <div ref={sentinelRef} className="sentinel" />
           </div>
-        </section>
-      ) : null}
+          </section>
+        ) : null}
+      </section>
+
+      <footer className="siteFooter">조회 시점 가격 기준 · 구매와 상세 확인은 각 판매처에서 진행</footer>
     </main>
   );
 }
