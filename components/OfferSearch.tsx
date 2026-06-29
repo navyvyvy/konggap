@@ -137,11 +137,6 @@ export function OfferSearch() {
 
       {offers.length ? (
         <div className="resultBar">
-          <div className="resultMeta">
-            <span>{offers.length.toLocaleString("ko-KR")}개</span>
-            {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
-            {favorites.length ? <span>찜 {favorites.length.toLocaleString("ko-KR")}개</span> : null}
-          </div>
           <select
             value={sortOrder}
             onChange={(event) => {
@@ -188,8 +183,10 @@ export function OfferSearch() {
       {status === "ready" ? (
         <section>
           <div className="sectionHeader">
-            <h2>가격 목록</h2>
-            <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+            <div className="sectionTitle">
+              <h2>가격 목록</h2>
+              {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
+            </div>
           </div>
           <div className="offerList">
             {visibleOffers.map((offer) => (

@@ -75,24 +75,8 @@ button, input, select { font: inherit; }
 }
 .resultBar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-end;
   margin: 0 0 10px;
-}
-.resultMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.resultMeta span {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  padding: 4px 8px;
-  white-space: nowrap;
 }
 .resultBar select {
   border: 1px solid #b9c0b1;
@@ -172,10 +156,20 @@ button, input, select { font: inherit; }
   font-size: 15px;
   line-height: 1.2;
 }
+.sectionTitle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
 .sectionHeader span {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+.favoritesBlock .sectionHeader {
+  padding: 0 6px;
 }
 .linkButton {
   border: 0;
@@ -359,12 +353,6 @@ button, input, select { font: inherit; }
   }
   .brandLine h1 {
     font-size: 22px;
-  }
-  .resultBar {
-    align-items: flex-start;
-  }
-  .resultMeta {
-    gap: 5px;
   }
   .offerList {
     background: transparent;
