@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
-const MAX_OFFERS = 100;
+const MAX_OFFERS = 200;
 const DATA_DIR = "data";
 const MOBILE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
@@ -24,6 +24,9 @@ const SPECIALTY_SITE_QUERIES = [
   "site:gsc.coffee 에티오피아 생두 1kg",
   "site:gsc.coffee 케냐 생두 1kg",
   "site:gsc.coffee 과테말라 생두 1kg",
+  "site:coffeelibre.kr 생두",
+  "site:coffeeplant.co.kr 생두",
+  "site:momos.co.kr 생두",
   "site:rehmcoffee.co.kr 생두 1kg",
   "site:m.almacielo.com 생두 1kg",
   "site:m.sopexkorea.com 생두 1kg",
@@ -33,6 +36,9 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://rehmcoffee.co.kr", seller: "레햄코리아" },
   { url: "https://m.almacielo.com", seller: "알마씨엘로" },
   { url: "https://m.sopexkorea.com", seller: "소펙스코리아" },
+  { url: "https://coffeeplant.co.kr/", seller: "생두몰" },
+  { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
+  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90/56/", seller: "커피리브레" },
 ];
 
 function greenBeanQuery(query) {
@@ -118,36 +124,6 @@ async function collectNaverPageOffers(page, query) {
   return items.map((item) => parseOfferFromLines(item.lines, item.link, query)).filter(Boolean);
 }
 
-async function crawlCoupang(page, query) {
-  try {
-    await page.goto(`https://m.coupang.com/nm/search?q=${encodeURIComponent(query)}`, {
-      waitUntil: "domcontentloaded",
-      timeout: 20_000,
-    });
-    await page.waitForTimeout(2500);
-
-    const denied = /Access Denied|permission to access/i.test(await page.locator("body").innerText());
-    if (denied) return { offers: [], error: "Access Denied" };
-
-    const offers = await page.evaluate(() => [...document.querySelectorAll("a[href]")].map((anchor) => {
-      const text = anchor.innerText || anchor.textContent || "";
-      const price = Number((text.match(/(\d[\d,]*)원/)?.[1] ?? "0").replace(/,/g, ""));
-      return {
-        title: text.split("\n").find((line) => /생두|커피생두/.test(line)) ?? "",
-        link: anchor.href,
-        price,
-        shippingFee: /무료배송/.test(text) ? 0 : null,
-        seller: "쿠팡",
-        source: "coupang",
-      };
-    }).filter((item) => item.title && item.price > 0));
-
-    return { offers: dedupeOffers(offers), error: "" };
-  } catch (error) {
-    return { offers: [], error: error instanceof Error ? error.message : "Coupang crawl failed" };
-  }
-}
-
 async function crawlSpecialtySites(page) {
   const offers = [];
 
@@ -215,7 +191,7 @@ function parseDirectShopOffer(item, shop) {
 }
 
 function isCoffeeProductName(title) {
-  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴)/.test(title);
+  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey)/i.test(title);
 }
 
 async function collectSpecialtyPageOffers(page) {
@@ -234,7 +210,7 @@ async function collectSpecialtyPageOffers(page) {
       };
     })
     .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea/.test(item.link) &&
+      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos/.test(item.link) &&
       /생두|커피생두/.test(item.title) &&
       /\d+\s*(kg|g)/i.test(item.title),
     ));
@@ -263,6 +239,9 @@ function sellerFromUrl(url) {
   if (/rehmcoffee/.test(url)) return "레햄코리아";
   if (/almacielo/.test(url)) return "알마씨엘로";
   if (/sopexkorea/.test(url)) return "소펙스코리아";
+  if (/coffeelibre/.test(url)) return "커피리브레";
+  if (/coffeeplant/.test(url)) return "생두몰";
+  if (/momos/.test(url)) return "모모스커피";
   return "전문몰";
 }
 
@@ -367,8 +346,7 @@ async function main() {
 
   const naverOffers = await crawlNaver(page, query);
   const shopOffers = await crawlSpecialtySites(page);
-  const coupang = await crawlCoupang(page, query);
-  const rawOffers = dedupeOffers([...naverOffers, ...shopOffers, ...coupang.offers]);
+  const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
   const coffeeInfo = await enrichCoffeeInfo(page, rawOffers);
   const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
   const result = {
@@ -377,7 +355,6 @@ async function main() {
     sources: [
       { source: "naver", count: naverOffers.length, error: "" },
       { source: "shop", count: shopOffers.length, error: "" },
-      { source: "coupang", count: coupang.offers.length, error: coupang.error },
     ],
     offers,
   };

@@ -30,7 +30,7 @@ export function toGreenBeanQuery(query: string) {
 export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawOffer[] {
   return items
     .filter((item) => item.price > 0 && item.link && item.title)
-    .slice(0, 100)
+    .slice(0, 200)
     .map((item, index) => {
       const source: OfferSource =
         item.source === "coupang" ? "coupang" : item.source === "shop" ? "shop" : "naver";
