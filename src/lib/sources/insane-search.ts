@@ -27,9 +27,15 @@ export function toGreenBeanQuery(query: string) {
   return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
 }
 
+export function isBuyableGreenBeanOffer(title: string, source?: string) {
+  if (isBlockedShoppingTitle(title) || !/\d+\s*(kg|g)/i.test(title)) return false;
+  if (/생두|커피생두|green\s*bean/i.test(title)) return true;
+  return source === "shop" && isCoffeeProductName(title);
+}
+
 export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawOffer[] {
   return items
-    .filter((item) => item.price > 0 && item.link && item.title)
+    .filter((item) => item.price > 0 && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
     .slice(0, 200)
     .map((item, index) => {
       const source: OfferSource =
@@ -50,6 +56,14 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
         fetchedAt,
       };
     });
+}
+
+function isBlockedShoppingTitle(title: string) {
+  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스)|당일\s*로스팅|당일로스팅)/i.test(title);
+}
+
+function isCoffeeProductName(title: string) {
+  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey)/i.test(title);
 }
 
 async function runEngine(query: string) {

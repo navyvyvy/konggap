@@ -9,6 +9,7 @@ import {
   stripHtml,
 } from "../src/lib/offers";
 import {
+  isBuyableGreenBeanOffer,
   mapCrawledOffers,
   toGreenBeanQuery,
 } from "../src/lib/sources/insane-search";
@@ -159,4 +160,21 @@ test("mapCrawledOffers keeps only priced crawled offers", () => {
   assert.equal(offers[0]?.name, "에티오피아 예가체프 생두 2kg");
   assert.deepEqual(offers[0]?.flavorTags, ["워시드"]);
   assert.equal(offers[0]?.rawDescription, "약배전에서 꽃향이 좋습니다.");
+});
+
+test("mapCrawledOffers filters non green-bean shopping results", () => {
+  const offers = mapCrawledOffers(
+    [
+      { title: "에티오피아 예가체프 생두 2kg", link: "https://example.com/a", price: 25000 },
+      { title: "에티오피아 예가체프 원두 1kg", link: "https://example.com/b", price: 33000 },
+      { title: "콜드브루 드립백 세트 10개", link: "https://example.com/c", price: 12000 },
+      { title: "커피 로스팅 망", link: "https://example.com/d", price: 9000 },
+      { title: "브라질 세하도 생두 1kg 3개", link: "https://example.com/e", price: 49000 },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.deepEqual(offers.map((offer) => offer.name), ["에티오피아 예가체프 생두 2kg"]);
+  assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg"), true);
+  assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg 3개"), false);
 });

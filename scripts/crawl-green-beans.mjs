@@ -60,11 +60,17 @@ function cleanTitle(line) {
 }
 
 function isProductTitle(line) {
-  return /생두|커피생두/.test(line) && /\d+\s*(kg|g)/i.test(line) && !isMultiPack(line);
+  return isBuyableGreenBeanOffer(line);
 }
 
-function isMultiPack(line) {
-  return /(\d+\s*개|세트|묶음|박스|box|set)/i.test(line) && !/\b1\s*개\b/.test(line);
+function isBuyableGreenBeanOffer(title, source = "naver") {
+  if (isBlockedShoppingTitle(title) || !/\d+\s*(kg|g)/i.test(title)) return false;
+  if (/생두|커피생두|green\s*bean/i.test(title)) return true;
+  return source === "shop" && isCoffeeProductName(title);
+}
+
+function isBlockedShoppingTitle(title) {
+  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스)|당일\s*로스팅|당일로스팅)/i.test(title);
 }
 
 function parseOfferFromLines(lines, link, query) {
@@ -176,10 +182,10 @@ async function collectDirectShopOffers(page, shop) {
 function parseDirectShopOffer(item, shop) {
   let title = cleanTitle(item.title);
   if (!title || /생두컨시어지|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
-  if (isMultiPack(title)) return null;
-  if (!isCoffeeProductName(title)) return null;
+  if (isBlockedShoppingTitle(title) || (!/생두|커피생두|green\s*bean/i.test(title) && !isCoffeeProductName(title))) return null;
 
   const context = item.lines.join(" ");
+  if (!/\d+\s*(kg|g)/i.test(`${title} ${context}`)) return null;
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
 
   const prices = item.lines.map(moneyLineToNumber).filter((price) => price > 0);
