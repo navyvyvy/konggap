@@ -122,7 +122,6 @@ export function OfferSearch() {
       <header className="appHeader">
         <div className="brandLine">
           <h1>생두 가격비교</h1>
-          <span>{submittedQuery}</span>
         </div>
         <form
           className="searchBar"

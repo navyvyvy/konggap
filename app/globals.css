@@ -43,28 +43,19 @@ button, input, select { font: inherit; }
   line-height: 1.1;
   letter-spacing: 0;
 }
-.brandLine span {
-  display: inline-flex;
-  margin-top: 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 3px 8px;
-  color: var(--green);
-  background: var(--green-soft);
-  font-size: 12px;
-  font-weight: 800;
-}
 .searchBar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
+  justify-self: end;
+  width: min(100%, 420px);
 }
 .searchBar input {
   min-width: 0;
   border: 1px solid #b9c0b1;
   border-radius: 8px;
   background: var(--surface);
-  padding: 10px 11px;
+  padding: 7px 9px;
   color: var(--ink);
 }
 .searchBar input:focus-visible,
@@ -76,7 +67,7 @@ button, input, select { font: inherit; }
 .searchBar button {
   border: 0;
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 7px 11px;
   background: var(--green);
   color: #fff;
   font-weight: 900;
@@ -281,7 +272,7 @@ button, input, select { font: inherit; }
 .favoriteButton {
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   border: 1px solid #c1c8ba;
   border-radius: 999px;
   background: #fff;
@@ -313,10 +304,6 @@ button, input, select { font: inherit; }
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
-}
-.favoriteButton ~ .priceLabel,
-.favoriteButton ~ .finalPrice {
-  margin-right: 34px;
 }
 .pricePanelUnknown .priceLabel {
   color: var(--amber);
@@ -446,7 +433,7 @@ button, input, select { font: inherit; }
   }
   .favoriteButton {
     top: 7px;
-    right: 0;
+    left: 0;
     width: 25px;
     height: 25px;
   }
