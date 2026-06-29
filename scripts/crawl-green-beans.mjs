@@ -326,7 +326,8 @@ function inferMetadata(text) {
 function dedupeOffers(offers) {
   const seen = new Set();
   return offers.filter((offer) => {
-    const key = `${offer.source}:${offer.title}:${offer.price}:${offer.shippingFee ?? ""}`;
+    const link = offer.link?.trim();
+    const key = link ? `link:${link}` : `item:${offer.source}:${offer.title}:${offer.price}:${offer.shippingFee ?? ""}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
