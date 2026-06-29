@@ -15,11 +15,27 @@ function TruckIcon() {
   );
 }
 
-export function OfferRow({ offer }: { offer: Offer }) {
+export function OfferRow({
+  offer,
+  favorite,
+  onToggleFavorite,
+}: {
+  offer: Offer;
+  favorite?: boolean;
+  onToggleFavorite?: (offer: Offer) => void;
+}) {
   const hasTags = offer.flavorTags.length > 0 || offer.roastTags.length > 0;
 
   return (
-    <a className="offerRow" href={offer.sourceUrl} target="_blank" rel="noreferrer">
+    <div
+      className="offerRow"
+      role="link"
+      tabIndex={0}
+      onClick={() => window.open(offer.sourceUrl, "_blank", "noreferrer")}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
+      }}
+    >
       <div className="offerInfo">
         <div className="offerTitle">{offer.name}</div>
         {hasTags ? (
@@ -35,6 +51,19 @@ export function OfferRow({ offer }: { offer: Offer }) {
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
+        {onToggleFavorite ? (
+          <button
+            className={`favoriteButton ${favorite ? "favoriteButtonActive" : ""}`}
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleFavorite(offer);
+            }}
+            aria-pressed={favorite}
+          >
+            {favorite ? "찜 해제" : "찜"}
+          </button>
+        ) : null}
         <div className="priceLabel">{offer.shippingKnown ? "최종 비용" : "상품가 기준"}</div>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
@@ -45,6 +74,6 @@ export function OfferRow({ offer }: { offer: Offer }) {
           </span>
         </div>
       </div>
-    </a>
+    </div>
   );
 }

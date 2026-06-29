@@ -7,6 +7,7 @@ import {
   paginateOffers,
   sortOffersByFinalPrice,
   stripHtml,
+  toggleFavoriteOffer,
 } from "../src/lib/offers";
 import {
   isBuyableGreenBeanOffer,
@@ -79,6 +80,14 @@ test("sortOffersByFinalPrice sorts by final payment amount", () => {
     sortOffersByFinalPrice(offers, "desc").map((offer) => offer.id),
     ["expensive", "middle", "cheap"],
   );
+});
+
+test("toggleFavoriteOffer toggles by sourceUrl", () => {
+  const first = { id: "a", sourceUrl: "https://example.com/a" };
+  const duplicateLink = { id: "b", sourceUrl: "https://example.com/a" };
+
+  assert.deepEqual(toggleFavoriteOffer([], first), [first]);
+  assert.deepEqual(toggleFavoriteOffer([first], duplicateLink), []);
 });
 
 test("buildFlavorCacheKey separates grade and process", () => {

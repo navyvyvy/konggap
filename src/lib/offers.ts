@@ -59,6 +59,12 @@ export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers:
   return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
 }
 
+export function toggleFavoriteOffer<T extends { sourceUrl: string }>(favorites: T[], offer: T) {
+  return favorites.some((favorite) => favorite.sourceUrl === offer.sourceUrl)
+    ? favorites.filter((favorite) => favorite.sourceUrl !== offer.sourceUrl)
+    : [offer, ...favorites];
+}
+
 export function buildFlavorCacheKey(name: string) {
   const cleaned = stripHtml(name).toLowerCase();
   const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";
