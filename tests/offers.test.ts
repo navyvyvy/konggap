@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  cacheKey,
+  getCachedValue,
+  type CacheEntry,
+} from "../src/lib/offer-cache";
+import {
   buildFlavorCacheKey,
   canonicalOfferUrl,
   getStableMetadata,
@@ -81,6 +86,29 @@ test("sortOffersByFinalPrice sorts by final payment amount", () => {
     sortOffersByFinalPrice(offers, "desc").map((offer) => offer.id),
     ["expensive", "middle", "cheap"],
   );
+});
+
+test("getCachedValue reuses fresh values and pending loads", async () => {
+  const cache = new Map<string, CacheEntry<number>>();
+  let loads = 0;
+  const load = async () => {
+    loads += 1;
+    return 12200;
+  };
+
+  assert.equal(cacheKey(" 생두 "), "생두");
+  assert.equal(await getCachedValue(cache, "생두", load, 1000, 60_000), 12200);
+  assert.equal(await getCachedValue(cache, "생두", load, 2000, 60_000), 12200);
+  assert.equal(loads, 1);
+
+  const pendingCache = new Map<string, CacheEntry<number>>();
+  const values = await Promise.all([
+    getCachedValue(pendingCache, "예가체프", load, 3000, 60_000),
+    getCachedValue(pendingCache, "예가체프", load, 3000, 60_000),
+  ]);
+
+  assert.deepEqual(values, [12200, 12200]);
+  assert.equal(loads, 2);
 });
 
 test("toggleFavoriteOffer toggles by sourceUrl", () => {
