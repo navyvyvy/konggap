@@ -5,7 +5,6 @@ import { canonicalOfferUrl, sortOffersByFinalPrice, toggleFavoriteOffer, type Of
 import { OfferRow } from "./OfferRow";
 
 const PAGE_SIZE = 25;
-const COLLAPSED_FAVORITES = 3;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
 const LOADING_STEPS = [
   "네이버 검색 결과 확인 중",
@@ -94,10 +93,10 @@ export function OfferSearch() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [favorites, setFavorites] = useState<Offer[]>([]);
-  const [showAllFavorites, setShowAllFavorites] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const favoriteStripRef = useRef<HTMLDivElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -172,7 +171,6 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
-  const visibleFavorites = showAllFavorites ? favorites : favorites.slice(0, COLLAPSED_FAVORITES);
   const fetchedAtLabel = fetchedAt
     ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
     : "";
@@ -251,16 +249,17 @@ export function OfferSearch() {
           <section className="favoritesBlock" aria-label="찜 목록">
             <div className="sectionHeader">
               <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
-              {favorites.length > COLLAPSED_FAVORITES ? (
-                <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
-                  {showAllFavorites ? "접기" : "전체 보기"}
-                </button>
+              {favorites.length > 1 ? (
+                <div className="stripControls" aria-label="찜 목록 이동">
+                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동">‹</button>
+                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동">›</button>
+                </div>
               ) : (
                 <span>{favorites.length.toLocaleString("ko-KR")}개</span>
               )}
             </div>
-            <div className={`favoriteStrip ${showAllFavorites ? "favoriteStripExpanded" : ""}`}>
-              {visibleFavorites.map((offer) => (
+            <div className="favoriteStrip" ref={favoriteStripRef}>
+              {favorites.map((offer) => (
                 <FavoriteCard
                   key={offer.sourceUrl}
                   offer={offer}

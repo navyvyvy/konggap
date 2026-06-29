@@ -288,13 +288,22 @@ button, input, select { font: inherit; }
 .favoritesBlock .sectionHeader {
   padding: 0 6px;
 }
-.linkButton {
-  border: 0;
-  background: transparent;
+.stripControls {
+  display: inline-flex;
+  gap: 5px;
+}
+.stripControls button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--green);
-  padding: 0;
-  font-size: 13px;
-  font-weight: 850;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 950;
   cursor: pointer;
 }
 .offerList {
@@ -317,20 +326,16 @@ button, input, select { font: inherit; }
 .favoriteStrip {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(220px, 1fr);
+  grid-auto-columns: minmax(260px, 32%);
   gap: 8px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
 }
 .favoriteStrip::-webkit-scrollbar {
   display: none;
-}
-.favoriteStripExpanded {
-  grid-auto-flow: row;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  overflow: visible;
 }
 .favoriteCard {
   position: relative;
@@ -342,6 +347,7 @@ button, input, select { font: inherit; }
   background: #fffdf5;
   padding: 9px 34px 9px 10px;
   cursor: pointer;
+  scroll-snap-align: start;
 }
 .favoriteCard span {
   display: inline-block;
@@ -603,9 +609,6 @@ button, input, select { font: inherit; }
   .favoriteStrip {
     grid-auto-columns: minmax(190px, 78%);
     margin-bottom: 2px;
-  }
-  .favoriteStripExpanded {
-    grid-template-columns: 1fr;
   }
   .favoriteCard {
     min-height: 78px;
