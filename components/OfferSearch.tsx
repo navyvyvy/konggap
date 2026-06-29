@@ -167,7 +167,7 @@ export function OfferSearch() {
       {favorites.length ? (
         <section className="favoritesBlock" aria-label="찜 목록">
           <div className="sectionHeader">
-            <h2>찜 목록</h2>
+            <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
             {favorites.length > COLLAPSED_FAVORITES ? (
               <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
                 {showAllFavorites ? "접기" : "전체 보기"}
