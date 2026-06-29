@@ -17,7 +17,7 @@
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, #1f3c2a 0 220px, #dfe5da 220px 360px, var(--bg) 360px),
+    linear-gradient(180deg, #1f3c2a 0 170px, #dfe5da 170px 320px, var(--bg) 320px),
     var(--bg);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -30,60 +30,36 @@ button, input, select { font: inherit; }
   margin: 0 auto;
   padding: 16px 16px 28px;
 }
-.siteNav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-  color: #f6f8f2;
-  font-size: 13px;
-}
-.siteNav strong {
-  font-size: 15px;
-}
-.siteNav span {
-  color: #cdd8c9;
-  font-weight: 800;
-  letter-spacing: 0;
-}
 .heroPanel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 390px);
+  grid-template-columns: minmax(230px, .9fr) minmax(360px, 1.1fr);
   gap: 18px;
-  align-items: end;
+  align-items: stretch;
   margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, .16);
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, 0)),
     var(--green);
-  padding: 24px;
+  padding: 18px;
   color: #fff;
 }
 .heroCopy {
   min-width: 0;
-}
-.heroCopy span {
-  display: block;
-  margin-bottom: 8px;
-  color: #c9d8c6;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .08em;
+  display: flex;
+  align-items: center;
 }
 .heroCopy h1 {
   margin: 0;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: clamp(38px, 5vw, 64px);
   line-height: .98;
   letter-spacing: 0;
   color: #fff;
 }
-.heroCopy p {
-  max-width: 520px;
-  margin: 12px 0 0;
-  color: #dfe9dc;
-  font-size: 15px;
-  line-height: 1.45;
+.heroAction {
+  display: grid;
+  gap: 9px;
+  align-content: end;
 }
 .searchBar {
   display: grid;
@@ -94,6 +70,34 @@ button, input, select { font: inherit; }
   border-radius: 8px;
   background: rgba(255, 255, 255, .12);
   padding: 9px;
+}
+.heroFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .16);
+  overflow: hidden;
+}
+.heroFacts div {
+  min-width: 0;
+  background: rgba(16, 31, 22, .4);
+  padding: 9px 10px;
+}
+.heroFacts span {
+  display: block;
+  margin-bottom: 2px;
+  color: #cdd8c9;
+  font-size: 11px;
+  font-weight: 900;
+}
+.heroFacts strong {
+  display: block;
+  color: #fff;
+  font-size: 17px;
+  line-height: 1.18;
+  white-space: nowrap;
 }
 .searchBar input {
   min-width: 0;
@@ -301,7 +305,7 @@ button, input, select { font: inherit; }
   overflow: hidden;
 }
 .scrollList {
-  max-height: min(620px, calc(100vh - 360px));
+  max-height: min(620px, calc(100vh - 330px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -475,21 +479,14 @@ button, input, select { font: inherit; }
   .page {
     padding: 12px 14px 24px;
   }
-  .siteNav {
-    margin-bottom: 10px;
-  }
   .heroPanel {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
     margin-bottom: 10px;
-    padding: 16px;
+    padding: 14px;
   }
   .heroCopy h1 {
-    font-size: 36px;
-  }
-  .heroCopy p {
-    margin-top: 8px;
-    font-size: 14px;
+    font-size: 38px;
   }
   .searchBar {
     padding: 7px;
@@ -518,7 +515,7 @@ button, input, select { font: inherit; }
     border: 1px solid var(--line-strong);
     border-top: 2px solid var(--green);
     border-radius: 8px;
-    max-height: calc(100vh - 400px);
+    max-height: calc(100vh - 372px);
     overflow-y: auto;
     padding: 7px;
   }
@@ -618,3 +615,9 @@ button, input, select { font: inherit; }
     animation: none;
   }
 }
+  .heroFacts div {
+    padding: 8px;
+  }
+  .heroFacts strong {
+    font-size: 14px;
+  }

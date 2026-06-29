@@ -160,27 +160,36 @@ export function OfferSearch() {
 
   return (
     <main className="page">
-      <nav className="siteNav" aria-label="사이트">
-        <strong>Green Bean Desk</strong>
-        <span>query snapshot</span>
-      </nav>
-
       <header className="heroPanel">
         <div className="heroCopy">
-          <span>GREEN BEAN PRICE</span>
           <h1>생두 가격비교</h1>
-          <p>최종 비용과 판매처를 먼저 보고, 향미와 배전 단서는 필요한 만큼만 붙입니다.</p>
         </div>
-        <form
-          className="searchBar"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setSubmittedQuery(query.trim() || "생두");
-          }}
-        >
-          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-          <button type="submit">조회</button>
-        </form>
+        <div className="heroAction">
+          <form
+            className="searchBar"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setSubmittedQuery(query.trim() || "생두");
+            }}
+          >
+            <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
+            <button type="submit">조회</button>
+          </form>
+          <div className="heroFacts" aria-label="현재 조회 상태">
+            <div>
+              <span>최저</span>
+              <strong>{status === "ready" ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
+            </div>
+            <div>
+              <span>목록</span>
+              <strong>{status === "ready" ? `${offers.length.toLocaleString("ko-KR")}개` : status === "loading" ? "조회 중" : "-"}</strong>
+            </div>
+            <div>
+              <span>찜</span>
+              <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
+            </div>
+          </div>
+        </div>
       </header>
 
       <section className="toolPanel">
@@ -190,80 +199,80 @@ export function OfferSearch() {
 
         {status === "ready" ? (
           <section className="summaryBar" aria-label="조회 요약">
-          <div>
-            <span>기준</span>
-            <strong>{fetchedAtLabel}</strong>
-          </div>
-          <div>
-            <span>전체</span>
-            <strong>{offers.length.toLocaleString("ko-KR")}개</strong>
-          </div>
-          <div>
-            <span>최저</span>
-            <strong>{formatWon(summary.lowestFinalPrice)}</strong>
-          </div>
-          <div>
-            <span>출처</span>
-            <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
-          </div>
+            <div>
+              <span>기준</span>
+              <strong>{fetchedAtLabel}</strong>
+            </div>
+            <div>
+              <span>목록</span>
+              <strong>{offers.length.toLocaleString("ko-KR")}개</strong>
+            </div>
+            <div>
+              <span>최저</span>
+              <strong>{formatWon(summary.lowestFinalPrice)}</strong>
+            </div>
+            <div>
+              <span>출처</span>
+              <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
+            </div>
           </section>
         ) : null}
 
         {favorites.length ? (
           <section className="favoritesBlock" aria-label="찜 목록">
-          <div className="sectionHeader">
-            <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
-            {favorites.length > COLLAPSED_FAVORITES ? (
-              <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
-                {showAllFavorites ? "접기" : "전체 보기"}
-              </button>
-            ) : (
-              <span>{favorites.length.toLocaleString("ko-KR")}개</span>
-            )}
-          </div>
-          <div className={`offerList favoriteList ${hasCollapsedFavorites ? "favoriteListCollapsed" : ""}`}>
-            {favorites.map((offer) => (
-              <OfferRow
-                key={offer.sourceUrl}
-                offer={offer}
-                favorite
-                onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-              />
-            ))}
-          </div>
+            <div className="sectionHeader">
+              <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
+              {favorites.length > COLLAPSED_FAVORITES ? (
+                <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
+                  {showAllFavorites ? "접기" : "전체 보기"}
+                </button>
+              ) : (
+                <span>{favorites.length.toLocaleString("ko-KR")}개</span>
+              )}
+            </div>
+            <div className={`offerList favoriteList ${hasCollapsedFavorites ? "favoriteListCollapsed" : ""}`}>
+              {favorites.map((offer) => (
+                <OfferRow
+                  key={offer.sourceUrl}
+                  offer={offer}
+                  favorite
+                  onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                />
+              ))}
+            </div>
           </section>
         ) : null}
 
         {status === "ready" ? (
           <section>
-          <div className="sectionHeader">
-            <div className="sectionTitle" />
-            <div className="sectionTools">
-              <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
-              <select
-                value={sortOrder}
-                onChange={(event) => {
-                  setSortOrder(event.target.value as "asc" | "desc");
-                  setVisibleCount(PAGE_SIZE);
-                }}
-                aria-label="정렬"
-              >
-                <option value="asc">낮은 가격순</option>
-                <option value="desc">높은 가격순</option>
-              </select>
+            <div className="sectionHeader">
+              <div className="sectionTitle" />
+              <div className="sectionTools">
+                <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+                <select
+                  value={sortOrder}
+                  onChange={(event) => {
+                    setSortOrder(event.target.value as "asc" | "desc");
+                    setVisibleCount(PAGE_SIZE);
+                  }}
+                  aria-label="정렬"
+                >
+                  <option value="asc">낮은 가격순</option>
+                  <option value="desc">높은 가격순</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div className="offerList scrollList" ref={listRef}>
-            {visibleOffers.map((offer) => (
-              <OfferRow
-                key={offer.id}
-                offer={offer}
-                favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
-                onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-              />
-            ))}
-            <div ref={sentinelRef} className="sentinel" />
-          </div>
+            <div className="offerList scrollList" ref={listRef}>
+              {visibleOffers.map((offer) => (
+                <OfferRow
+                  key={offer.id}
+                  offer={offer}
+                  favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
+                  onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                />
+              ))}
+              <div ref={sentinelRef} className="sentinel" />
+            </div>
           </section>
         ) : null}
       </section>
