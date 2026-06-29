@@ -37,6 +37,10 @@ export function OfferRow({
       }}
     >
       <div className="offerInfo">
+        <div className="offerMeta">
+          <span>{offer.seller}</span>
+          <span>{offer.source === "naver" ? "네이버" : "전문몰"}</span>
+        </div>
         <div className="offerTitle">{offer.name}</div>
         {hasTags ? (
           <div className="tags">

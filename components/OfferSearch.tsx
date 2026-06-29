@@ -86,25 +86,34 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => offer.sourceUrl)), [favorites]);
+  const fetchedAtLabel = fetchedAt ? `${new Date(fetchedAt).toLocaleString("ko-KR")} 기준` : "";
 
   return (
     <main className="page">
-      <form
-        className="searchBar"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setSubmittedQuery(query.trim() || "생두");
-        }}
-      >
-        <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-        <button type="submit">조회</button>
-      </form>
-
-      {fetchedAt ? <div className="timestamp">{new Date(fetchedAt).toLocaleString("ko-KR")} 기준</div> : null}
+      <header className="appHeader">
+        <div className="brandLine">
+          <h1>생두 가격비교</h1>
+          <span>{submittedQuery}</span>
+        </div>
+        <form
+          className="searchBar"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setSubmittedQuery(query.trim() || "생두");
+          }}
+        >
+          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
+          <button type="submit">조회</button>
+        </form>
+      </header>
 
       {offers.length ? (
         <div className="resultBar">
-          <span>{offers.length.toLocaleString("ko-KR")}개</span>
+          <div className="resultMeta">
+            <span>{offers.length.toLocaleString("ko-KR")}개</span>
+            {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
+            {favorites.length ? <span>찜 {favorites.length.toLocaleString("ko-KR")}개</span> : null}
+          </div>
           <select
             value={sortOrder}
             onChange={(event) => {
@@ -125,7 +134,10 @@ export function OfferSearch() {
 
       {favorites.length ? (
         <section className="favoritesBlock" aria-label="찜 목록">
-          <div className="favoritesHeader">찜 목록 {favorites.length.toLocaleString("ko-KR")}개</div>
+          <div className="sectionHeader">
+            <h2>찜 목록</h2>
+            <span>{favorites.length.toLocaleString("ko-KR")}개</span>
+          </div>
           <div className="offerList favoriteList">
             {favorites.map((offer) => (
               <OfferRow
@@ -140,17 +152,23 @@ export function OfferSearch() {
       ) : null}
 
       {status === "ready" ? (
-        <div className="offerList">
-          {visibleOffers.map((offer) => (
-            <OfferRow
-              key={offer.id}
-              offer={offer}
-              favorite={favoriteUrls.has(offer.sourceUrl)}
-              onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-            />
-          ))}
-          <div ref={sentinelRef} className="sentinel" />
-        </div>
+        <section>
+          <div className="sectionHeader">
+            <h2>가격 목록</h2>
+            <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+          </div>
+          <div className="offerList">
+            {visibleOffers.map((offer) => (
+              <OfferRow
+                key={offer.id}
+                offer={offer}
+                favorite={favoriteUrls.has(offer.sourceUrl)}
+                onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+              />
+            ))}
+            <div ref={sentinelRef} className="sentinel" />
+          </div>
+        </section>
       ) : null}
     </main>
   );
