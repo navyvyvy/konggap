@@ -15,6 +15,14 @@ function TruckIcon() {
   );
 }
 
+function BookmarkIcon() {
+  return (
+    <svg className="favoriteIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 4h12v16l-6-3-6 3z" />
+    </svg>
+  );
+}
+
 export function OfferRow({
   offer,
   favorite,
@@ -64,8 +72,9 @@ export function OfferRow({
               onToggleFavorite(offer);
             }}
             aria-pressed={favorite}
+            aria-label={favorite ? "찜 해제" : "찜하기"}
           >
-            {favorite ? "찜 해제" : "찜"}
+            <BookmarkIcon />
           </button>
         ) : null}
         <div className="priceLabel">{offer.shippingKnown ? "최종 비용" : "상품가 기준"}</div>

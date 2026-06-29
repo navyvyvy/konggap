@@ -116,6 +116,59 @@ button, input, select { font: inherit; }
   border-radius: 8px;
   padding: 16px;
 }
+.loadingBlock {
+  margin-top: 10px;
+}
+.loadingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.loadingRow:last-child {
+  border-bottom: 0;
+}
+.skeleton {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e5e9de, #f5f7f1, #e5e9de);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
+.skeletonMeta {
+  width: 96px;
+  height: 18px;
+  margin-bottom: 8px;
+}
+.skeletonTitle {
+  width: min(520px, 85%);
+  height: 24px;
+  margin-bottom: 8px;
+}
+.skeletonText {
+  width: 220px;
+  height: 15px;
+}
+.loadingPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+.skeletonLabel {
+  width: 64px;
+  height: 14px;
+  margin-bottom: 8px;
+}
+.skeletonAmount {
+  width: 132px;
+  height: 30px;
+}
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 .sectionHeader {
   display: flex;
   align-items: baseline;
@@ -218,7 +271,7 @@ button, input, select { font: inherit; }
 .pricePanel {
   position: relative;
   border-left: 1px solid var(--line);
-  padding: 24px 0 0 12px;
+  padding: 0 0 0 12px;
   text-align: right;
   display: flex;
   flex-direction: column;
@@ -233,20 +286,34 @@ button, input, select { font: inherit; }
   border-radius: 999px;
   background: #fff;
   color: #30352d;
-  padding: 3px 8px;
-  font-size: 12px;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
   font-weight: 850;
   cursor: pointer;
+}
+.favoriteIcon {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
 }
 .favoriteButtonActive {
   border-color: #b78111;
   background: var(--amber-soft);
   color: #684303;
 }
+.favoriteButtonActive .favoriteIcon {
+  fill: currentColor;
+}
 .priceLabel {
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
+  padding-right: 32px;
 }
 .pricePanelUnknown .priceLabel {
   color: var(--amber);
@@ -315,6 +382,19 @@ button, input, select { font: inherit; }
     border-radius: 0;
     overflow: visible;
   }
+  .loadingList {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .loadingRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .loadingPrice {
+    align-items: flex-start;
+  }
   .favoriteList {
     margin-bottom: 4px;
   }
@@ -358,13 +438,14 @@ button, input, select { font: inherit; }
     align-items: end;
     border-left: 0;
     border-top: 1px solid var(--line);
-    padding: 25px 0 0;
+    padding: 7px 0 0;
     text-align: right;
   }
   .favoriteButton {
-    top: 6px;
+    top: 7px;
     right: 0;
-    padding: 2px 7px;
+    width: 25px;
+    height: 25px;
   }
   .priceLabel { grid-column: 2; }
   .finalPrice {
@@ -378,5 +459,11 @@ button, input, select { font: inherit; }
     align-content: end;
     margin-top: 0;
     text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
   }
 }

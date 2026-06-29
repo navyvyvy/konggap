@@ -14,6 +14,32 @@ type ApiResult = {
   error?: string;
 };
 
+function LoadingRows() {
+  return (
+    <section className="loadingBlock" aria-live="polite">
+      <div className="sectionHeader">
+        <h2>크롤링 중</h2>
+        <span>가격을 가져오는 중</span>
+      </div>
+      <div className="offerList loadingList">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div className="loadingRow" key={index}>
+            <div>
+              <span className="skeleton skeletonMeta" />
+              <span className="skeleton skeletonTitle" />
+              <span className="skeleton skeletonText" />
+            </div>
+            <div className="loadingPrice">
+              <span className="skeleton skeletonLabel" />
+              <span className="skeleton skeletonAmount" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function OfferSearch() {
   const [query, setQuery] = useState("생두");
   const [submittedQuery, setSubmittedQuery] = useState("생두");
@@ -131,7 +157,7 @@ export function OfferSearch() {
         </div>
       ) : null}
 
-      {status === "loading" ? <div className="state">조회 중</div> : null}
+      {status === "loading" ? <LoadingRows /> : null}
       {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
       {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
 
