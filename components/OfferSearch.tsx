@@ -153,22 +153,6 @@ export function OfferSearch() {
         </form>
       </header>
 
-      {offers.length ? (
-        <div className="resultBar">
-          <select
-            value={sortOrder}
-            onChange={(event) => {
-              setSortOrder(event.target.value as "asc" | "desc");
-              setVisibleCount(PAGE_SIZE);
-            }}
-            aria-label="정렬"
-          >
-            <option value="asc">낮은 가격순</option>
-            <option value="desc">높은 가격순</option>
-          </select>
-        </div>
-      ) : null}
-
       {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
       {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
       {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
@@ -205,7 +189,20 @@ export function OfferSearch() {
               <h2>가격 목록</h2>
               {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
             </div>
-            <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+            <div className="sectionTools">
+              <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+              <select
+                value={sortOrder}
+                onChange={(event) => {
+                  setSortOrder(event.target.value as "asc" | "desc");
+                  setVisibleCount(PAGE_SIZE);
+                }}
+                aria-label="정렬"
+              >
+                <option value="asc">낮은 가격순</option>
+                <option value="desc">높은 가격순</option>
+              </select>
+            </div>
           </div>
           <div className="offerList">
             {visibleOffers.map((offer) => (

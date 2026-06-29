@@ -60,7 +60,7 @@ button, input, select { font: inherit; }
   color: var(--ink);
 }
 .searchBar input:focus-visible,
-.resultBar select:focus-visible,
+.sectionTools select:focus-visible,
 .favoriteButton:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 2px;
@@ -73,19 +73,6 @@ button, input, select { font: inherit; }
   color: #fff;
   font-weight: 900;
   cursor: pointer;
-}
-.resultBar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin: 0 0 10px;
-}
-.resultBar select {
-  border: 1px solid #b9c0b1;
-  border-radius: 8px;
-  background: var(--surface);
-  padding: 6px 9px;
-  color: var(--ink);
 }
 .state {
   background: var(--surface);
@@ -191,6 +178,20 @@ button, input, select { font: inherit; }
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+.sectionTools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.sectionTools select {
+  border: 1px solid #b9c0b1;
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 5px 8px;
+  color: var(--ink);
+  font-size: 13px;
 }
 .favoritesBlock .sectionHeader {
   padding: 0 6px;
