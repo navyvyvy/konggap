@@ -69,8 +69,8 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
 
 function dedupeKeys(item: CrawledOffer) {
   const linkKey = canonicalOfferUrl(item.link);
-  if (item.source !== "naver") return [`link:${linkKey}`];
   const title = item.title.replace(/\s+/g, " ").trim().toLowerCase();
+  if (item.source !== "naver") return [`link:${linkKey}`, `shop:item:${item.seller}:${title}:${item.price}:${item.shippingFee ?? ""}`];
   const itemKey = `naver:item:${title}:${item.price}:${item.shippingFee ?? ""}`;
   return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }

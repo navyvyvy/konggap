@@ -368,8 +368,8 @@ function dedupeOffers(offers) {
 
 function dedupeKeys(offer) {
   const linkKey = canonicalOfferUrl(offer.link ?? "");
-  if (offer.source !== "naver") return [`link:${linkKey}`];
   const title = offer.title.replace(/\s+/g, " ").trim().toLowerCase();
+  if (offer.source !== "naver") return [`link:${linkKey}`, `shop:item:${offer.seller}:${title}:${offer.price}:${offer.shippingFee ?? ""}`];
   const itemKey = `naver:item:${title}:${offer.price}:${offer.shippingFee ?? ""}`;
   return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
@@ -382,9 +382,9 @@ function canonicalOfferUrl(url) {
     if (host === "smartstore.naver.com" && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
     if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
-    if (host === "coffeelibre.kr" && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
+    if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
-    if (/(rehmcoffee|momos)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
+    if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
       if (productPath) return `${origin}${productPath}`;
     }

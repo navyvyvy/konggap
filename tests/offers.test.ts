@@ -116,6 +116,14 @@ test("canonicalOfferUrl keeps product identity and removes tracking noise", () =
     canonicalOfferUrl("https://www.coffeecg.com/product/%EC%83%9D%EB%91%90/1461/category/802/display/1/"),
     "https://coffeecg.com/product/%EC%83%9D%EB%91%90/1461",
   );
+  assert.equal(
+    canonicalOfferUrl("https://www.coffeecg.com/product/detail.html?product_no=3777&cate_no=802"),
+    "https://coffeecg.com/product/detail.html?product_no=3777",
+  );
+  assert.equal(
+    canonicalOfferUrl("https://m.coffeesys.co.kr/product/colombia/1979/category/1/display/15/?icid=tracking"),
+    "https://coffeesys.co.kr/product/colombia/1979",
+  );
 });
 
 test("buildFlavorCacheKey separates grade and process", () => {
@@ -221,6 +229,32 @@ test("mapCrawledOffers removes duplicate canonical links", () => {
     [
       { title: "에티오피아 예가체프 생두 1kg", link: "https://smartstore.naver.com/wondoobj/products/11962494180?NaPm=a", price: 25000 },
       { title: "에티오피아 예가체프 생두 1kg", link: "https://smartstore.naver.com/wondoobj/products/11962494180?NaPm=b", price: 25000 },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers.length, 1);
+});
+
+test("mapCrawledOffers removes duplicate shop item listings", () => {
+  const offers = mapCrawledOffers(
+    [
+      {
+        title: "생두 에티오피아 예가체프 G2 워시드 1kg 외 24종",
+        link: "https://www.coffeecg.com/product/%EC%83%9D%EB%91%90/3777/category/802/display/1/",
+        price: 16600,
+        shippingFee: 3000,
+        seller: "커피창고",
+        source: "shop",
+      },
+      {
+        title: "생두 에티오피아 예가체프 G2 워시드 1kg 외 24종",
+        link: "https://www.coffeecg.com/product/detail.html?product_no=3777",
+        price: 16600,
+        shippingFee: 3000,
+        seller: "커피창고",
+        source: "shop",
+      },
     ],
     "2026-06-26T12:00:00.000Z",
   );
