@@ -2,6 +2,7 @@
   --bg: #f3f4ef;
   --surface: #ffffff;
   --surface-strong: #f9faf6;
+  --surface-price: #f4f7f1;
   --line: #d8dcd2;
   --line-strong: #bec7b8;
   --ink: #171914;
@@ -76,14 +77,8 @@ button, input, select { font: inherit; }
 .resultBar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-end;
   margin: 0 0 10px;
-}
-.resultCount {
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 750;
 }
 .resultBar select {
   border: 1px solid #b9c0b1;
@@ -157,6 +152,9 @@ button, input, select { font: inherit; }
   align-items: flex-end;
   justify-content: center;
 }
+.loadingList {
+  border-top-width: 1px;
+}
 .skeletonLabel {
   width: 64px;
   height: 14px;
@@ -209,6 +207,7 @@ button, input, select { font: inherit; }
 .offerList {
   background: var(--surface);
   border: 1px solid var(--line-strong);
+  border-top: 2px solid var(--green);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -282,7 +281,9 @@ button, input, select { font: inherit; }
 .pricePanel {
   position: relative;
   border-left: 1px solid var(--line);
-  padding: 0 0 0 12px;
+  margin: -10px -12px -10px 0;
+  padding: 10px 12px 10px 14px;
+  background: var(--surface-price);
   text-align: right;
   display: flex;
   flex-direction: column;
@@ -448,7 +449,10 @@ button, input, select { font: inherit; }
     align-items: end;
     border-left: 0;
     border-top: 1px solid var(--line);
-    padding: 7px 0 0;
+    margin: 0;
+    padding: 8px 10px;
+    background: var(--surface-price);
+    border-radius: 6px;
     text-align: right;
   }
   .favoriteButton {

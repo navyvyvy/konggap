@@ -155,7 +155,6 @@ export function OfferSearch() {
 
       {offers.length ? (
         <div className="resultBar">
-          <span className="resultCount">총 {offers.length.toLocaleString("ko-KR")}개</span>
           <select
             value={sortOrder}
             onChange={(event) => {
@@ -206,6 +205,7 @@ export function OfferSearch() {
               <h2>가격 목록</h2>
               {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
             </div>
+            <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
           </div>
           <div className="offerList">
             {visibleOffers.map((offer) => (
