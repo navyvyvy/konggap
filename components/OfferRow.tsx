@@ -47,6 +47,20 @@ export function OfferRow({
     >
       <div className="offerInfo">
         <div className="offerMeta">
+          {onToggleFavorite ? (
+            <button
+              className={`favoriteButton ${favorite ? "favoriteButtonActive" : ""}`}
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleFavorite(offer);
+              }}
+              aria-pressed={favorite}
+              aria-label={favorite ? "찜 해제" : "찜하기"}
+            >
+              <BookmarkIcon />
+            </button>
+          ) : null}
           <span>{offer.seller}</span>
           {sourceLabel !== offer.seller ? <span>{sourceLabel}</span> : null}
         </div>
@@ -64,20 +78,6 @@ export function OfferRow({
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
-        {onToggleFavorite ? (
-          <button
-            className={`favoriteButton ${favorite ? "favoriteButtonActive" : ""}`}
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleFavorite(offer);
-            }}
-            aria-pressed={favorite}
-            aria-label={favorite ? "찜 해제" : "찜하기"}
-          >
-            <BookmarkIcon />
-          </button>
-        ) : null}
         <div className="priceLabel">{offer.shippingKnown ? "최종 비용" : "상품가 기준"}</div>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">

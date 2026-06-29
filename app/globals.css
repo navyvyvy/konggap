@@ -34,6 +34,11 @@ button, input, select { font: inherit; }
   gap: 12px;
   align-items: end;
   margin-bottom: 10px;
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid var(--green);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px;
 }
 .brandLine {
   min-width: 0;
@@ -160,7 +165,8 @@ button, input, select { font: inherit; }
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin: 12px 0 6px;
+  margin: 10px 0 6px;
+  padding: 0 2px;
 }
 .sectionHeader h2 {
   margin: 0;
@@ -188,7 +194,7 @@ button, input, select { font: inherit; }
 .sectionTools select {
   border: 1px solid #b9c0b1;
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--surface-strong);
   padding: 5px 8px;
   color: var(--ink);
   font-size: 13px;
@@ -225,6 +231,16 @@ button, input, select { font: inherit; }
 .favoriteList {
   border-color: #d0b05d;
 }
+.favoriteListCollapsed {
+  max-height: 236px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.favoriteListCollapsed::-webkit-scrollbar {
+  display: none;
+}
 .offerRow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 176px;
@@ -244,6 +260,7 @@ button, input, select { font: inherit; }
 .offerRow:last-child { border-bottom: 0; }
 .offerMeta {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 5px;
   margin-bottom: 5px;
@@ -302,24 +319,21 @@ button, input, select { font: inherit; }
   justify-content: center;
 }
 .favoriteButton {
-  position: absolute;
-  top: 10px;
-  left: 14px;
   border: 1px solid #c1c8ba;
   border-radius: 999px;
   background: #fff;
   color: #30352d;
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   font-weight: 850;
   cursor: pointer;
 }
 .favoriteIcon {
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
@@ -392,6 +406,9 @@ button, input, select { font: inherit; }
   .brandLine h1 {
     font-size: 22px;
   }
+  .appHeader {
+    padding: 10px;
+  }
   .offerList {
     background: transparent;
     border: 0;
@@ -428,6 +445,10 @@ button, input, select { font: inherit; }
   }
   .favoriteList {
     margin-bottom: 4px;
+  }
+  .favoriteListCollapsed {
+    max-height: 224px;
+    overflow-y: auto;
   }
   .offerRow {
     grid-template-columns: 1fr;
@@ -476,10 +497,8 @@ button, input, select { font: inherit; }
     text-align: right;
   }
   .favoriteButton {
-    top: 8px;
-    left: 10px;
-    width: 25px;
-    height: 25px;
+    width: 23px;
+    height: 23px;
   }
   .priceLabel { grid-column: 2; }
   .finalPrice {

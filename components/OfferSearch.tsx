@@ -9,9 +9,14 @@ const COLLAPSED_FAVORITES = 3;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
 const LOADING_STEPS = [
   "네이버 검색 결과 확인 중",
-  "전문몰 목록 수집 중",
-  "중복 링크 정리 중",
-  "가격순으로 정리 중",
+  "네이버 상품 ID 정리 중",
+  "전문몰 가격표 읽는 중",
+  "구매 가능한 생두만 거르는 중",
+  "100만원 초과 가격 제외 중",
+  "중복 광고 링크 합치는 중",
+  "향미와 배전 단서 붙이는 중",
+  "배송비 표시 정리 중",
+  "가격순 목록 준비 중",
 ];
 
 type ApiResult = {
@@ -21,7 +26,7 @@ type ApiResult = {
 };
 
 function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
-  const step = LOADING_STEPS[Math.min(Math.floor(elapsedSeconds / 8), LOADING_STEPS.length - 1)];
+  const step = LOADING_STEPS[Math.floor(elapsedSeconds / 6) % LOADING_STEPS.length];
 
   return (
     <section className="loadingBlock" aria-live="polite">
@@ -134,7 +139,7 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
-  const visibleFavorites = showAllFavorites ? favorites : favorites.slice(0, COLLAPSED_FAVORITES);
+  const hasCollapsedFavorites = favorites.length > COLLAPSED_FAVORITES && !showAllFavorites;
   const fetchedAtLabel = fetchedAt ? `${new Date(fetchedAt).toLocaleString("ko-KR")} 기준` : "";
 
   return (
@@ -165,14 +170,14 @@ export function OfferSearch() {
             <h2>찜 목록</h2>
             {favorites.length > COLLAPSED_FAVORITES ? (
               <button className="linkButton" type="button" onClick={() => setShowAllFavorites((value) => !value)}>
-                {showAllFavorites ? "접기" : `${favorites.length - COLLAPSED_FAVORITES}개 더 보기`}
+                {showAllFavorites ? "접기" : "전체 보기"}
               </button>
             ) : (
               <span>{favorites.length.toLocaleString("ko-KR")}개</span>
             )}
           </div>
-          <div className="offerList favoriteList">
-            {visibleFavorites.map((offer) => (
+          <div className={`offerList favoriteList ${hasCollapsedFavorites ? "favoriteListCollapsed" : ""}`}>
+            {favorites.map((offer) => (
               <OfferRow
                 key={offer.sourceUrl}
                 offer={offer}
