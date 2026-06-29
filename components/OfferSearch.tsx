@@ -60,6 +60,7 @@ export function OfferSearch() {
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const listRef = useRef<HTMLDivElement | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -116,14 +117,15 @@ export function OfferSearch() {
   }, [submittedQuery]);
 
   useEffect(() => {
+    const list = listRef.current;
     const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+    if (!list || !sentinel) return;
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0]?.isIntersecting) {
         setVisibleCount((count) => Math.min(count + PAGE_SIZE, offers.length));
       }
-    });
+    }, { root: list });
     observer.observe(sentinel);
 
     return () => observer.disconnect();
@@ -186,7 +188,6 @@ export function OfferSearch() {
         <section>
           <div className="sectionHeader">
             <div className="sectionTitle">
-              <h2>가격 목록</h2>
               {fetchedAtLabel ? <span>{fetchedAtLabel}</span> : null}
             </div>
             <div className="sectionTools">
@@ -204,7 +205,7 @@ export function OfferSearch() {
               </select>
             </div>
           </div>
-          <div className="offerList">
+          <div className="offerList scrollList" ref={listRef}>
             {visibleOffers.map((offer) => (
               <OfferRow
                 key={offer.id}
