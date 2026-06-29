@@ -28,6 +28,24 @@ function formatWon(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
 }
 
+function CloseIcon() {
+  return (
+    <svg className="buttonIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 7l10 10M17 7L7 17" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ direction }: { direction: "left" | "right" }) {
+  const path = direction === "left" ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6";
+
+  return (
+    <svg className="buttonIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={path} />
+    </svg>
+  );
+}
+
 function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
   const step = LOADING_STEPS[Math.floor(elapsedSeconds / 6) % LOADING_STEPS.length];
 
@@ -76,7 +94,7 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
         }}
         aria-label="찜 해제"
       >
-        ×
+        <CloseIcon />
       </button>
       <span>{offer.seller}</span>
       <strong>{formatWon(offer.finalPrice)}</strong>
@@ -251,8 +269,8 @@ export function OfferSearch() {
               <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
               {favorites.length > 1 ? (
                 <div className="stripControls" aria-label="찜 목록 이동">
-                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동">‹</button>
-                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동">›</button>
+                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
+                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
                 </div>
               ) : (
                 <span>{favorites.length.toLocaleString("ko-KR")}개</span>
