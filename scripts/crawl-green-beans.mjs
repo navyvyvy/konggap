@@ -55,8 +55,18 @@ function moneyLineToNumber(line) {
   return match ? Number(match[1].replace(/,/g, "")) : 0;
 }
 
+function moneyTextToNumber(line) {
+  const match = line.match(/(\d[\d,]*)원/);
+  return match ? Number(match[1].replace(/,/g, "")) : 0;
+}
+
 function cleanTitle(line) {
-  return line.replace(/^구매\s*[\d,.]+\+?\s*/, "").trim();
+  return line
+    .replace(/^구매\s*[\d,.]+\+?\s*/, "")
+    .replace(/^상품명\s*[:：]\s*/, "")
+    .replace(/^:\s*/, "")
+    .replace(/\s+\d[\d,]*원.*$/, "")
+    .trim();
 }
 
 function isProductTitle(line) {
@@ -159,20 +169,30 @@ async function crawlDirectShopPages(page) {
 }
 
 async function collectDirectShopOffers(page, shop) {
-  const items = await page.evaluate(() => [...document.querySelectorAll("a[href]")]
-    .map((anchor) => {
-      let container = anchor;
-      for (let index = 0; index < 5 && container.parentElement; index += 1) {
-        if (/\d[\d,]*원/.test(container.innerText || container.textContent || "")) break;
-        container = container.parentElement;
+  const items = await page.evaluate(() => {
+    const productCards = [...document.querySelectorAll('li[id^="anchorBoxId_"], .prdList > li, .shop-item')];
+    const nodes = productCards.length ? productCards : [...document.querySelectorAll("a[href]")];
+
+    return nodes.map((node) => {
+      let container = node;
+      if (node instanceof HTMLAnchorElement) {
+        for (let index = 0; index < 5 && container.parentElement; index += 1) {
+          if (/\d[\d,]*원/.test(container.innerText || container.textContent || "")) break;
+          container = container.parentElement;
+        }
       }
 
-      return {
-        title: (anchor.innerText || anchor.textContent || "").replace(/^상품명\s*:\s*/, "").replace(/\s+/g, " ").trim(),
-        link: anchor.href,
-        lines: (container.innerText || container.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean),
-      };
-    }));
+      const lines = (container.innerText || container.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
+      const anchors = [...container.querySelectorAll("a[href]")];
+      const title =
+        lines.find((line) => !/^(ADD|WISH|NEW|SOLD OUT|\d[\d,]*원|판매가\s*[:：]|컵노트\s*[:：]|[\d\s]+)$/.test(line)) ??
+        anchors.map((anchor) => (anchor.innerText || anchor.textContent || "").replace(/\s+/g, " ").trim()).find(Boolean) ??
+        "";
+      const link = anchors.map((anchor) => anchor.href).find((href) => !/javascript:|#/.test(href)) ?? (node instanceof HTMLAnchorElement ? node.href : "");
+
+      return { title, link, lines };
+    });
+  });
 
   return items
     .map((item) => parseDirectShopOffer(item, shop))
@@ -181,14 +201,13 @@ async function collectDirectShopOffers(page, shop) {
 
 function parseDirectShopOffer(item, shop) {
   let title = cleanTitle(item.title);
-  if (!title || /생두컨시어지|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
+  if (!title || /생두컨시어지|신규생두|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
   if (isBlockedShoppingTitle(title) || (!/생두|커피생두|green\s*bean/i.test(title) && !isCoffeeProductName(title))) return null;
 
   const context = item.lines.join(" ");
-  if (!/\d+\s*(kg|g)/i.test(`${title} ${context}`)) return null;
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
 
-  const prices = item.lines.map(moneyLineToNumber).filter((price) => price > 0);
+  const prices = item.lines.map(moneyTextToNumber).filter((price) => price > 0);
   const price = prices.at(-1) ?? 0;
   if (!price) return null;
 
