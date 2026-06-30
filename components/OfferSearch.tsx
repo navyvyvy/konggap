@@ -220,6 +220,7 @@ export function OfferSearch() {
       <header className="heroPanel">
         <div className="heroCopy">
           <h1>생두 가격비교</h1>
+          <p>오늘 살 수 있는 생두를 최종가부터 좁혀봅니다.</p>
         </div>
         <div className="heroAction">
           <form

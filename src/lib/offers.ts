@@ -23,14 +23,6 @@ export type Offer = Omit<RawOffer, "flavorTags" | "roastTags" | "tasteNote"> & {
   shippingKnown: boolean;
 };
 
-type StableMetadata = {
-  flavorTags: string[];
-  roastTags: string[];
-  tasteNote: string;
-};
-
-const metadataCache = new Map<string, StableMetadata>();
-
 export function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
@@ -105,18 +97,14 @@ export function buildFlavorCacheKey(name: string) {
 }
 
 export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">) {
-  const key = buildFlavorCacheKey(raw.name);
-  const cached = metadataCache.get(key);
   const nameText = stripHtml(raw.name).toLowerCase();
   const trustedDescription = trustedCoffeeInfoText(raw.rawDescription ?? "");
   const text = stripHtml(`${raw.name} ${trustedDescription}`).toLowerCase();
-  const flavorTags = unique([...(cached?.flavorTags ?? []), ...inferFlavorTags(nameText)]);
-  const roastTags = unique([...(cached?.roastTags ?? []), ...inferRoastTags(text)]);
-  const tasteNote = cached?.tasteNote || inferTasteNote(text);
-  const metadata = { flavorTags, roastTags, tasteNote };
-
-  metadataCache.set(key, metadata);
-  return metadata;
+  return {
+    flavorTags: inferFlavorTags(nameText),
+    roastTags: inferRoastTags(text),
+    tasteNote: inferTasteNote(text),
+  };
 }
 
 function trustedCoffeeInfoText(text: string) {

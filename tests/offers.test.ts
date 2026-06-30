@@ -216,7 +216,7 @@ test("normalizeOffer drops noisy coffee-bean descriptions", () => {
   assert.equal(offer.tasteNote, "");
 });
 
-test("getStableMetadata enriches cached entries when later descriptions exist", () => {
+test("getStableMetadata does not reuse previous call metadata", () => {
   const base = getStableMetadata({ name: "브라질 세하도 내추럴 생두 1kg" });
   const enriched = getStableMetadata({
     name: "브라질 세하도 내추럴 생두 1kg",
@@ -224,6 +224,8 @@ test("getStableMetadata enriches cached entries when later descriptions exist", 
   });
 
   assert.deepEqual(base.flavorTags, ["내추럴"]);
+  assert.deepEqual(base.roastTags, []);
+  assert.equal(base.tasteNote, "");
   assert.deepEqual(enriched.roastTags, ["중배전"]);
   assert.equal(enriched.tasteNote, "초콜릿, 견과");
 });

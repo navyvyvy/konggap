@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 const MAX_OFFERS = 200;
@@ -273,21 +273,42 @@ function sellerFromUrl(url) {
 }
 
 async function enrichCoffeeInfo(page, offers) {
-  const info = {};
-  const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))].slice(0, 8);
+  const cached = normalizeCoffeeInfo(await readJson("coffee-info.json", {}));
+  const info = { ...cached };
+  const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))].slice(0, 24);
 
   for (const key of keys) {
+    if (info[key]?.tasteNote || info[key]?.rawDescription) continue;
     await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(`${key} 향미 배전 생두`)}`, {
       waitUntil: "domcontentloaded",
       timeout: 20_000,
     }).catch(() => null);
     await page.waitForTimeout(600);
 
-    const rawDescription = await page.locator("body").innerText().then((text) => focusDescription(key, text)).catch(() => "");
-    info[key] = { key, rawDescription, ...inferMetadata(`${key} ${rawDescription}`) };
+    const rawDescription = await page.locator("body").innerText().then((text) => trustedCoffeeInfoText(focusDescription(key, text))).catch(() => "");
+    info[key] = buildCoffeeInfo(key, rawDescription);
   }
 
   return info;
+}
+
+function normalizeCoffeeInfo(info) {
+  return Object.fromEntries(Object.entries(info).map(([key, value]) => {
+    const rawDescription = trustedCoffeeInfoText(value?.rawDescription ?? "");
+    return [key, { ...value, ...buildCoffeeInfo(key, rawDescription) }];
+  }));
+}
+
+function buildCoffeeInfo(key, rawDescription) {
+  const keyMetadata = inferMetadata(key);
+  const fullMetadata = inferMetadata(`${key} ${rawDescription}`);
+  return {
+    key,
+    rawDescription,
+    flavorTags: keyMetadata.flavorTags,
+    roastTags: fullMetadata.roastTags,
+    tasteNote: fullMetadata.tasteNote,
+  };
 }
 
 function applyCoffeeInfo(offers, info) {
@@ -295,7 +316,7 @@ function applyCoffeeInfo(offers, info) {
     const metadata = info[coffeeKey(offer.title)];
     return metadata ? {
       ...offer,
-      flavorTags: inferMetadata(offer.title).flavorTags,
+      flavorTags: [...new Set([...inferMetadata(offer.title).flavorTags, ...(metadata.flavorTags ?? [])])],
       roastTags: metadata.roastTags,
       tasteNote: metadata.tasteNote,
       rawDescription: metadata.rawDescription,
@@ -329,6 +350,14 @@ function focusDescription(key, text) {
     .slice(0, 40)
     .join("\n")
     .slice(0, 2500);
+}
+
+function trustedCoffeeInfoText(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !/(쿠팡|원두|홀빈|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅|로스팅홀빈)/i.test(line))
+    .join("\n");
 }
 
 function inferMetadata(text) {
@@ -397,6 +426,12 @@ function canonicalOfferUrl(url) {
 async function saveJson(name, data) {
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(`${DATA_DIR}/${name}`, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+}
+
+async function readJson(name, fallback) {
+  return readFile(`${DATA_DIR}/${name}`, "utf8")
+    .then((text) => JSON.parse(text))
+    .catch(() => fallback);
 }
 
 async function main() {
