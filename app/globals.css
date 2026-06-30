@@ -59,13 +59,13 @@ button, input, select { font: inherit; }
   color: #fff;
 }
 .heroCopy p {
-  max-width: 30ch;
+  max-width: none;
   margin: 8px 0 0;
   color: #d8e2d4;
   font-size: 15px;
   line-height: 1.4;
   font-weight: 750;
-  text-wrap: pretty;
+  white-space: nowrap;
 }
 .heroAction {
   display: grid;
@@ -639,6 +639,9 @@ button, input, select { font: inherit; }
   }
   .heroCopy h1 {
     font-size: 38px;
+  }
+  .heroCopy p {
+    white-space: normal;
   }
   .searchBar {
     padding: 7px;
