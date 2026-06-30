@@ -307,11 +307,11 @@ export function OfferSearch() {
         {status === "ready" ? (
           <section className="filterBar" aria-label="목록 필터">
             <label>
-              <span>최소</span>
+              <span>최소가</span>
               <input inputMode="numeric" value={minPrice} onChange={(event) => setMinPrice(event.target.value.replace(/\D/g, ""))} placeholder="0" />
             </label>
             <label>
-              <span>최대</span>
+              <span>최대가</span>
               <input inputMode="numeric" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value.replace(/\D/g, ""))} placeholder="제한 없음" />
             </label>
             <label>
