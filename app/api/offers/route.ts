@@ -13,6 +13,7 @@ const offerCache = new Map<string, { expiresAt: number; pending?: Promise<Offers
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q")?.trim() || "생두";
+  const refresh = searchParams.get("refresh") === "1";
 
   try {
     const payload = await getCachedValue(offerCache, cacheKey(query), async () => {
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
       const rawOffers = await fetchCrawledOffers(query, fetchedAt);
       const offers = sortOffersByFinalPrice(rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0));
       return { fetchedAt, offers };
-    });
+    }, Date.now(), undefined, refresh);
 
     return NextResponse.json(payload);
   } catch (error) {

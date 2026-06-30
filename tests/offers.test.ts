@@ -100,6 +100,8 @@ test("getCachedValue reuses fresh values and pending loads", async () => {
   assert.equal(await getCachedValue(cache, "생두", load, 1000, 60_000), 12200);
   assert.equal(await getCachedValue(cache, "생두", load, 2000, 60_000), 12200);
   assert.equal(loads, 1);
+  assert.equal(await getCachedValue(cache, "생두", load, 3000, 60_000, true), 12200);
+  assert.equal(loads, 2);
 
   const pendingCache = new Map<string, CacheEntry<number>>();
   const values = await Promise.all([
@@ -108,7 +110,7 @@ test("getCachedValue reuses fresh values and pending loads", async () => {
   ]);
 
   assert.deepEqual(values, [12200, 12200]);
-  assert.equal(loads, 2);
+  assert.equal(loads, 3);
 });
 
 test("toggleFavoriteOffer toggles by sourceUrl", () => {

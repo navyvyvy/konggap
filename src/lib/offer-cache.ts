@@ -16,9 +16,10 @@ export async function getCachedValue<T>(
   load: () => Promise<T>,
   now = Date.now(),
   ttlMs = OFFER_CACHE_TTL_MS,
+  refresh = false,
 ) {
   const cached = cache.get(key);
-  if (cached?.value && cached.expiresAt > now) return cached.value;
+  if (!refresh && cached?.value && cached.expiresAt > now) return cached.value;
   if (cached?.pending) return cached.pending;
 
   const pending = load().then((value) => {

@@ -144,7 +144,10 @@ export function OfferSearch() {
       setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
     }, 1000);
 
-    fetch(`/api/offers?q=${encodeURIComponent(submittedQuery)}`)
+    const params = new URLSearchParams({ q: submittedQuery });
+    if (reloadKey > 0) params.set("refresh", "1");
+
+    fetch(`/api/offers?${params.toString()}`)
       .then(async (response) => {
         const data = (await response.json()) as ApiResult;
         if (!response.ok) throw new Error(data.error || "조회 실패");
@@ -205,8 +208,8 @@ export function OfferSearch() {
   }, [offers]);
   const submitCurrentQuery = () => {
     const nextQuery = query.trim() || "생두";
+    setReloadKey((key) => key + 1);
     if (nextQuery === submittedQuery) {
-      setReloadKey((key) => key + 1);
       return;
     }
     setSubmittedQuery(nextQuery);
