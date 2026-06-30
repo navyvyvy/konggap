@@ -47,9 +47,10 @@ button, select {
   gap: 20px;
   align-items: stretch;
   margin-bottom: 12px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 7px 7px 0 var(--edge);
+  border-top: 4px solid var(--edge);
+  border-bottom: 4px solid var(--edge);
+  border-radius: 0;
+  box-shadow: none;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 48%),
     var(--green);
@@ -63,23 +64,13 @@ button, select {
   justify-content: center;
   align-items: flex-start;
 }
-.productLabel {
-  display: inline-flex;
-  margin-bottom: 7px;
-  border: 2px solid rgba(255, 255, 255, .38);
-  border-radius: 4px;
-  background: var(--amber-soft);
-  padding: 3px 8px;
-  color: #113017;
-  font-size: 12px;
-  font-weight: 850;
-}
 .heroCopy h1 {
   margin: 0;
-  font-size: 56px;
+  font-size: 62px;
   line-height: 1;
   letter-spacing: 0;
-  color: #fff;
+  color: #fffdf3;
+  text-shadow: 3px 3px 0 var(--edge);
   text-wrap: balance;
 }
 .heroCopy p {
@@ -99,27 +90,31 @@ button, select {
 .searchBar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 7px;
+  gap: 12px;
   width: 100%;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, .12);
-  padding: 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  align-items: end;
 }
 .heroFacts {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) minmax(0, .7fr);
   gap: 1px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, .16);
+  border-top: 3px solid var(--edge);
+  border-bottom: 3px solid var(--edge);
+  border-radius: 0;
+  background: transparent;
   overflow: hidden;
 }
 .heroFacts div {
   min-width: 0;
-  background: rgba(16, 31, 22, .4);
+  border-right: 2px solid var(--edge);
+  background: transparent;
   padding: 9px 10px;
 }
+.heroFacts div:last-child { border-right: 0; }
 .heroFacts span {
   display: block;
   margin-bottom: 2px;
@@ -136,11 +131,18 @@ button, select {
 }
 .searchBar input {
   min-width: 0;
-  border: 2px solid transparent;
-  border-radius: 4px;
-  background: var(--surface);
-  padding: 8px 10px;
-  color: var(--ink);
+  border: 0;
+  border-bottom: 3px solid var(--edge);
+  border-radius: 0;
+  background: transparent;
+  padding: 7px 2px 8px;
+  color: #fffdf3;
+  font-size: 18px;
+  font-weight: 850;
+}
+.searchBar input:focus-visible {
+  outline: 0;
+  border-bottom-color: var(--amber-soft);
 }
 .searchBar input:focus-visible,
 .sectionTools select:focus-visible,
@@ -185,11 +187,12 @@ button, select {
   box-shadow: 1px 1px 0 var(--edge);
 }
 .toolPanel {
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 7px 7px 0 var(--edge);
+  border-top: 4px solid var(--edge);
+  border-bottom: 4px solid var(--edge);
+  border-radius: 0;
+  box-shadow: none;
   background: rgba(255, 253, 243, .96);
-  padding: 12px;
+  padding: 12px 0;
 }
 .workspaceGrid {
   display: grid;
@@ -209,10 +212,10 @@ button, select {
   top: 12px;
 }
 .resultsPanel {
-  border: 3px solid var(--edge);
-  border-radius: 4px;
+  border: 0;
+  border-radius: 0;
   background: var(--surface);
-  padding: 10px;
+  padding: 0;
 }
 .siteFooter {
   display: flex;
@@ -262,8 +265,9 @@ button, select {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
+  border-top: 3px solid var(--edge);
+  border-bottom: 3px solid var(--edge);
+  border-radius: 0;
   background: var(--edge);
   overflow: hidden;
 }
@@ -289,10 +293,11 @@ button, select {
 .filterBar {
   display: grid;
   gap: 7px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
+  border-top: 3px solid var(--edge);
+  border-bottom: 3px solid var(--edge);
+  border-radius: 0;
   background: var(--surface);
-  padding: 8px;
+  padding: 10px 0;
 }
 .filterBar label {
   display: grid;
@@ -304,6 +309,7 @@ button, select {
   border-radius: 4px;
   background: var(--surface-strong);
   padding: 6px 8px;
+  margin: 0 8px;
 }
 .filterBar span {
   color: var(--muted);
@@ -335,6 +341,7 @@ button, select {
   font-size: 13px;
   font-weight: 900;
   cursor: pointer;
+  margin: 0 8px;
 }
 .loadingStatus {
   display: flex;
@@ -452,13 +459,14 @@ button, select {
 .favoritesBlock {
   grid-column: 1 / -1;
   min-width: 0;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
+  border-top: 3px solid var(--edge);
+  border-bottom: 3px solid var(--edge);
+  border-radius: 0;
   background: var(--surface);
-  padding: 10px;
+  padding: 10px 0;
 }
 .favoritesBlock .sectionHeader {
-  padding: 0 2px;
+  padding: 0 10px;
 }
 .stripControls {
   display: inline-flex;
@@ -505,6 +513,7 @@ button, select {
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-snap-type: x proximity;
+  padding: 0 10px;
 }
 .favoriteStrip::-webkit-scrollbar {
   display: none;
@@ -730,9 +739,11 @@ button, select {
     gap: 9px;
     margin-bottom: 9px;
     padding: 12px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
   }
   .heroCopy h1 {
-    font-size: 34px;
+    font-size: 42px;
   }
   .heroCopy p {
     margin-top: 5px;
@@ -741,7 +752,11 @@ button, select {
     white-space: normal;
   }
   .searchBar {
-    padding: 6px;
+    gap: 8px;
+    padding: 0;
+  }
+  .searchBar input {
+    font-size: 17px;
   }
   .heroFacts div {
     padding: 7px 8px;
@@ -754,7 +769,9 @@ button, select {
   }
   .toolPanel {
     padding: 8px;
-    box-shadow: 4px 4px 0 var(--edge);
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    box-shadow: none;
   }
   .workspaceGrid {
     grid-template-columns: 1fr;
@@ -788,16 +805,18 @@ button, select {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 7px;
+    padding: 8px 0;
   }
   .filterBar label {
     flex: 1 1 calc(50% - 3px);
     min-width: 0;
     padding: 6px 7px;
+    margin: 0;
   }
   .filterBar button {
     min-height: 34px;
     padding-inline: 10px;
+    margin: 0;
   }
   .offerList {
     background: transparent;

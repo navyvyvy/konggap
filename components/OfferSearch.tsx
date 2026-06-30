@@ -232,7 +232,6 @@ export function OfferSearch() {
     <main className="page">
       <header className="heroPanel">
         <div className="heroCopy">
-          <span className="productLabel">로스터 구매 노트</span>
           <h1>생두 가격비교</h1>
           <p>판매 링크별 최종가와 향미 단서를 한 목록에서 봅니다.</p>
         </div>
