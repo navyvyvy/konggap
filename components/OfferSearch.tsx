@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { canonicalOfferUrl, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
+import { canonicalOfferUrl, filterOffers, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 
 const PAGE_SIZE = 25;
@@ -111,6 +111,10 @@ export function OfferSearch() {
   const [fetchedAt, setFetchedAt] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [flavorFilter, setFlavorFilter] = useState("");
+  const [roastFilter, setRoastFilter] = useState("");
   const [favorites, setFavorites] = useState<Offer[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "empty" | "error">("loading");
   const [error, setError] = useState("");
@@ -175,6 +179,35 @@ export function OfferSearch() {
     };
   }, [submittedQuery, reloadKey]);
 
+  const tagOptions = useMemo(() => ({
+    flavors: [...new Set(offers.flatMap((offer) => offer.flavorTags))].sort(),
+    roasts: [...new Set(offers.flatMap((offer) => offer.roastTags))].sort(),
+  }), [offers]);
+  const filteredOffers = useMemo(() => filterOffers(offers, {
+    minPrice: minPrice ? Number(minPrice) : undefined,
+    maxPrice: maxPrice ? Number(maxPrice) : undefined,
+    flavorTag: flavorFilter,
+    roastTag: roastFilter,
+  }), [offers, minPrice, maxPrice, flavorFilter, roastFilter]);
+  const sortedOffers = useMemo(() => sortOffersByFinalPrice(filteredOffers, sortOrder), [filteredOffers, sortOrder]);
+  const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
+  const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
+  const fetchedAtLabel = fetchedAt
+    ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
+    : "";
+  const summary = useMemo(() => {
+    const naverCount = filteredOffers.filter((offer) => offer.source === "naver").length;
+    const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
+
+    return {
+      naverCount,
+      shopCount: filteredOffers.length - naverCount,
+      lowestFinalPrice: cheapest?.finalPrice ?? 0,
+    };
+  }, [filteredOffers]);
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [minPrice, maxPrice, flavorFilter, roastFilter, sortOrder]);
   useEffect(() => {
     const list = listRef.current;
     const sentinel = sentinelRef.current;
@@ -182,30 +215,13 @@ export function OfferSearch() {
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0]?.isIntersecting) {
-        setVisibleCount((count) => Math.min(count + PAGE_SIZE, offers.length));
+        setVisibleCount((count) => Math.min(count + PAGE_SIZE, filteredOffers.length));
       }
     }, { root: list });
     observer.observe(sentinel);
 
     return () => observer.disconnect();
-  }, [offers.length]);
-
-  const sortedOffers = useMemo(() => sortOffersByFinalPrice(offers, sortOrder), [offers, sortOrder]);
-  const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
-  const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
-  const fetchedAtLabel = fetchedAt
-    ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
-    : "";
-  const summary = useMemo(() => {
-    const naverCount = offers.filter((offer) => offer.source === "naver").length;
-    const cheapest = sortOffersByFinalPrice(offers)[0];
-
-    return {
-      naverCount,
-      shopCount: offers.length - naverCount,
-      lowestFinalPrice: cheapest?.finalPrice ?? 0,
-    };
-  }, [offers]);
+  }, [filteredOffers.length]);
   const submitCurrentQuery = () => {
     const nextQuery = query.trim() || "생두";
     setReloadKey((key) => key + 1);
@@ -236,11 +252,11 @@ export function OfferSearch() {
           <div className="heroFacts" aria-label="현재 조회 상태">
             <div>
               <span>최저</span>
-              <strong>{status === "ready" ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
+              <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
             </div>
             <div>
               <span>목록</span>
-              <strong>{status === "ready" ? `${offers.length.toLocaleString("ko-KR")}개` : status === "loading" ? "조회 중" : "-"}</strong>
+              <strong>{status === "ready" ? `${filteredOffers.length.toLocaleString("ko-KR")}개` : status === "loading" ? "조회 중" : "-"}</strong>
             </div>
             <div>
               <span>찜</span>
@@ -275,16 +291,49 @@ export function OfferSearch() {
             </div>
             <div>
               <span>목록</span>
-              <strong>{offers.length.toLocaleString("ko-KR")}개</strong>
+              <strong>{filteredOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}개</strong>
             </div>
             <div>
               <span>최저</span>
-              <strong>{formatWon(summary.lowestFinalPrice)}</strong>
+              <strong>{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
             </div>
             <div>
               <span>출처</span>
               <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
             </div>
+          </section>
+        ) : null}
+
+        {status === "ready" ? (
+          <section className="filterBar" aria-label="목록 필터">
+            <label>
+              <span>최소</span>
+              <input inputMode="numeric" value={minPrice} onChange={(event) => setMinPrice(event.target.value.replace(/\D/g, ""))} placeholder="0" />
+            </label>
+            <label>
+              <span>최대</span>
+              <input inputMode="numeric" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value.replace(/\D/g, ""))} placeholder="제한 없음" />
+            </label>
+            <label>
+              <span>향미</span>
+              <select value={flavorFilter} onChange={(event) => setFlavorFilter(event.target.value)}>
+                <option value="">전체</option>
+                {tagOptions.flavors.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+              </select>
+            </label>
+            <label>
+              <span>배전</span>
+              <select value={roastFilter} onChange={(event) => setRoastFilter(event.target.value)}>
+                <option value="">전체</option>
+                {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+              </select>
+            </label>
+            <button type="button" onClick={() => {
+              setMinPrice("");
+              setMaxPrice("");
+              setFlavorFilter("");
+              setRoastFilter("");
+            }}>초기화</button>
           </section>
         ) : null}
 
@@ -318,7 +367,7 @@ export function OfferSearch() {
             <div className="sectionHeader">
               <div className="sectionTitle" />
               <div className="sectionTools">
-                <span>{visibleOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}</span>
+                <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
                 <select
                   value={sortOrder}
                   onChange={(event) => {
@@ -332,17 +381,30 @@ export function OfferSearch() {
                 </select>
               </div>
             </div>
-            <div className="offerList scrollList" ref={listRef}>
-              {visibleOffers.map((offer) => (
-                <OfferRow
-                  key={offer.id}
-                  offer={offer}
-                  favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
-                  onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-                />
-              ))}
-              <div ref={sentinelRef} className="sentinel" />
-            </div>
+            {filteredOffers.length ? (
+              <div className="offerList scrollList" ref={listRef}>
+                {visibleOffers.map((offer) => (
+                  <OfferRow
+                    key={offer.id}
+                    offer={offer}
+                    favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
+                    onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                  />
+                ))}
+                <div ref={sentinelRef} className="sentinel" />
+              </div>
+            ) : (
+              <div className="state">
+                <strong>조건 결과 없음</strong>
+                <span>가격이나 태그 조건을 줄이면 다시 보입니다.</span>
+                <button type="button" onClick={() => {
+                  setMinPrice("");
+                  setMaxPrice("");
+                  setFlavorFilter("");
+                  setRoastFilter("");
+                }}>필터 초기화</button>
+              </div>
+            )}
           </section>
         ) : null}
       </section>

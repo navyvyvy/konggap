@@ -8,6 +8,7 @@ import {
 import {
   buildFlavorCacheKey,
   canonicalOfferUrl,
+  filterOffers,
   getStableMetadata,
   normalizeOffer,
   paginateOffers,
@@ -85,6 +86,23 @@ test("sortOffersByFinalPrice sorts by final payment amount", () => {
   assert.deepEqual(
     sortOffersByFinalPrice(offers, "desc").map((offer) => offer.id),
     ["expensive", "middle", "cheap"],
+  );
+});
+
+test("filterOffers filters by final price and tags", () => {
+  const offers = [
+    { id: "a", finalPrice: 12000, flavorTags: ["내추럴"], roastTags: ["중배전"] },
+    { id: "b", finalPrice: 18000, flavorTags: ["워시드"], roastTags: ["약배전"] },
+    { id: "c", finalPrice: 26000, flavorTags: ["내추럴"], roastTags: ["강배전"] },
+  ];
+
+  assert.deepEqual(
+    filterOffers(offers, { minPrice: 13000, maxPrice: 26000, flavorTag: "내추럴" }).map((offer) => offer.id),
+    ["c"],
+  );
+  assert.deepEqual(
+    filterOffers(offers, { roastTag: "약배전" }).map((offer) => offer.id),
+    ["b"],
   );
 });
 

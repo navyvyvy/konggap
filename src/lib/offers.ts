@@ -23,6 +23,13 @@ export type Offer = Omit<RawOffer, "flavorTags" | "roastTags" | "tasteNote"> & {
   shippingKnown: boolean;
 };
 
+export type OfferFilters = {
+  minPrice?: number;
+  maxPrice?: number;
+  flavorTag?: string;
+  roastTag?: string;
+};
+
 export function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
@@ -49,6 +56,15 @@ export function paginateOffers<T>(offers: T[], offset: number, pageSize: number)
 export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers: T[], direction: "asc" | "desc" = "asc") {
   const multiplier = direction === "asc" ? 1 : -1;
   return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
+}
+
+export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[] }>(offers: T[], filters: OfferFilters) {
+  return offers.filter((offer) =>
+    (filters.minPrice === undefined || offer.finalPrice >= filters.minPrice) &&
+    (filters.maxPrice === undefined || offer.finalPrice <= filters.maxPrice) &&
+    (!filters.flavorTag || offer.flavorTags.includes(filters.flavorTag)) &&
+    (!filters.roastTag || offer.roastTags.includes(filters.roastTag)),
+  );
 }
 
 export function toggleFavoriteOffer<T extends { sourceUrl: string }>(favorites: T[], offer: T) {
