@@ -17,6 +17,7 @@ import {
   toggleFavoriteOffer,
 } from "../src/lib/offers";
 import {
+  inferShopShippingFee,
   isBuyableGreenBeanOffer,
   mapCrawledOffers,
   toGreenBeanQuery,
@@ -291,6 +292,34 @@ test("mapCrawledOffers keeps only priced crawled offers", () => {
   assert.equal(offers[0]?.name, "에티오피아 예가체프 생두 2kg");
   assert.deepEqual(offers[0]?.flavorTags, ["워시드"]);
   assert.equal(offers[0]?.rawDescription, "약배전에서 꽃향이 좋습니다.");
+});
+
+test("inferShopShippingFee applies confirmed shop rules", () => {
+  assert.equal(inferShopShippingFee({ seller: "커피리브레", link: "https://coffeelibre.kr/product/detail.html", price: 26000 }), 0);
+  assert.equal(inferShopShippingFee({ seller: "모모스커피", link: "https://momos.co.kr/product/a", price: 39900 }), 2500);
+  assert.equal(inferShopShippingFee({ seller: "모모스커피", link: "https://momos.co.kr/product/a", price: 40000 }), 0);
+  assert.equal(inferShopShippingFee({ seller: "커피창고", link: "https://coffeecg.com/product/a", price: 69900 }), 3000);
+  assert.equal(inferShopShippingFee({ seller: "커피창고", link: "https://coffeecg.com/product/a", price: 70000 }), 0);
+  assert.equal(inferShopShippingFee({ seller: "생두몰", link: "https://coffeeplant.co.kr/shop_view/?idx=1", price: 49000 }), 4000);
+  assert.equal(inferShopShippingFee({ seller: "커피시스", link: "https://coffeesys.co.kr/product/a", price: 50000 }), 0);
+  assert.equal(inferShopShippingFee({ seller: "알마씨엘로", link: "https://almacielo.com/product/a", price: 30000 }), null);
+});
+
+test("mapCrawledOffers fills confirmed shop shipping when missing", () => {
+  const offers = mapCrawledOffers(
+    [
+      {
+        title: "[New Crop / 생두] 브라질 세하도 내추럴 1kg",
+        link: "https://m.coffeelibre.kr/product/detail.html?product_no=7687",
+        price: 17200,
+        seller: "커피리브레",
+        source: "shop",
+      },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers[0]?.shippingFee, 0);
 });
 
 test("mapCrawledOffers removes duplicate canonical links", () => {

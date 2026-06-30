@@ -41,6 +41,13 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
   { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90/56/", seller: "커피리브레" },
 ];
+const SHOP_SHIPPING_RULES = [
+  { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
+  { test: /momos\.co\.kr|모모스커피/, fee: 2500, freeOver: 40_000 },
+  { test: /coffeecg\.com|커피창고/, fee: 3000, freeOver: 70_000 },
+  { test: /coffeeplant\.co\.kr|생두몰/, fee: 4000, freeOver: 50_000 },
+  { test: /coffeesys\.co\.kr|커피시스/, fee: 3000, freeOver: 50_000 },
+];
 
 function greenBeanQuery(query) {
   const trimmed = query.trim() || "생두";
@@ -214,7 +221,7 @@ function parseDirectShopOffer(item, shop) {
   if (!price) return null;
 
   if (!/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
-  return { title, link: item.link, price, shippingFee: null, seller: shop.seller, source: "shop" };
+  return { title, link: item.link, price, shippingFee: inferShopShippingFee({ seller: shop.seller, link: item.link, price }), seller: shop.seller, source: "shop" };
 }
 
 function isCoffeeProductName(title) {
@@ -252,11 +259,20 @@ function parseSpecialtyOffer(item) {
 
   const priceLine = item.lines.find((line) => /판매가\s*[:：]/.test(line)) ?? item.lines.find((line) => /^\d[\d,]*원/.test(line));
   const price = moneyLineToNumber((priceLine ?? "").replace(/^.*판매가\s*[:：]\s*/, "").split(/[·;]/)[0].trim());
-  const shippingLine = item.lines.find((line) => /배송비/.test(line)) ?? "";
-  const shippingFee = moneyLineToNumber(shippingLine.replace(/^.*배송비\s*[:：]\s*/, "").split(/[()·;]/)[0].trim()) || (/무료/.test(shippingLine) ? 0 : 3000);
-
   if (!price) return null;
-  return { title, link: item.link, price, shippingFee, seller: sellerFromUrl(item.link), source: "shop" };
+  const seller = sellerFromUrl(item.link);
+  const shippingLine = item.lines.find((line) => /배송비/.test(line)) ?? "";
+  const parsedShippingFee = moneyLineToNumber(shippingLine.replace(/^.*배송비\s*[:：]\s*/, "").split(/[()·;]/)[0].trim());
+  const shippingFee = parsedShippingFee || (/무료/.test(shippingLine) ? 0 : inferShopShippingFee({ seller, link: item.link, price }));
+
+  return { title, link: item.link, price, shippingFee, seller, source: "shop" };
+}
+
+function inferShopShippingFee(item) {
+  const target = `${item.seller ?? ""} ${item.link ?? ""}`;
+  const rule = SHOP_SHIPPING_RULES.find((candidate) => candidate.test.test(target));
+  if (!rule) return null;
+  return rule.freeOver && item.price >= rule.freeOver ? 0 : rule.fee;
 }
 
 function sellerFromUrl(url) {

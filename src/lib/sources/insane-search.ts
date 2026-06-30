@@ -4,6 +4,13 @@ import { canonicalOfferUrl, type RawOffer, type OfferSource } from "../offers";
 
 const execFileAsync = promisify(execFile);
 const MAX_REASONABLE_PRICE = 1_000_000;
+const SHOP_SHIPPING_RULES = [
+  { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
+  { test: /momos\.co\.kr|모모스커피/, fee: 2500, freeOver: 40_000 },
+  { test: /coffeecg\.com|커피창고/, fee: 3000, freeOver: 70_000 },
+  { test: /coffeeplant\.co\.kr|생두몰/, fee: 4000, freeOver: 50_000 },
+  { test: /coffeesys\.co\.kr|커피시스/, fee: 3000, freeOver: 50_000 },
+];
 
 export type CrawledOffer = {
   title: string;
@@ -57,7 +64,7 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
         source,
         sourceUrl: item.link,
         price: item.price,
-        shippingFee: item.shippingFee ?? null,
+        shippingFee: item.shippingFee ?? inferShopShippingFee(item),
         flavorTags: item.flavorTags,
         roastTags: item.roastTags,
         tasteNote: item.tasteNote,
@@ -65,6 +72,13 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawO
         fetchedAt,
       };
     });
+}
+
+export function inferShopShippingFee(item: Pick<CrawledOffer, "seller" | "link" | "price">) {
+  const target = `${item.seller ?? ""} ${item.link ?? ""}`;
+  const rule = SHOP_SHIPPING_RULES.find((candidate) => candidate.test.test(target));
+  if (!rule) return null;
+  return rule.freeOver && item.price >= rule.freeOver ? 0 : rule.fee;
 }
 
 function dedupeKeys(item: CrawledOffer) {
