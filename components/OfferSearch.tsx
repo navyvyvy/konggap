@@ -326,28 +326,6 @@ export function OfferSearch() {
                 }}>필터 초기화</button>
               </section>
 
-              {favorites.length ? (
-                <section className="favoritesBlock" aria-label="찜 목록">
-                  <div className="sectionHeader">
-                    <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
-                    {favorites.length > 1 ? (
-                      <div className="stripControls" aria-label="찜 목록 이동">
-                        <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
-                        <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="favoriteStrip" ref={favoriteStripRef}>
-                    {favorites.map((offer) => (
-                      <FavoriteCard
-                        key={offer.sourceUrl}
-                        offer={offer}
-                        onRemove={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
             </aside>
 
             <section className="resultsPanel" aria-label="가격 목록">
@@ -395,6 +373,28 @@ export function OfferSearch() {
                 </div>
               )}
             </section>
+            {favorites.length ? (
+              <section className="favoritesBlock" aria-label="찜 목록">
+                <div className="sectionHeader">
+                  <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
+                  {favorites.length > 1 ? (
+                    <div className="stripControls" aria-label="찜 목록 이동">
+                      <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
+                      <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="favoriteStrip" ref={favoriteStripRef}>
+                  {favorites.map((offer) => (
+                    <FavoriteCard
+                      key={offer.sourceUrl}
+                      offer={offer}
+                      onRemove={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
         ) : null}
       </section>
