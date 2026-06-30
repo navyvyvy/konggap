@@ -1,5 +1,5 @@
 :root {
-  --bg: #eef2ea;
+  --bg: #e7ece2;
   --surface: #ffffff;
   --surface-strong: #f9faf6;
   --surface-price: #f4f7f1;
@@ -14,10 +14,16 @@
 }
 
 * { box-sizing: border-box; }
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
 body {
   margin: 0;
+  min-height: 100vh;
   background:
-    linear-gradient(180deg, #172d20 0 152px, #dae3d5 152px 318px, var(--bg) 318px),
+    radial-gradient(circle at 18% -10%, rgba(221, 231, 211, .24), transparent 300px),
+    linear-gradient(180deg, #12271b 0 214px, #cfdbca 214px 360px, var(--bg) 360px),
     var(--bg);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -29,22 +35,22 @@ button, select {
 }
 
 .page {
-  max-width: 1120px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 14px 16px 28px;
+  padding: 18px 18px 30px;
 }
 .heroPanel {
   display: grid;
-  grid-template-columns: minmax(260px, .85fr) minmax(390px, 1.15fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(410px, .72fr);
+  gap: 20px;
   align-items: stretch;
-  margin-bottom: 10px;
-  border: 1px solid rgba(255, 255, 255, .16);
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, .18);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 48%),
     var(--green);
-  padding: 16px;
+  padding: 18px;
   color: #fff;
 }
 .heroCopy {
@@ -54,21 +60,33 @@ button, select {
   justify-content: center;
   align-items: flex-start;
 }
+.productLabel {
+  display: inline-flex;
+  margin-bottom: 7px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .08);
+  padding: 3px 8px;
+  color: #d9e4d5;
+  font-size: 12px;
+  font-weight: 850;
+}
 .heroCopy h1 {
   margin: 0;
-  font-size: clamp(38px, 5vw, 64px);
-  line-height: .98;
+  font-size: 56px;
+  line-height: 1;
   letter-spacing: 0;
   color: #fff;
+  text-wrap: balance;
 }
 .heroCopy p {
-  max-width: none;
-  margin: 8px 0 0;
+  max-width: 620px;
+  margin: 9px 0 0;
   color: #d8e2d4;
   font-size: 15px;
   line-height: 1.4;
   font-weight: 750;
-  white-space: nowrap;
+  text-wrap: pretty;
 }
 .heroAction {
   display: grid;
@@ -87,7 +105,7 @@ button, select {
 }
 .heroFacts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) minmax(0, .7fr);
   gap: 1px;
   border: 1px solid rgba(255, 255, 255, .18);
   border-radius: 8px;
@@ -109,9 +127,9 @@ button, select {
 .heroFacts strong {
   display: block;
   color: #fff;
-  font-size: 17px;
+  font-size: 15px;
   line-height: 1.18;
-  white-space: nowrap;
+  word-break: keep-all;
 }
 .searchBar input {
   min-width: 0;
@@ -156,10 +174,37 @@ button, select {
 .toolPanel {
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  background: rgba(255, 255, 255, .74);
+  background: rgba(255, 255, 255, .72);
+  padding: 12px;
+}
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: 292px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.finderRail,
+.resultsPanel {
+  min-width: 0;
+}
+.finderRail {
+  display: grid;
+  gap: 10px;
+  align-self: start;
+  position: sticky;
+  top: 12px;
+}
+.resultsPanel {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
   padding: 10px;
 }
 .siteFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
   margin-top: 12px;
   color: var(--muted);
   font-size: 12px;
@@ -201,9 +246,8 @@ button, select {
 }
 .summaryBar {
   display: grid;
-  grid-template-columns: minmax(190px, 1.3fr) repeat(2, minmax(88px, .55fr)) minmax(210px, 1fr);
+  grid-template-columns: 1fr;
   gap: 1px;
-  margin-bottom: 10px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: var(--line);
@@ -224,26 +268,27 @@ button, select {
 .summaryBar strong {
   display: block;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 .filterBar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 7px;
-  margin: -2px 0 10px;
-  align-items: stretch;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 8px;
 }
 .filterBar label {
   display: grid;
-  grid-template-columns: auto minmax(86px, 1fr);
+  grid-template-columns: 62px minmax(0, 1fr);
   align-items: center;
   gap: 6px;
-  min-width: 148px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--surface-strong);
   padding: 6px 8px;
 }
 .filterBar span {
@@ -270,7 +315,7 @@ button, select {
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: var(--surface-strong);
-  padding: 6px 10px;
+  padding: 7px 10px;
   color: var(--green);
   font-size: 13px;
   font-weight: 900;
@@ -353,12 +398,12 @@ button, select {
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin: 9px 0 6px;
+  margin: 0 0 8px;
   padding: 0 2px;
 }
 .sectionHeader h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.2;
 }
 .sectionTitle {
@@ -388,7 +433,7 @@ button, select {
   font-size: 13px;
 }
 .favoritesBlock .sectionHeader {
-  padding: 0 6px;
+  padding: 0 2px;
 }
 .stripControls {
   display: inline-flex;
@@ -415,7 +460,7 @@ button, select {
   overflow: hidden;
 }
 .scrollList {
-  max-height: min(650px, calc(100vh - 312px));
+  max-height: min(720px, calc(100vh - 224px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -427,7 +472,7 @@ button, select {
 .favoriteStrip {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 32%);
+  grid-auto-columns: minmax(220px, 100%);
   gap: 8px;
   overflow-x: auto;
   overscroll-behavior-x: contain;
@@ -684,6 +729,17 @@ button, select {
   .toolPanel {
     padding: 8px;
   }
+  .workspaceGrid {
+    grid-template-columns: 1fr;
+  }
+  .finderRail {
+    position: static;
+  }
+  .resultsPanel {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
   .state {
     align-items: flex-start;
     flex-direction: column;
@@ -702,8 +758,10 @@ button, select {
     font-size: 13px;
   }
   .filterBar {
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 8px;
+    padding: 7px;
   }
   .filterBar label {
     flex: 1 1 calc(50% - 3px);

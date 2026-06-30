@@ -232,8 +232,9 @@ export function OfferSearch() {
     <main className="page">
       <header className="heroPanel">
         <div className="heroCopy">
+          <span className="productLabel">로스터 구매 노트</span>
           <h1>생두 가격비교</h1>
-          <p>오늘 살 수 있는 생두를 최종가부터 좁혀봅니다.</p>
+          <p>판매 링크별 최종가와 향미 단서를 한 목록에서 봅니다.</p>
         </div>
         <div className="heroAction">
           <form
@@ -244,16 +245,16 @@ export function OfferSearch() {
             }}
           >
             <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-            <button type="submit">조회</button>
+            <button type="submit">목록 확인</button>
           </form>
           <div className="heroFacts" aria-label="현재 조회 상태">
             <div>
-              <span>최저</span>
-              <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
+              <span>기준</span>
+              <strong>{fetchedAtLabel || "-"}</strong>
             </div>
             <div>
-              <span>목록</span>
-              <strong>{status === "ready" ? `${filteredOffers.length.toLocaleString("ko-KR")}개` : status === "loading" ? "조회 중" : "-"}</strong>
+              <span>최저</span>
+              <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
             </div>
             <div>
               <span>찜</span>
@@ -281,132 +282,127 @@ export function OfferSearch() {
         ) : null}
 
         {status === "ready" ? (
-          <section className="summaryBar" aria-label="조회 요약">
-            <div>
-              <span>기준</span>
-              <strong>{fetchedAtLabel}</strong>
-            </div>
-            <div>
-              <span>목록</span>
-              <strong>{filteredOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}개</strong>
-            </div>
-            <div>
-              <span>최저</span>
-              <strong>{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
-            </div>
-            <div>
-              <span>출처</span>
-              <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
-            </div>
-          </section>
-        ) : null}
-
-        {status === "ready" ? (
-          <section className="filterBar" aria-label="목록 필터">
-            <label>
-              <span>최소가</span>
-              <input inputMode="numeric" value={minPrice} onChange={(event) => setMinPrice(event.target.value.replace(/\D/g, ""))} placeholder="0" />
-            </label>
-            <label>
-              <span>최대가</span>
-              <input inputMode="numeric" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value.replace(/\D/g, ""))} placeholder="제한 없음" />
-            </label>
-            <label>
-              <span>향미</span>
-              <select value={flavorFilter} onChange={(event) => setFlavorFilter(event.target.value)}>
-                <option value="">전체</option>
-                {tagOptions.flavors.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
-              </select>
-            </label>
-            <label>
-              <span>배전</span>
-              <select value={roastFilter} onChange={(event) => setRoastFilter(event.target.value)}>
-                <option value="">전체</option>
-                {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
-              </select>
-            </label>
-            <button type="button" onClick={() => {
-              setMinPrice("");
-              setMaxPrice("");
-              setFlavorFilter("");
-              setRoastFilter("");
-            }}>초기화</button>
-          </section>
-        ) : null}
-
-        {favorites.length ? (
-          <section className="favoritesBlock" aria-label="찜 목록">
-            <div className="sectionHeader">
-              <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
-              {favorites.length > 1 ? (
-                <div className="stripControls" aria-label="찜 목록 이동">
-                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
-                  <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
+          <div className="workspaceGrid">
+            <aside className="finderRail" aria-label="검색 도구">
+              <section className="summaryBar" aria-label="조회 요약">
+                <div>
+                  <span>목록</span>
+                  <strong>{filteredOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}개</strong>
                 </div>
-              ) : (
-                <span>{favorites.length.toLocaleString("ko-KR")}개</span>
-              )}
-            </div>
-            <div className="favoriteStrip" ref={favoriteStripRef}>
-              {favorites.map((offer) => (
-                <FavoriteCard
-                  key={offer.sourceUrl}
-                  offer={offer}
-                  onRemove={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
+                <div>
+                  <span>출처</span>
+                  <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
+                </div>
+              </section>
 
-        {status === "ready" ? (
-          <section>
-            <div className="sectionHeader">
-              <div className="sectionTitle" />
-              <div className="sectionTools">
-                <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
-                <select
-                  value={sortOrder}
-                  onChange={(event) => {
-                    setSortOrder(event.target.value as "asc" | "desc");
-                    setVisibleCount(PAGE_SIZE);
-                  }}
-                  aria-label="정렬"
-                >
-                  <option value="asc">낮은 가격순</option>
-                  <option value="desc">높은 가격순</option>
-                </select>
-              </div>
-            </div>
-            {filteredOffers.length ? (
-              <div className="offerList scrollList" ref={listRef}>
-                {visibleOffers.map((offer) => (
-                  <OfferRow
-                    key={offer.id}
-                    offer={offer}
-                    favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
-                    onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
-                  />
-                ))}
-                <div ref={sentinelRef} className="sentinel" />
-              </div>
-            ) : (
-              <div className="state">
-                <strong>조건 결과 없음</strong>
-                <span>가격이나 태그 조건을 줄이면 다시 보입니다.</span>
+              <section className="filterBar" aria-label="목록 필터">
+                <label>
+                  <span>최소가</span>
+                  <input inputMode="numeric" value={minPrice} onChange={(event) => setMinPrice(event.target.value.replace(/\D/g, ""))} placeholder="0" />
+                </label>
+                <label>
+                  <span>최대가</span>
+                  <input inputMode="numeric" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value.replace(/\D/g, ""))} placeholder="제한 없음" />
+                </label>
+                <label>
+                  <span>향미</span>
+                  <select value={flavorFilter} onChange={(event) => setFlavorFilter(event.target.value)}>
+                    <option value="">전체</option>
+                    {tagOptions.flavors.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>배전</span>
+                  <select value={roastFilter} onChange={(event) => setRoastFilter(event.target.value)}>
+                    <option value="">전체</option>
+                    {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+                  </select>
+                </label>
                 <button type="button" onClick={() => {
                   setMinPrice("");
                   setMaxPrice("");
                   setFlavorFilter("");
                   setRoastFilter("");
                 }}>필터 초기화</button>
+              </section>
+
+              {favorites.length ? (
+                <section className="favoritesBlock" aria-label="찜 목록">
+                  <div className="sectionHeader">
+                    <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
+                    {favorites.length > 1 ? (
+                      <div className="stripControls" aria-label="찜 목록 이동">
+                        <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
+                        <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="favoriteStrip" ref={favoriteStripRef}>
+                    {favorites.map((offer) => (
+                      <FavoriteCard
+                        key={offer.sourceUrl}
+                        offer={offer}
+                        onRemove={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </aside>
+
+            <section className="resultsPanel" aria-label="가격 목록">
+              <div className="sectionHeader">
+                <div className="sectionTitle">
+                  <h2>가격 목록</h2>
+                  <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
+                </div>
+                <div className="sectionTools">
+                  <select
+                    value={sortOrder}
+                    onChange={(event) => {
+                      setSortOrder(event.target.value as "asc" | "desc");
+                      setVisibleCount(PAGE_SIZE);
+                    }}
+                    aria-label="정렬"
+                  >
+                    <option value="asc">낮은 가격순</option>
+                    <option value="desc">높은 가격순</option>
+                  </select>
+                </div>
               </div>
-            )}
-          </section>
+              {filteredOffers.length ? (
+                <div className="offerList scrollList" ref={listRef}>
+                  {visibleOffers.map((offer) => (
+                    <OfferRow
+                      key={offer.id}
+                      offer={offer}
+                      favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
+                      onToggleFavorite={(target) => setFavorites((items) => toggleFavoriteOffer(items, target))}
+                    />
+                  ))}
+                  <div ref={sentinelRef} className="sentinel" />
+                </div>
+              ) : (
+                <div className="state">
+                  <strong>조건 결과 없음</strong>
+                  <span>가격이나 태그 조건을 줄이면 다시 보입니다.</span>
+                  <button type="button" onClick={() => {
+                    setMinPrice("");
+                    setMaxPrice("");
+                    setFlavorFilter("");
+                    setRoastFilter("");
+                  }}>필터 초기화</button>
+                </div>
+              )}
+            </section>
+          </div>
         ) : null}
       </section>
 
-      <footer className="siteFooter">같은 검색어는 30분 동안 같은 기준 사용 · 구매와 상세 확인은 각 판매처에서 진행</footer>
+      <footer className="siteFooter">
+        <span>같은 검색어는 30분 동안 같은 기준 사용</span>
+        <span>구매와 상세 확인은 각 판매처에서 진행</span>
+      </footer>
     </main>
   );
 }
