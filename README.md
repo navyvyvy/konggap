@@ -27,7 +27,8 @@ npm run build
 - Same-query results are cached for 30 minutes.
 - If `data/latest-offers.json` exists and is still fresh, refreshes reuse it before collecting a new list.
 - Pressing `조회` sends `refresh=1` and intentionally collects a fresh list.
-- Scheduled GitHub Actions can refresh and commit `data/latest-offers.json` for static/public display.
+- Scheduled GitHub Actions can refresh `data/latest-offers.json` for static/public display.
+- Refreshed JSON is published to the `gh-pages` branch so `master` stays source-only.
 - Local `data/*.json` changes are ignored unless intentionally force-added.
 
 ## Scheduled Refresh
