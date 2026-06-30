@@ -27,34 +27,24 @@ npm run build
 - Same-query results are cached for 30 minutes.
 - If `data/latest-offers.json` exists and is still fresh, refreshes reuse it before collecting a new list.
 - Pressing `조회` sends `refresh=1` and intentionally collects a fresh list.
-- `data/*.json` is ignored by git. These files are local runtime snapshots, not source files.
+- Scheduled GitHub Actions can refresh and commit `data/latest-offers.json` for static/public display.
+- Local `data/*.json` changes are ignored unless intentionally force-added.
 
-## Current Sources
+## Scheduled Refresh
 
-- Naver search/shopping results
-- Coffee Libre
-- Momos Coffee
-- Coffee Plant / 생두몰
-- Coffee CG / 커피창고
-- CoffeeSys
-- Rehm Coffee
-- Alma Cielo
-- Sopex Korea
+`.github/workflows/refresh-offers.yml` refreshes the offer snapshot four times a day:
 
-Coupang is intentionally excluded because access was consistently denied during testing.
+- 02:00 KST
+- 10:00 KST
+- 14:00 KST
+- 18:00 KST
+
+It can also be run manually from GitHub Actions.
 
 ## Shipping Fees
 
-Confirmed default shipping rules are applied only where we have a usable rule:
-
-- Coffee Libre: 0 KRW
-- Momos Coffee: 2,500 KRW, free from 40,000 KRW
-- Coffee CG / 커피창고: 3,000 KRW, free from 70,000 KRW
-- Coffee Plant / 생두몰: 4,000 KRW, free from 50,000 KRW
-- CoffeeSys: 3,000 KRW, free from 50,000 KRW
-
-Unknown shipping remains marked as needing seller confirmation.
+Shipping fees are shown when they can be inferred or collected. Unknown shipping remains marked as needing seller confirmation.
 
 ## GitHub Notes
 
-This repository can be pushed to GitHub as source code. GitHub Pages is not enough to run the app because the Next.js API route uses Playwright-backed server-side collection. Use a server or container runtime when exposing it publicly.
+This repository can be pushed to GitHub as source code. GitHub Pages can host a static build that reads committed JSON snapshots, but it cannot run the Next.js API route. Use a server or container runtime only if live on-demand collection is required.
