@@ -47,15 +47,12 @@ button, select {
   gap: 20px;
   align-items: stretch;
   margin-bottom: 12px;
-  border-top: 4px solid var(--edge);
-  border-bottom: 4px solid var(--edge);
-  border-radius: 0;
-  box-shadow: none;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 48%),
-    var(--green);
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 7px 7px 0 var(--edge);
+  background: var(--surface);
   padding: 18px;
-  color: #fff;
+  color: var(--ink);
 }
 .heroCopy {
   min-width: 0;
@@ -69,14 +66,14 @@ button, select {
   font-size: 62px;
   line-height: 1;
   letter-spacing: 0;
-  color: #fffdf3;
-  text-shadow: 3px 3px 0 var(--edge);
+  color: var(--edge);
+  text-shadow: none;
   text-wrap: balance;
 }
 .heroCopy p {
   max-width: 620px;
   margin: 9px 0 0;
-  color: #d8e2d4;
+  color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
   font-weight: 750;
@@ -90,22 +87,21 @@ button, select {
 .searchBar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-  align-items: end;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 7px;
+  align-items: center;
 }
 .heroFacts {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr) minmax(0, .7fr);
   gap: 1px;
-  border-top: 3px solid var(--edge);
-  border-bottom: 3px solid var(--edge);
-  border-radius: 0;
-  background: transparent;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface-strong);
   overflow: hidden;
 }
 .heroFacts div {
@@ -118,13 +114,13 @@ button, select {
 .heroFacts span {
   display: block;
   margin-bottom: 2px;
-  color: #cdd8c9;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 900;
 }
 .heroFacts strong {
   display: block;
-  color: #fff;
+  color: var(--ink);
   font-size: 15px;
   line-height: 1.18;
   word-break: keep-all;
@@ -132,17 +128,15 @@ button, select {
 .searchBar input {
   min-width: 0;
   border: 0;
-  border-bottom: 3px solid var(--edge);
   border-radius: 0;
   background: transparent;
-  padding: 7px 2px 8px;
-  color: #fffdf3;
-  font-size: 18px;
+  padding: 8px 10px;
+  color: var(--ink);
+  font-size: 16px;
   font-weight: 850;
 }
 .searchBar input:focus-visible {
   outline: 0;
-  border-bottom-color: var(--amber-soft);
 }
 .searchBar input:focus-visible,
 .sectionTools select:focus-visible,
@@ -187,12 +181,11 @@ button, select {
   box-shadow: 1px 1px 0 var(--edge);
 }
 .toolPanel {
-  border-top: 4px solid var(--edge);
-  border-bottom: 4px solid var(--edge);
-  border-radius: 0;
-  box-shadow: none;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 7px 7px 0 var(--edge);
   background: rgba(255, 253, 243, .96);
-  padding: 12px 0;
+  padding: 12px;
 }
 .workspaceGrid {
   display: grid;
@@ -305,9 +298,9 @@ button, select {
   align-items: center;
   gap: 6px;
   min-width: 0;
-  border: 2px solid #bcb58f;
+  border: 3px solid var(--edge);
   border-radius: 4px;
-  background: var(--surface-strong);
+  background: var(--surface);
   padding: 6px 8px;
   margin: 0 8px;
 }
@@ -326,6 +319,7 @@ button, select {
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
+  cursor: pointer;
 }
 .filterBar input::placeholder {
   color: #6c7567;
@@ -608,16 +602,16 @@ button, select {
 .offerMeta span,
 .tag {
   white-space: nowrap;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 2px 6px;
   font-size: 12px;
   line-height: 1.35;
 }
 .offerMeta span {
-  border: 1px solid var(--line);
-  background: #f6f7f2;
-  color: var(--muted);
-  font-weight: 750;
+  border: 2px solid var(--edge);
+  background: var(--surface);
+  color: var(--edge);
+  font-weight: 850;
 }
 .offerTitle {
   font-size: 19px;
@@ -633,13 +627,16 @@ button, select {
   margin-top: 6px;
 }
 .flavorTag {
-  background: #eef0eb;
-  color: #343930;
+  border: 2px solid var(--edge);
+  background: #fff;
+  color: var(--edge);
+  font-weight: 850;
 }
 .roastTag {
   background: var(--green-soft);
-  border: 1px solid #b8cfbc;
+  border: 2px solid var(--edge);
   color: #20412a;
+  font-weight: 850;
 }
 .tasteNote {
   margin-top: 5px;
@@ -660,9 +657,9 @@ button, select {
   justify-content: center;
 }
 .favoriteButton {
-  border: 2px solid #c1c8ba;
-  border-radius: 999px;
-  background: #fff;
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface);
   color: #30352d;
   display: inline-grid;
   place-items: center;
@@ -680,7 +677,7 @@ button, select {
   fill: none;
 }
 .favoriteButtonActive {
-  border-color: #b78111;
+  border-color: var(--edge);
   background: var(--amber-soft);
   color: #684303;
 }
