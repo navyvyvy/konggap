@@ -106,6 +106,7 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
 export function OfferSearch() {
   const [query, setQuery] = useState("생두");
   const [submittedQuery, setSubmittedQuery] = useState("생두");
+  const [reloadKey, setReloadKey] = useState(0);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedAt, setFetchedAt] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -169,7 +170,7 @@ export function OfferSearch() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [submittedQuery]);
+  }, [submittedQuery, reloadKey]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -202,6 +203,14 @@ export function OfferSearch() {
       lowestFinalPrice: cheapest?.finalPrice ?? 0,
     };
   }, [offers]);
+  const submitCurrentQuery = () => {
+    const nextQuery = query.trim() || "생두";
+    if (nextQuery === submittedQuery) {
+      setReloadKey((key) => key + 1);
+      return;
+    }
+    setSubmittedQuery(nextQuery);
+  };
 
   return (
     <main className="page">
@@ -214,7 +223,7 @@ export function OfferSearch() {
             className="searchBar"
             onSubmit={(event) => {
               event.preventDefault();
-              setSubmittedQuery(query.trim() || "생두");
+              submitCurrentQuery();
             }}
           >
             <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
@@ -239,8 +248,20 @@ export function OfferSearch() {
 
       <section className="toolPanel">
         {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
-        {status === "empty" ? <div className="state">현재 조건에 맞는 구매 가능 생두가 없습니다.</div> : null}
-        {status === "error" ? <div className="state">조회 실패: {error}</div> : null}
+        {status === "empty" ? (
+          <div className="state">
+            <strong>결과 없음</strong>
+            <span>현재 조건에 맞는 구매 가능 생두가 없습니다.</span>
+            <button type="button" onClick={submitCurrentQuery}>다시 조회</button>
+          </div>
+        ) : null}
+        {status === "error" ? (
+          <div className="state">
+            <strong>조회 실패</strong>
+            <span>{error}</span>
+            <button type="button" onClick={submitCurrentQuery}>다시 조회</button>
+          </div>
+        ) : null}
 
         {status === "ready" ? (
           <section className="summaryBar" aria-label="조회 요약">
@@ -322,7 +343,7 @@ export function OfferSearch() {
         ) : null}
       </section>
 
-      <footer className="siteFooter">조회 시점 가격 기준 · 구매와 상세 확인은 각 판매처에서 진행</footer>
+      <footer className="siteFooter">같은 검색어는 30분 동안 같은 기준 사용 · 구매와 상세 확인은 각 판매처에서 진행</footer>
     </main>
   );
 }

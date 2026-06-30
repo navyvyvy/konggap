@@ -137,10 +137,34 @@ button, input, select { font: inherit; }
   text-align: center;
 }
 .state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 16px;
+  padding: 13px 14px;
+}
+.state strong {
+  font-size: 15px;
+}
+.state span {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+.state button {
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  padding: 6px 9px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
 }
 .loadingBlock {
   margin-top: 10px;
@@ -571,6 +595,10 @@ button, input, select { font: inherit; }
   }
   .toolPanel {
     padding: 9px;
+  }
+  .state {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .summaryBar {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -43,8 +43,8 @@ export function normalizeOffer(raw: RawOffer): Offer {
     ...raw,
     name: stripHtml(raw.name),
     flavorTags: unique([...(raw.flavorTags ?? []), ...inferred.flavorTags]),
-    roastTags: unique([...(raw.roastTags ?? []), ...inferred.roastTags]),
-    tasteNote: raw.tasteNote ?? inferred.tasteNote,
+    roastTags: inferred.roastTags,
+    tasteNote: inferred.tasteNote,
     finalPrice: raw.price + shippingFee,
     shippingKnown: raw.shippingFee !== null,
   };
@@ -108,7 +108,8 @@ export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">
   const key = buildFlavorCacheKey(raw.name);
   const cached = metadataCache.get(key);
   const nameText = stripHtml(raw.name).toLowerCase();
-  const text = stripHtml(`${raw.name} ${raw.rawDescription ?? ""}`).toLowerCase();
+  const trustedDescription = trustedCoffeeInfoText(raw.rawDescription ?? "");
+  const text = stripHtml(`${raw.name} ${trustedDescription}`).toLowerCase();
   const flavorTags = unique([...(cached?.flavorTags ?? []), ...inferFlavorTags(nameText)]);
   const roastTags = unique([...(cached?.roastTags ?? []), ...inferRoastTags(text)]);
   const tasteNote = cached?.tasteNote || inferTasteNote(text);
@@ -116,6 +117,14 @@ export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">
 
   metadataCache.set(key, metadata);
   return metadata;
+}
+
+function trustedCoffeeInfoText(text: string) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !/(쿠팡|원두|홀빈|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅|로스팅홀빈)/i.test(line))
+    .join(" ");
 }
 
 function inferFlavorTags(text: string) {

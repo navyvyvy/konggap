@@ -195,6 +195,25 @@ test("normalizeOffer merges explicit tags with stable metadata", () => {
   assert.deepEqual(offer.flavorTags, ["슈가케인", "디카페인"]);
 });
 
+test("normalizeOffer drops noisy coffee-bean descriptions", () => {
+  const offer = normalizeOffer({
+    id: "n-noise",
+    name: "베트남 로부스타 생두 1kg",
+    seller: "테스트몰",
+    source: "naver",
+    sourceUrl: "https://example.com/noise",
+    price: 12200,
+    shippingFee: 3000,
+    roastTags: ["약배전"],
+    tasteNote: "카라멜, 산미",
+    rawDescription: "쿠팡 로스팅홀빈 원두 약배전 카라멜 산미",
+    fetchedAt: "2026-06-26T12:00:00.000Z",
+  });
+
+  assert.deepEqual(offer.roastTags, []);
+  assert.equal(offer.tasteNote, "");
+});
+
 test("getStableMetadata enriches cached entries when later descriptions exist", () => {
   const base = getStableMetadata({ name: "브라질 세하도 내추럴 생두 1kg" });
   const enriched = getStableMetadata({
