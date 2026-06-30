@@ -210,6 +210,8 @@ async function collectDirectShopOffers(page, shop) {
 
 function parseDirectShopOffer(item, shop) {
   let title = cleanTitle(item.title);
+  const linkTitle = titleFromProductUrl(item.link);
+  if (isWeakShopTitle(title) && linkTitle) title = linkTitle;
   if (!title || /생두컨시어지|신규생두|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
   if (isBlockedShoppingTitle(title) || (!/생두|커피생두|green\s*bean/i.test(title) && !isCoffeeProductName(title))) return null;
 
@@ -222,6 +224,24 @@ function parseDirectShopOffer(item, shop) {
 
   if (!/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
   return { title, link: item.link, price, shippingFee: inferShopShippingFee({ seller: shop.seller, link: item.link, price }), seller: shop.seller, source: "shop" };
+}
+
+function isWeakShopTitle(title) {
+  return /^(Brazil|Colombia|Ethiopia|Guatemala|Honduras|Kenya|Nicaragua|Costa Rica|Decaffeinated Brazil|Decaffeinated Colombia)(\s+SHB)?\s+1kg$/i.test(title);
+}
+
+function titleFromProductUrl(url) {
+  try {
+    const parsed = new URL(url);
+    const segment = decodeURIComponent(parsed.pathname).split("/product/")[1]?.split("/")[0] ?? "";
+    const tokens = segment
+      .replace(/-/g, " ")
+      .split(/\s+/)
+      .filter((token) => !/^[a-z]+$/i.test(token) || /^(g[1-5]|aa|ab|shb|ep|ea|mwp|ny2)$/i.test(token));
+    return tokens.join(" ").replace(/\s+/g, " ").trim();
+  } catch {
+    return "";
+  }
 }
 
 function isCoffeeProductName(title) {
