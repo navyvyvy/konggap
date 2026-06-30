@@ -5,6 +5,7 @@ import {
   getCachedValue,
   type CacheEntry,
 } from "../src/lib/offer-cache";
+import { payloadFromSnapshot } from "../src/lib/offer-snapshot";
 import {
   buildFlavorCacheKey,
   canonicalOfferUrl,
@@ -130,6 +131,28 @@ test("getCachedValue reuses fresh values and pending loads", async () => {
 
   assert.deepEqual(values, [12200, 12200]);
   assert.equal(loads, 3);
+});
+
+test("payloadFromSnapshot reuses only fresh matching snapshots", () => {
+  const fetchedAt = "2026-06-30T12:00:00.000Z";
+  const snapshot = {
+    fetchedAt,
+    query: "생두",
+    offers: [
+      {
+        title: "브라질 세하도 생두 1kg",
+        link: "https://example.com/a",
+        price: 12000,
+        shippingFee: 3000,
+        seller: "테스트몰",
+        source: "shop",
+      },
+    ],
+  };
+
+  assert.equal(payloadFromSnapshot(snapshot, "예가체프", Date.parse(fetchedAt) + 1000), null);
+  assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 31 * 60 * 1000), null);
+  assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 1000)?.offers[0]?.finalPrice, 15000);
 });
 
 test("toggleFavoriteOffer toggles by sourceUrl", () => {

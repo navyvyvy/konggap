@@ -7,14 +7,11 @@ import { OfferRow } from "./OfferRow";
 const PAGE_SIZE = 25;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
 const LOADING_STEPS = [
-  "네이버 검색 결과 확인 중",
-  "네이버 상품 ID 정리 중",
-  "전문몰 가격표 읽는 중",
-  "구매 가능한 생두만 거르는 중",
-  "100만원 초과 가격 제외 중",
-  "중복 광고 링크 합치는 중",
-  "향미와 배전 단서 붙이는 중",
-  "배송비 표시 정리 중",
+  "판매처 목록 확인 중",
+  "가격과 배송비 정리 중",
+  "구매 가능한 생두만 추리는 중",
+  "중복 링크 정리 중",
+  "향미와 배전 단서 확인 중",
   "가격순 목록 준비 중",
 ];
 
@@ -52,7 +49,7 @@ function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
   return (
     <section className="loadingBlock" aria-live="polite">
       <div className="loadingStatus">
-        <strong>크롤링 중</strong>
+        <strong>가격 목록 확인 중</strong>
         <span>{elapsedSeconds}초 경과 · {step}</span>
       </div>
       <div className="offerList loadingList">
