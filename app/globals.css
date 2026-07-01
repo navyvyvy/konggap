@@ -60,9 +60,9 @@ button, select {
 .heroCopy {
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: flex-end;
 }
 .heroCopy h1 {
   margin: 0;
@@ -77,6 +77,7 @@ button, select {
 .heroCopy p {
   max-width: 620px;
   margin: 0;
+  padding-bottom: 3px;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -897,7 +898,7 @@ button, select {
     font-size: 29px;
   }
   .heroCopy p {
-    margin-top: 5px;
+    padding-bottom: 1px;
     font-size: 13px;
     line-height: 1.32;
     white-space: normal;
