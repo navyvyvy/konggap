@@ -33,27 +33,25 @@ function BookmarkIcon() {
   );
 }
 
-function flavorTone(tag: string) {
-  const tones: Record<string, string> = {
-    "내추럴": "tagNatural",
-    "워시드": "tagWashed",
-    "허니": "tagHoney",
-    "디카페인": "tagDecaf",
-    "MWP": "tagMwp",
-    "슈가케인": "tagSugarcane",
-    "무산소": "tagAnaerobic",
-  };
-  return tones[tag] ?? "flavorTag";
+const topBadgeTones = [
+  "topBadgeTone0",
+  "topBadgeTone1",
+  "topBadgeTone2",
+  "topBadgeTone3",
+  "topBadgeTone4",
+  "topBadgeTone5",
+  "topBadgeTone6",
+  "topBadgeTone7",
+];
+
+function topBadgeTone(index: number) {
+  return topBadgeTones[index % topBadgeTones.length];
 }
 
-function roastTone(tag: string) {
-  const tones: Record<string, string> = {
-    "약배전": "tagLightRoast",
-    "중배전": "tagMediumRoast",
-    "강배전": "tagDarkRoast",
-  };
-  return tones[tag] ?? "roastTag";
-}
+type TopBadge = {
+  key: string;
+  label: string;
+};
 
 export function OfferRow({
   offer,
@@ -66,7 +64,12 @@ export function OfferRow({
 }) {
   const hasTags = offer.flavorTags.length > 0 || offer.roastTags.length > 0;
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
-  const sourceClass = offer.source === "naver" ? "sourceBadgeNaver" : "sourceBadgeShop";
+  const topBadges: TopBadge[] = [
+    { key: "seller", label: offer.seller },
+    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel }] : []),
+    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag })),
+    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag })),
+  ];
 
   return (
     <div
@@ -94,17 +97,15 @@ export function OfferRow({
               <BookmarkIcon />
             </UiButton>
           ) : null}
-          <span className={`sellerBadge ${offer.source === "naver" ? "sellerBadgeNaver" : "sellerBadgeShop"}`}>{offer.seller}</span>
-          {sourceLabel !== offer.seller ? <span className={`sourceBadge ${sourceClass}`}>{sourceLabel}</span> : null}
-          {hasTags ? (
-            <>
-            {offer.flavorTags.map((tag) => (
-              <span className={`tag ${flavorTone(tag)}`} key={tag}>{tag}</span>
-            ))}
-            {offer.roastTags.map((tag) => (
-              <span className={`tag ${roastTone(tag)}`} key={tag}>{tag}</span>
-            ))}
-            </>
+          {hasTags || topBadges.length > 0 ? (
+            topBadges.map((badge, index) => (
+              <span
+                className={`offerMetaBadge ${topBadgeTone(index)}`}
+                key={`${badge.key}-${index}`}
+              >
+                {badge.label}
+              </span>
+            ))
           ) : null}
         </div>
         <div className="offerTitle">{offer.name}</div>

@@ -677,7 +677,7 @@ button, select {
   gap: 4px;
   margin-bottom: 5px;
 }
-.offerMeta span,
+.offerMetaBadge,
 .tag {
   white-space: nowrap;
   border-radius: 4px;
@@ -685,31 +685,41 @@ button, select {
   font-size: 12px;
   line-height: 1.35;
 }
-.sellerBadge {
+.offerMetaBadge {
   border: 2px solid var(--edge);
-  background: var(--surface);
-  color: var(--edge);
   font-weight: 850;
 }
-.sellerBadgeNaver {
+.topBadgeTone0 {
   background: #80e4a5;
   color: #0b381b;
 }
-.sellerBadgeShop {
+.topBadgeTone1 {
+  background: #66c5ef;
+  color: #052235;
+}
+.topBadgeTone2 {
+  background: #ffe560;
+  color: #3e2b00;
+}
+.topBadgeTone3 {
+  background: #ffb36b;
+  color: #472500;
+}
+.topBadgeTone4 {
   background: #d9c6ff;
   color: #24114d;
 }
-.sourceBadgeNaver {
-  border: 2px solid var(--edge);
-  background: #80e4a5;
-  color: #0b381b;
-  font-weight: 900;
+.topBadgeTone5 {
+  background: #bff07a;
+  color: #1f3700;
 }
-.sourceBadgeShop {
-  border: 2px solid var(--edge);
-  background: #66c5ef;
-  color: #052235;
-  font-weight: 900;
+.topBadgeTone6 {
+  background: #fff2a8;
+  color: #3d3200;
+}
+.topBadgeTone7 {
+  background: #8a5b3b;
+  color: #fff8eb;
 }
 .offerTitle {
   font-size: 18px;
