@@ -28,6 +28,16 @@ const SPECIALTY_SITE_QUERIES = [
   "site:coffeelibre.kr 생두",
   "site:coffeeplant.co.kr 생두",
   "site:momos.co.kr 생두",
+  "site:smartstore.naver.com/58coffee 생두 1kg",
+  "site:smartstore.naver.com/rick 생두 1kg",
+  "site:smartstore.naver.com/marisan_store 생두 1kg",
+  "site:smartstore.naver.com/coffeejg 생두 1kg",
+  "site:smartstore.naver.com/closecoffee 생두 1kg",
+  "site:smartstore.naver.com/whichcoffee 생두 1kg",
+  "site:smartstore.naver.com/hyangcho 생두 1kg",
+  "site:smartstore.naver.com/gadelo 생두 1kg",
+  "site:gustocoffee.co.kr 생두 1kg",
+  "site:editiondenmark.com coffee",
   "site:unspecialty.com 생두",
   "site:rehmcoffee.co.kr 생두 1kg",
   "site:m.almacielo.com 생두 1kg",
@@ -41,6 +51,17 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://coffeeplant.co.kr/", seller: "생두몰" },
   { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
   { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90/56/", seller: "커피리브레" },
+  { url: "https://smartstore.naver.com/58coffee", seller: "58커피" },
+  { url: "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1", seller: "릭커피" },
+  { url: "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1", seller: "마리산" },
+  { url: "https://smartstore.naver.com/coffeejg/category/ef23814651e5453aba8c5dde825a7700?cp=1", seller: "커피JG" },
+  { url: "https://smartstore.naver.com/closecoffee/category/6480ceb6ab784e389d574235b7a7dc09?cp=2", seller: "클로즈커피" },
+  { url: "https://smartstore.naver.com/whichcoffee", seller: "위치커피" },
+  { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
+  { url: "https://smartstore.naver.com/gadelo/best?cp=1", seller: "가델로" },
+  { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들" },
+  { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피" },
+  { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크" },
   { url: "https://unspecialty.com/", seller: "언스페셜티" },
 ];
 const SHOP_SHIPPING_RULES = [
@@ -327,6 +348,17 @@ function sellerFromUrl(url) {
   if (/coffeelibre/.test(url)) return "커피리브레";
   if (/coffeeplant/.test(url)) return "생두몰";
   if (/momos/.test(url)) return "모모스커피";
+  if (/smartstore\.naver\.com\/58coffee/.test(url)) return "58커피";
+  if (/smartstore\.naver\.com\/rick/.test(url)) return "릭커피";
+  if (/smartstore\.naver\.com\/marisan_store/.test(url)) return "마리산";
+  if (/smartstore\.naver\.com\/coffeejg/.test(url)) return "커피JG";
+  if (/smartstore\.naver\.com\/closecoffee/.test(url)) return "클로즈커피";
+  if (/smartstore\.naver\.com\/whichcoffee/.test(url)) return "위치커피";
+  if (/smartstore\.naver\.com\/hyangcho/.test(url)) return "향초커피";
+  if (/smartstore\.naver\.com\/gadelo/.test(url)) return "가델로";
+  if (/xn--sh1bx7bj4cm6h09ezw0a\.com/.test(url)) return "콩볶는사람들";
+  if (/gustocoffee/.test(url)) return "구스토커피";
+  if (/editiondenmark/.test(url)) return "에디션덴마크";
   if (/unspecialty/.test(url)) return "언스페셜티";
   return "전문몰";
 }
