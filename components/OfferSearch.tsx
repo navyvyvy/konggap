@@ -250,42 +250,6 @@ export function OfferSearch() {
           <h1>콩값장부</h1>
           <p>배송비까지 더한 커피콩 최저가 모음</p>
         </div>
-        <div className="heroAction">
-          <form
-            className="searchBar"
-            onSubmit={(event) => {
-              event.preventDefault();
-              submitCurrentQuery();
-            }}
-          >
-            <span className="searchIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
-              </svg>
-            </span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-            <UiButton type="submit" variant="primary">콩값 체크</UiButton>
-          </form>
-          <div className="heroFacts" aria-label="현재 조회 상태">
-            <div>
-              <span>기준</span>
-              <strong>{fetchedAtLabel || "-"}</strong>
-            </div>
-            <div>
-              <span>최저가</span>
-              <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
-            </div>
-            <UiButton
-              className="heroFactButton"
-              variant="plain"
-              onClick={() => setShowFavorites((value) => !value)}
-              aria-expanded={showFavorites}
-            >
-              <span>찜한 콩</span>
-              <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
-            </UiButton>
-          </div>
-        </div>
       </header>
 
       <section className="toolPanel">
@@ -337,6 +301,33 @@ export function OfferSearch() {
                   <h2>찾은 콩</h2>
                   <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
                 </div>
+                <div className="inlineFacts" aria-label="현재 조회 상태">
+                  <span>기준 <strong>{fetchedAtLabel || "-"}</strong></span>
+                  <span>최저가 <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong></span>
+                  <UiButton
+                    className="inlineFactButton"
+                    variant="plain"
+                    onClick={() => setShowFavorites((value) => !value)}
+                    aria-expanded={showFavorites}
+                  >
+                    찜한 콩 <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
+                  </UiButton>
+                </div>
+                <form
+                  className="searchBar listSearchBar"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submitCurrentQuery();
+                  }}
+                >
+                  <span className="searchIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
+                    </svg>
+                  </span>
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
+                  <UiButton type="submit" variant="primary">콩값 체크</UiButton>
+                </form>
                 <div className="sectionTools">
                   <select
                     value={sortOrder}
