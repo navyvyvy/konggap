@@ -1,19 +1,28 @@
-# Green Bean Price Finder
+# 콩값장부
 
-Home roaster green coffee bean price comparison tool.
+커피콩 구매 후보를 최종가 기준으로 훑어보는 가격 비교 도구입니다.
 
-The app shows current purchasable green bean offers with final cost first, then seller, shipping fee, flavor/process tags, and roast hints when available. It is a comparison aid, not a shop, recommender, price tracker, or alert service.
+## 기능
 
-## Run Locally
+- 검색어 기준 구매 가능 항목 조회
+- 상품가와 배송비를 합친 최종가 우선 표시
+- 낮은 가격순, 높은 가격순 정렬
+- 최소가, 최대가, 향미, 배전 조건 필터
+- 판매처 링크 이동
+- 찜 목록 추가, 개별 해제, 전체 해제
+- 같은 검색어 결과 30분 캐시
+- 정적 표시용 JSON 스냅샷 갱신 흐름 지원
+
+## 실행
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`.
+브라우저에서 `http://127.0.0.1:3000`을 엽니다.
 
-## Checks
+## 확인
 
 ```bash
 npm test
@@ -21,31 +30,6 @@ npm run typecheck
 npm run build
 ```
 
-## Data Behavior
+## 참고
 
-- The first page load requests `/api/offers?q=생두`.
-- Same-query results are cached for 30 minutes.
-- If `data/latest-offers.json` exists and is still fresh, refreshes reuse it before collecting a new list.
-- Pressing `조회` sends `refresh=1` and intentionally collects a fresh list.
-- Scheduled GitHub Actions can refresh `data/latest-offers.json` for static/public display.
-- Refreshed JSON is published to the `gh-pages` branch so `master` stays source-only.
-- Local `data/*.json` changes are ignored unless intentionally force-added.
-
-## Scheduled Refresh
-
-`.github/workflows/refresh-offers.yml` refreshes the offer snapshot four times a day:
-
-- 02:00 KST
-- 10:00 KST
-- 14:00 KST
-- 18:00 KST
-
-It can also be run manually from GitHub Actions.
-
-## Shipping Fees
-
-Shipping fees are shown when they can be inferred or collected. Unknown shipping remains marked as needing seller confirmation.
-
-## GitHub Notes
-
-This repository can be pushed to GitHub as source code. GitHub Pages can host a static build that reads committed JSON snapshots, but it cannot run the Next.js API route. Use a server or container runtime only if live on-demand collection is required.
+이 앱은 쇼핑몰이 아니라 가격 비교 보조 도구입니다. 구매와 상세 확인은 각 판매처에서 진행합니다.
