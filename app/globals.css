@@ -445,8 +445,8 @@ button, select {
   --fact-hover-bg: #b9efc8;
 }
 .inlineFacts > :nth-child(2) {
-  --fact-bg: var(--amber-soft);
-  --fact-hover-bg: #fff4a8;
+  --fact-bg: #66c5ef;
+  --fact-hover-bg: #8dd8f2;
 }
 .inlineFacts > :nth-child(3) {
   --fact-bg: #d9c6ff;
@@ -458,6 +458,10 @@ button, select {
   font-weight: 950;
 }
 .inlineFactButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
   background: var(--fact-bg, var(--amber-soft));
   cursor: pointer;
 }
@@ -952,21 +956,18 @@ button, select {
     gap: 4px;
   }
   .inlineFacts {
-    flex: 1 1 220px;
-    max-width: calc(100% - 112px);
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: none;
     margin-left: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .inlineFacts::-webkit-scrollbar {
-    display: none;
+    flex-wrap: wrap;
+    overflow: visible;
   }
   .inlineFacts > span,
   .inlineFactButton {
     flex: 0 0 auto;
-    padding: 6px 10px;
+    min-height: 28px;
+    padding: 4px 8px;
     font-size: 12px;
   }
   .filterBar label {
@@ -1065,15 +1066,19 @@ button, select {
     align-items: end;
     border-left: 0;
     border-top: 2px solid var(--edge);
-    margin: 0;
+    margin: 6px -10px -11px;
     padding: 7px 9px;
     background: #fff0a3;
-    border-radius: 4px;
+    border-radius: 0 0 2px 2px;
     text-align: right;
   }
   .favoriteButton {
-    width: 28px;
-    height: 24px;
+    width: 24px;
+    height: 20px;
+  }
+  .favoriteIcon {
+    width: 12px;
+    height: 12px;
   }
   .finalPrice {
     grid-column: 2;
