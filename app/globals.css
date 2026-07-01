@@ -71,15 +71,8 @@ button, select {
   align-items: flex-start;
 }
 .heroCopy h1 {
-  display: inline-block;
-  max-width: 100%;
   margin: 0;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--amber-soft);
-  padding: 3px 10px 7px;
-  font-size: 50px;
+  font-size: 54px;
   line-height: 1;
   letter-spacing: 0;
   color: var(--edge);
@@ -87,12 +80,8 @@ button, select {
   text-wrap: balance;
 }
 .heroCopy p {
-  display: inline-block;
   max-width: 620px;
-  margin: 11px 0 0;
-  border-bottom: 3px solid var(--edge);
-  background: var(--surface);
-  padding: 0 4px 5px;
+  margin: 6px 0 0;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -250,28 +239,6 @@ button, select {
   background: var(--surface);
   padding: 0;
 }
-.siteFooter {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 6px 10px;
-  margin-top: 10px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--surface);
-  padding: 8px 10px;
-  color: var(--edge);
-  font-size: 12px;
-  font-weight: 900;
-  text-align: center;
-}
-.siteFooter span {
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  background: var(--green-soft);
-  padding: 3px 7px;
-}
 .state {
   display: flex;
   align-items: center;
@@ -308,11 +275,10 @@ button, select {
 .filterBar {
   display: grid;
   gap: 6px;
-  border-top: 3px solid var(--edge);
-  border-bottom: 3px solid var(--edge);
+  border: 0;
   border-radius: 0;
   background: var(--surface);
-  padding: 8px 0;
+  padding: 0;
 }
 .filterBar label {
   display: grid;
@@ -449,12 +415,8 @@ button, select {
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin: 0 0 8px;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--surface-strong);
-  padding: 8px 10px;
+  margin: 0 0 6px;
+  padding: 0 2px;
 }
 .sectionHeader h2 {
   margin: 0;
@@ -493,14 +455,15 @@ button, select {
 .favoritesBlock {
   grid-column: 1 / -1;
   min-width: 0;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   background: var(--surface);
-  padding: 8px;
+  padding: 2px 0 0;
 }
 .favoritesBlock .sectionHeader {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  padding: 0 2px;
 }
 .stripControls {
   display: inline-flex;

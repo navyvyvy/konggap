@@ -388,11 +388,6 @@ export function OfferSearch() {
           </div>
         ) : null}
       </section>
-
-      <footer className="siteFooter">
-        <span>같은 검색어는 30분 동안 같은 기준 사용</span>
-        <span>구매와 상세 확인은 각 판매처에서 진행</span>
-      </footer>
     </main>
   );
 }
