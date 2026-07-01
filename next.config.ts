@@ -1,15 +1,18 @@
 import type { NextConfig } from "next";
 
 const isGitHubPages = process.env.GITHUB_PAGES === "1";
+const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
-  ...(isGitHubPages ? {
+  ...(isStaticExport ? {
     output: "export",
-    basePath: "/konggap",
-    assetPrefix: "/konggap/",
     trailingSlash: true,
     images: { unoptimized: true },
+  } : {}),
+  ...(isGitHubPages ? {
+    basePath: "/konggap",
+    assetPrefix: "/konggap/",
   } : {}),
 };
 
