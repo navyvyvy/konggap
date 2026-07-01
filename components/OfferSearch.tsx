@@ -327,9 +327,7 @@ export function OfferSearch() {
                     variant="plain"
                     onClick={() => setShowFavorites((value) => !value)}
                     aria-expanded={showFavorites}
-                  >
-                    찜한 콩 <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
-                  </UiButton>
+                  ><span>찜한 콩 <strong>{favorites.length.toLocaleString("ko-KR")}개</strong></span></UiButton>
                 </div>
                 <div className="sectionTools">
                   <select
