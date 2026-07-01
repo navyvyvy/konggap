@@ -333,11 +333,19 @@ function sellerFromUrl(url) {
 
 async function enrichCoffeeInfo(page, offers) {
   const cached = normalizeCoffeeInfo(await readJson("coffee-info.json", {}));
+  const mungsteryBeans = await readMungsteryBeans();
   const info = { ...cached };
   const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))].slice(0, 24);
 
   for (const key of keys) {
-    if (info[key]?.tasteNote || info[key]?.rawDescription) continue;
+    if (info[key]?.tasteNote) continue;
+    const mungsteryInfo = findMungsteryCoffeeInfo(key, mungsteryBeans);
+    if (mungsteryInfo) {
+      info[key] = mungsteryInfo;
+      continue;
+    }
+    if (info[key]?.rawDescription) continue;
+
     await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(`${key} 향미 배전 생두`)}`, {
       waitUntil: "domcontentloaded",
       timeout: 20_000,
@@ -349,6 +357,45 @@ async function enrichCoffeeInfo(page, offers) {
   }
 
   return info;
+}
+
+async function readMungsteryBeans() {
+  const data = await readJson("mungstery-beans.json", { beans: [] });
+  return Array.isArray(data.beans) ? data.beans : [];
+}
+
+function findMungsteryCoffeeInfo(key, beans) {
+  const keyTokens = coffeeTokens(key);
+  if (keyTokens.length < 2) return null;
+
+  const match = beans
+    .map((bean) => ({ bean, tokens: coffeeTokens(bean.name) }))
+    .map((item) => ({ ...item, shared: keyTokens.filter((token) => item.tokens.includes(token)) }))
+    .filter((item) => isMungsteryMatch(item.shared))
+    .sort((left, right) => right.shared.length - left.shared.length || left.tokens.length - right.tokens.length)[0];
+
+  if (!match) return null;
+  const bean = match.bean;
+  const rawDescription = trustedCoffeeInfoText([
+    bean.name,
+    bean.roastingPoint,
+    ...(bean.notes ?? []),
+    ...(bean.origins ?? []),
+    ...(bean.components ?? []).map((component) => `${component.origin} ${component.name} ${component.description}`),
+    bean.description,
+  ].filter(Boolean).join("\n"));
+  const metadata = buildCoffeeInfo(key, rawDescription);
+
+  return {
+    ...metadata,
+    roastTags: bean.roastingPoint ? [bean.roastingPoint] : metadata.roastTags,
+    tasteNote: (bean.notes ?? []).slice(0, 4).join(", ") || metadata.tasteNote,
+  };
+}
+
+function isMungsteryMatch(sharedTokens) {
+  const namedTokens = sharedTokens.filter((token) => !isCountryToken(token) && !isProcessToken(token));
+  return sharedTokens.length >= 3 && (sharedTokens.some(isCountryToken) || sharedTokens.some(isProcessToken)) && namedTokens.length > 0;
 }
 
 function normalizeCoffeeInfo(info) {
@@ -395,6 +442,22 @@ function coffeeKey(title) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 60);
+}
+
+function coffeeTokens(value) {
+  return coffeeKey(value)
+    .toLowerCase()
+    .split(/\s+/)
+    .map((token) => token.replace(/[()[\]{}]/g, ""))
+    .filter((token) => token.length > 1 && !/^(g[1-5]|shb|aa|ab|kg|cup)$/.test(token));
+}
+
+function isCountryToken(token) {
+  return /^(에티오피아|콜롬비아|케냐|과테말라|브라질|코스타리카|온두라스|페루|르완다|니카라과|엘살바도르|멕시코|볼리비아|인도|베트남|파푸아뉴기니|탄자니아|인도네시아|예멘|자메이카|동티모르)$/.test(token);
+}
+
+function isProcessToken(token) {
+  return /^(내추럴|워시드|허니|무산소|디카페인|mwp|anaerobic|natural|washed|honey)$/i.test(token);
 }
 
 function focusDescription(key, text) {

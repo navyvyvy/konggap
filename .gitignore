@@ -10,4 +10,5 @@ preview-server*.log
 next-dev*.log
 ui-*.png
 data/*.json
+!data/mungstery-beans.json
 brainstorm-*.html
