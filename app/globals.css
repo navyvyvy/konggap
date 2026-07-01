@@ -460,6 +460,9 @@ button, select {
 .compactValue {
   display: none;
 }
+.compactLabel {
+  display: none;
+}
 .inlineFactButton {
   display: inline-flex;
   align-items: center;
@@ -905,14 +908,20 @@ button, select {
     padding: 3px 7px;
   }
   .sectionTools select {
-    width: 102px;
-    padding: 5px 18px 5px 7px;
-    font-size: 12px;
+    width: 84px;
+    height: 24px;
+    padding: 2px 12px 2px 3px;
+    font-size: 10px;
+    background-position:
+      calc(100% - 8px) 50%,
+      calc(100% - 4px) 50%;
+    background-size: 4px 4px, 4px 4px;
   }
   .toolButton {
-    gap: 3px;
-    padding: 5px 6px;
-    font-size: 12px;
+    gap: 2px;
+    height: 24px;
+    padding: 2px 3px;
+    font-size: 10px;
   }
   .listSearchBar input {
     padding: 4px 3px;
@@ -951,38 +960,47 @@ button, select {
   }
   .sectionHeader {
     align-items: center;
-    gap: 6px;
+    gap: 3px;
   }
   .sectionTools {
     order: 3;
-    flex: 1 1 100%;
-    justify-content: flex-end;
-    margin-left: auto;
-    gap: 4px;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    margin-left: 0;
+    gap: 3px;
   }
   .inlineFacts {
     order: 2;
-    flex: 1 1 0;
+    flex: 0 1 auto;
     width: auto;
     max-width: none;
     margin-left: 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     overflow: visible;
-    gap: 3px;
-    justify-content: flex-end;
-    text-align: right;
+    gap: 2px;
+    justify-content: flex-start;
+    text-align: left;
   }
   .inlineFacts > span,
   .inlineFactButton {
     flex: 0 0 auto;
-    min-height: 22px;
+    height: 24px;
+    min-height: 24px;
     padding: 2px 3px;
     font-size: 10px;
     box-shadow: 2px 2px 0 var(--edge);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
   }
   .inlineFacts strong {
     margin-left: 2px;
+  }
+  .fullLabel {
+    display: none;
+  }
+  .compactLabel {
+    display: inline;
   }
   .fullValue {
     display: none;
@@ -992,6 +1010,7 @@ button, select {
   }
   .sectionTitle {
     order: 1;
+    flex: 1 1 100%;
     gap: 3px;
   }
   .sectionTitle h2 {
@@ -1121,6 +1140,38 @@ button, select {
     align-content: end;
     margin-top: 0;
     text-align: left;
+  }
+}
+
+@media (max-width: 380px) {
+  .sectionHeader {
+    gap: 2px;
+  }
+  .inlineFacts {
+    gap: 1px;
+  }
+  .sectionTools {
+    gap: 2px;
+  }
+  .inlineFacts > span,
+  .inlineFactButton {
+    padding: 2px;
+    font-size: 9px;
+  }
+  .sectionTools select {
+    width: 78px;
+    padding-right: 10px;
+    font-size: 9px;
+    background-position:
+      calc(100% - 7px) 50%,
+      calc(100% - 3px) 50%;
+  }
+  .toolButton {
+    padding: 2px 3px;
+    font-size: 9px;
+  }
+  .toolButton .buttonIcon {
+    display: none;
   }
 }
 

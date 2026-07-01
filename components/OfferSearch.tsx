@@ -26,6 +26,10 @@ function formatWon(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
 }
 
+function formatNumber(value: number) {
+  return value.toLocaleString("ko-KR");
+}
+
 function CloseIcon() {
   return (
     <svg className="buttonIcon" viewBox="0 0 24 24" aria-hidden="true">
@@ -204,7 +208,10 @@ export function OfferSearch() {
     ? new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
     : "";
   const fetchedAtCompactLabel = fetchedAt
-    ? new Date(fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
+    ? (() => {
+        const date = new Date(fetchedAt);
+        return `${date.getMonth() + 1}.${date.getDate()} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      })()
     : "";
   const summary = useMemo(() => {
     const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
@@ -320,14 +327,14 @@ export function OfferSearch() {
                   <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
                 </div>
                 <div className="inlineFacts" aria-label="현재 조회 상태">
-                  <span>기준 <strong className="fullValue">{fetchedAtLabel || "-"}</strong><strong className="compactValue">{fetchedAtCompactLabel || "-"}</strong></span>
-                  <span>최저가 <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong></span>
+                  <span><span className="fullLabel">기준</span><span className="compactLabel">기준</span> <strong className="fullValue">{fetchedAtLabel || "-"}</strong><strong className="compactValue">{fetchedAtCompactLabel || "-"}</strong></span>
+                  <span><span className="fullLabel">최저가</span><span className="compactLabel">최저</span> <strong className="fullValue">{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong><strong className="compactValue">{status === "ready" && summary.lowestFinalPrice ? formatNumber(summary.lowestFinalPrice) : "-"}</strong></span>
                   <UiButton
                     className="inlineFactButton"
                     variant="plain"
                     onClick={() => setShowFavorites((value) => !value)}
                     aria-expanded={showFavorites}
-                  ><span>찜한 콩 <strong>{favorites.length.toLocaleString("ko-KR")}개</strong></span></UiButton>
+                  ><span><span className="fullLabel">찜한 콩</span><span className="compactLabel">찜</span> <strong className="fullValue">{favorites.length.toLocaleString("ko-KR")}개</strong><strong className="compactValue">{favorites.length.toLocaleString("ko-KR")}</strong></span></UiButton>
                 </div>
                 <div className="sectionTools">
                   <select
