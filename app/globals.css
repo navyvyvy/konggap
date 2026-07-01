@@ -441,8 +441,8 @@ button, select {
   --button-hover-bg: var(--fact-hover-bg, #fff4a8);
 }
 .inlineFacts > :nth-child(1) {
-  --fact-bg: var(--green-soft);
-  --fact-hover-bg: #b9efc8;
+  --fact-bg: #ffb36b;
+  --fact-hover-bg: #ffc58b;
 }
 .inlineFacts > :nth-child(2) {
   --fact-bg: #66c5ef;
@@ -456,6 +456,9 @@ button, select {
   margin-left: 3px;
   color: var(--edge);
   font-weight: 950;
+}
+.compactValue {
+  display: none;
 }
 .inlineFactButton {
   display: inline-flex;
@@ -947,28 +950,53 @@ button, select {
     padding: 8px 0;
   }
   .sectionHeader {
-    align-items: flex-start;
+    align-items: center;
     gap: 6px;
   }
   .sectionTools {
-    flex: 0 0 auto;
-    justify-content: flex-start;
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    margin-left: auto;
     gap: 4px;
   }
   .inlineFacts {
-    flex: 1 1 100%;
-    width: 100%;
+    order: 2;
+    flex: 1 1 0;
+    width: auto;
     max-width: none;
     margin-left: 0;
     flex-wrap: wrap;
     overflow: visible;
+    gap: 3px;
   }
   .inlineFacts > span,
   .inlineFactButton {
     flex: 0 0 auto;
-    min-height: 28px;
-    padding: 4px 8px;
-    font-size: 12px;
+    min-height: 22px;
+    padding: 2px 3px;
+    font-size: 10px;
+    box-shadow: 2px 2px 0 var(--edge);
+    white-space: nowrap;
+  }
+  .inlineFacts strong {
+    margin-left: 2px;
+  }
+  .fullValue {
+    display: none;
+  }
+  .compactValue {
+    display: inline;
+  }
+  .sectionTitle {
+    order: 1;
+    gap: 3px;
+  }
+  .sectionTitle h2 {
+    font-size: 15px;
+  }
+  .sectionHeader .sectionTitle span {
+    font-size: 11px;
   }
   .filterBar label {
     flex: 1 1 calc(50% - 3px);

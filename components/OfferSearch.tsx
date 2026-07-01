@@ -203,6 +203,9 @@ export function OfferSearch() {
   const fetchedAtLabel = fetchedAt
     ? new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
     : "";
+  const fetchedAtCompactLabel = fetchedAt
+    ? new Date(fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false })
+    : "";
   const summary = useMemo(() => {
     const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
 
@@ -317,7 +320,7 @@ export function OfferSearch() {
                   <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
                 </div>
                 <div className="inlineFacts" aria-label="현재 조회 상태">
-                  <span>기준 <strong>{fetchedAtLabel || "-"}</strong></span>
+                  <span>기준 <strong className="fullValue">{fetchedAtLabel || "-"}</strong><strong className="compactValue">{fetchedAtCompactLabel || "-"}</strong></span>
                   <span>최저가 <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong></span>
                   <UiButton
                     className="inlineFactButton"
