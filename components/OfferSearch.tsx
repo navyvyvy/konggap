@@ -193,12 +193,9 @@ export function OfferSearch() {
     ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
     : "";
   const summary = useMemo(() => {
-    const naverCount = filteredOffers.filter((offer) => offer.source === "naver").length;
     const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
 
     return {
-      naverCount,
-      shopCount: filteredOffers.length - naverCount,
       lowestFinalPrice: cheapest?.finalPrice ?? 0,
     };
   }, [filteredOffers]);
@@ -232,8 +229,8 @@ export function OfferSearch() {
     <main className="page">
       <header className="heroPanel">
         <div className="heroCopy">
-          <h1>생두 가격비교</h1>
-          <p>판매 링크별 최종가와 향미 단서를 한 목록에서 봅니다.</p>
+          <h1>생두 구매표</h1>
+          <p>지금 살 수 있는 생두 링크를 가격, 배송비, 향미 단서 기준으로 정리합니다.</p>
         </div>
         <div className="heroAction">
           <form
@@ -243,6 +240,11 @@ export function OfferSearch() {
               submitCurrentQuery();
             }}
           >
+            <span className="searchIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
+              </svg>
+            </span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
             <button type="submit">목록 확인</button>
           </form>
@@ -283,17 +285,6 @@ export function OfferSearch() {
         {status === "ready" ? (
           <div className="workspaceGrid">
             <aside className="finderRail" aria-label="검색 도구">
-              <section className="summaryBar" aria-label="조회 요약">
-                <div>
-                  <span>목록</span>
-                  <strong>{filteredOffers.length.toLocaleString("ko-KR")} / {offers.length.toLocaleString("ko-KR")}개</strong>
-                </div>
-                <div>
-                  <span>출처</span>
-                  <strong>네이버 {summary.naverCount.toLocaleString("ko-KR")} · 전문몰 {summary.shopCount.toLocaleString("ko-KR")}</strong>
-                </div>
-              </section>
-
               <section className="filterBar" aria-label="목록 필터">
                 <label>
                   <span>최소가</span>
