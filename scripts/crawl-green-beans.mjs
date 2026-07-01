@@ -28,6 +28,7 @@ const SPECIALTY_SITE_QUERIES = [
   "site:coffeelibre.kr 생두",
   "site:coffeeplant.co.kr 생두",
   "site:momos.co.kr 생두",
+  "site:unspecialty.com 생두",
   "site:rehmcoffee.co.kr 생두 1kg",
   "site:m.almacielo.com 생두 1kg",
   "site:m.sopexkorea.com 생두 1kg",
@@ -40,6 +41,7 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://coffeeplant.co.kr/", seller: "생두몰" },
   { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
   { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90/56/", seller: "커피리브레" },
+  { url: "https://unspecialty.com/", seller: "언스페셜티" },
 ];
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
@@ -264,7 +266,7 @@ async function collectSpecialtyPageOffers(page) {
       };
     })
     .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos/.test(item.link) &&
+      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos|unspecialty/.test(item.link) &&
       /생두|커피생두/.test(item.title) &&
       /\d+\s*(kg|g)/i.test(item.title),
     ));
@@ -305,6 +307,7 @@ function sellerFromUrl(url) {
   if (/coffeelibre/.test(url)) return "커피리브레";
   if (/coffeeplant/.test(url)) return "생두몰";
   if (/momos/.test(url)) return "모모스커피";
+  if (/unspecialty/.test(url)) return "언스페셜티";
   return "전문몰";
 }
 

@@ -449,21 +449,24 @@ button, select {
   border: 2px solid var(--edge);
   border-radius: 4px;
   box-shadow: 4px 4px 0 var(--edge);
-  background-color: var(--amber-soft);
   padding: 6px 28px 6px 10px;
   color: var(--ink);
   font-size: 13px;
   font-weight: 850;
   cursor: pointer;
 }
+.sectionTools select {
+  background-color: var(--amber-soft);
+}
 .toolButton {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  background: var(--green-soft);
   padding: 6px 10px;
 }
 .toolButtonActive {
-  background: var(--green-soft);
+  background: #66c5ef;
   color: var(--green);
 }
 .favoritesBlock {
@@ -512,7 +515,7 @@ button, select {
   overflow: hidden;
 }
 .scrollList {
-  max-height: min(430px, calc(100vh - 320px));
+  max-height: min(620px, calc(100vh - 230px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -603,7 +606,7 @@ button, select {
 }
 .offerRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 166px;
+  grid-template-columns: minmax(0, 1fr) 192px;
   gap: 8px;
   padding: 7px 10px 7px 12px;
   border-bottom: 2px solid var(--edge);
@@ -639,11 +642,23 @@ button, select {
   font-size: 12px;
   line-height: 1.35;
 }
-.offerMeta span {
+.sellerBadge {
   border: 2px solid var(--edge);
-  background: var(--amber-soft);
+  background: var(--surface);
   color: var(--edge);
   font-weight: 850;
+}
+.sourceBadgeNaver {
+  border: 2px solid var(--edge);
+  background: #80e4a5;
+  color: #0b381b;
+  font-weight: 900;
+}
+.sourceBadgeShop {
+  border: 2px solid var(--edge);
+  background: #66c5ef;
+  color: #052235;
+  font-weight: 900;
 }
 .offerTitle {
   font-size: 18px;
@@ -651,12 +666,6 @@ button, select {
   font-weight: 900;
   word-break: keep-all;
   overflow-wrap: break-word;
-}
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
 }
 .flavorTag {
   border: 2px solid var(--edge);
@@ -717,12 +726,8 @@ button, select {
   fill: currentColor;
 }
 .priceLabel {
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  background: var(--surface);
-  padding: 1px 5px;
-  color: var(--edge);
-  font-size: 12px;
+  color: #4b3f10;
+  font-size: 11px;
   font-weight: 850;
 }
 .pricePanelUnknown .priceLabel {
@@ -730,7 +735,7 @@ button, select {
 }
 .finalPrice {
   white-space: nowrap;
-  font-size: 28px;
+  font-size: 34px;
   line-height: 1.02;
   font-weight: 950;
   color: #10130f;
@@ -745,6 +750,7 @@ button, select {
   color: #4d5549;
 }
 .costLine span { white-space: nowrap; }
+.productPrice,
 .shippingFee {
   display: inline-flex;
   align-items: center;
@@ -755,6 +761,9 @@ button, select {
   padding: 1px 5px;
   color: var(--edge);
   font-weight: 850;
+}
+.productPrice {
+  background: #fff;
 }
 .shippingUnknown {
   color: var(--amber);
@@ -851,7 +860,7 @@ button, select {
     background: var(--bg);
     border: 2px solid var(--edge);
     border-radius: 4px;
-    max-height: calc(100vh - 330px);
+    max-height: calc(100vh - 250px);
     overflow-y: auto;
     padding: 7px;
   }
@@ -912,9 +921,6 @@ button, select {
     padding: 1px 6px;
     font-size: 11px;
   }
-  .tags {
-    margin-top: 5px;
-  }
   .tasteNote {
     margin-top: 4px;
   }
@@ -938,7 +944,7 @@ button, select {
   .priceLabel { grid-column: 2; }
   .finalPrice {
     grid-column: 2;
-    font-size: 27px;
+    font-size: 31px;
   }
   .costLine {
     grid-column: 1;

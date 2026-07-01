@@ -34,6 +34,7 @@ export function OfferRow({
 }) {
   const hasTags = offer.flavorTags.length > 0 || offer.roastTags.length > 0;
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
+  const sourceClass = offer.source === "naver" ? "sourceBadgeNaver" : "sourceBadgeShop";
 
   return (
     <div
@@ -61,27 +62,27 @@ export function OfferRow({
               <BookmarkIcon />
             </button>
           ) : null}
-          <span>{offer.seller}</span>
-          {sourceLabel !== offer.seller ? <span>{sourceLabel}</span> : null}
-        </div>
-        <div className="offerTitle">{offer.name}</div>
-        {hasTags ? (
-          <div className="tags">
+          <span className={`sellerBadge ${sourceLabel === offer.seller ? sourceClass : ""}`}>{offer.seller}</span>
+          {sourceLabel !== offer.seller ? <span className={`sourceBadge ${sourceClass}`}>{sourceLabel}</span> : null}
+          {hasTags ? (
+            <>
             {offer.flavorTags.map((tag) => (
               <span className="tag flavorTag" key={tag}>{tag}</span>
             ))}
             {offer.roastTags.map((tag) => (
               <span className="tag roastTag" key={tag}>{tag}</span>
             ))}
-          </div>
-        ) : null}
+            </>
+          ) : null}
+        </div>
+        <div className="offerTitle">{offer.name}</div>
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
-        <div className="priceLabel">{offer.shippingKnown ? "최종 비용" : "상품가 기준"}</div>
+        <div className="priceLabel">{offer.shippingKnown ? "배송 포함" : "배송 확인"}</div>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
-          <span>{formatWon(offer.price)}</span>
+          <span className="productPrice">{formatWon(offer.price)}</span>
           <span className={`shippingFee ${offer.shippingKnown ? "" : "shippingUnknown"}`}>
             <TruckIcon />
             {offer.shippingKnown ? formatWon(offer.shippingFee ?? 0) : "확인 필요"}
