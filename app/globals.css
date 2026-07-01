@@ -2,7 +2,6 @@
   --bg: #fff4c7;
   --surface: #fffdf3;
   --surface-strong: #fff9df;
-  --surface-price: #f3f7ed;
   --line: #d8d0a7;
   --line-strong: #10130f;
   --ink: #171914;
@@ -130,7 +129,8 @@ button, select {
   background: transparent;
   overflow: visible;
 }
-.heroFacts div {
+.heroFacts div,
+.heroFactButton {
   min-width: 0;
   border: 3px solid var(--edge);
   border-radius: 4px;
@@ -138,8 +138,13 @@ button, select {
   background: var(--surface-strong);
   padding: 8px 10px;
 }
+.heroFactButton {
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
 .heroFacts div:nth-child(2) { background: var(--amber-soft); }
-.heroFacts div:nth-child(3) { background: var(--green-soft); }
+.heroFacts .heroFactButton { background: var(--green-soft); }
 .heroFacts span {
   display: block;
   margin-bottom: 2px;
@@ -169,6 +174,7 @@ button, select {
 }
 .searchBar input:focus-visible,
 .sectionTools select:focus-visible,
+.toolButton:focus-visible,
 .filterBar input:focus-visible,
 .filterBar select:focus-visible,
 .filterBar button:focus-visible,
@@ -190,6 +196,7 @@ button, select {
 .filterBar button:hover,
 .state button:hover,
 .sectionTools select:hover,
+.toolButton:hover,
 .stripControls button:hover,
 .favoriteRemove:hover {
   border-color: var(--green);
@@ -204,6 +211,7 @@ button, select {
 .filterBar button:active,
 .state button:active,
 .sectionTools select:active,
+.toolButton:active,
 .stripControls button:active,
 .favoriteRemove:active {
   transform: translate(2px, 2px);
@@ -218,20 +226,12 @@ button, select {
 }
 .workspaceGrid {
   display: grid;
-  grid-template-columns: 292px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
   align-items: start;
 }
-.finderRail,
 .resultsPanel {
   min-width: 0;
-}
-.finderRail {
-  display: grid;
-  gap: 8px;
-  align-self: start;
-  position: sticky;
-  top: 12px;
 }
 .resultsPanel {
   border: 0;
@@ -273,16 +273,18 @@ button, select {
   margin-top: 10px;
 }
 .filterBar {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   border: 0;
   border-radius: 0;
   background: var(--surface);
-  padding: 0;
+  padding: 0 0 8px;
 }
 .filterBar label {
   display: grid;
   grid-template-columns: 62px minmax(0, 1fr);
+  flex: 1 1 190px;
   align-items: center;
   gap: 6px;
   min-width: 0;
@@ -290,7 +292,7 @@ button, select {
   border-radius: 4px;
   background: var(--surface);
   padding: 5px 8px;
-  margin: 0 8px;
+  margin: 0;
 }
 .filterBar span {
   color: var(--muted);
@@ -327,6 +329,7 @@ button, select {
   opacity: 1;
 }
 .filterBar button {
+  flex: 0 0 auto;
   border: 2px solid var(--edge);
   border-radius: 4px;
   box-shadow: 4px 4px 0 var(--edge);
@@ -336,7 +339,7 @@ button, select {
   font-size: 13px;
   font-weight: 900;
   cursor: pointer;
-  margin: 0 8px;
+  margin: 0;
 }
 .loadingStatus {
   display: flex;
@@ -441,7 +444,8 @@ button, select {
   gap: 8px;
   flex-shrink: 0;
 }
-.sectionTools select {
+.sectionTools select,
+.toolButton {
   border: 2px solid var(--edge);
   border-radius: 4px;
   box-shadow: 4px 4px 0 var(--edge);
@@ -452,14 +456,32 @@ button, select {
   font-weight: 850;
   cursor: pointer;
 }
+.toolButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+}
+.toolButtonActive {
+  background: var(--green-soft);
+  color: var(--green);
+}
 .favoritesBlock {
-  grid-column: 1 / -1;
   min-width: 0;
   border: 0;
   border-radius: 0;
   box-shadow: none;
   background: var(--surface);
   padding: 2px 0 0;
+}
+.emptyFavorite {
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface-strong);
+  padding: 9px 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
 }
 .favoritesBlock .sectionHeader {
   margin-bottom: 6px;
@@ -659,7 +681,7 @@ button, select {
   border-left: 2px solid var(--edge);
   margin: -7px -10px -7px 0;
   padding: 7px 12px 7px 12px;
-  background: var(--surface-price);
+  background: #fff0a3;
   text-align: right;
   display: flex;
   flex-direction: column;
@@ -695,7 +717,11 @@ button, select {
   fill: currentColor;
 }
 .priceLabel {
-  color: var(--muted);
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 1px 5px;
+  color: var(--edge);
   font-size: 12px;
   font-weight: 850;
 }
@@ -723,6 +749,12 @@ button, select {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface);
+  padding: 1px 5px;
+  color: var(--edge);
+  font-weight: 850;
 }
 .shippingUnknown {
   color: var(--amber);
@@ -782,9 +814,6 @@ button, select {
   }
   .workspaceGrid {
     grid-template-columns: 1fr;
-  }
-  .finderRail {
-    position: static;
   }
   .resultsPanel {
     padding: 0;
@@ -898,7 +927,7 @@ button, select {
     border-top: 2px solid var(--edge);
     margin: 0;
     padding: 7px 9px;
-    background: var(--surface-price);
+    background: #fff0a3;
     border-radius: 4px;
     text-align: right;
   }
