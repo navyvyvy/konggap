@@ -76,7 +76,7 @@ button, select {
 }
 .heroCopy p {
   max-width: 620px;
-  margin: 12px 0 0;
+  margin: 18px 0 0;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -87,6 +87,8 @@ button, select {
   display: grid;
   gap: 7px;
   align-content: end;
+  justify-self: end;
+  width: min(100%, 400px);
 }
 .searchBar {
   display: grid;
@@ -173,61 +175,54 @@ button, select {
 .toolButton:focus-visible,
 .filterBar input:focus-visible,
 .filterBar select:focus-visible,
-.filterBar button:focus-visible,
+.filterBar .uiButton:focus-visible,
 .favoriteButton:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 2px;
 }
-.searchBar button {
-  border: 2px solid var(--edge);
+.uiButton {
+  border: 2px solid var(--button-border, var(--edge));
   border-radius: 4px;
   box-shadow: 4px 4px 0 var(--edge);
-  padding: 8px 13px;
-  background: var(--amber-soft);
-  color: var(--edge);
+  background: var(--button-bg, var(--amber-soft));
+  color: var(--button-color, var(--edge));
   font-weight: 900;
   cursor: pointer;
 }
-.searchBar button:hover,
-.filterBar button:hover,
-.state button:hover,
+.uiButton-primary {
+  --button-bg: var(--amber-soft);
+  --button-border: #c4a800;
+  --button-hover-bg: #fff4a8;
+}
+.uiButton-condition {
+  --button-bg: var(--green-soft);
+  --button-border: #82bf8f;
+  --button-hover-bg: #b9efc8;
+  --button-color: #0b381b;
+}
+.uiButton-plain {
+  --button-bg: var(--surface);
+  --button-border: var(--edge);
+  --button-hover-bg: var(--surface-strong);
+}
+.searchBar .uiButton {
+  padding: 8px 13px;
+}
+.filterBar .uiButton {
+  padding: 6px 10px;
+}
+.uiButton:hover,
+.state .uiButton:hover,
 .sectionTools select:hover,
-.toolButton:hover,
-.stripControls button:hover,
-.favoriteRemove:hover {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
+.toolButton:hover {
+  border-color: var(--button-border, var(--edge));
+  background: var(--button-hover-bg, var(--surface-strong));
+  color: var(--button-color, var(--edge));
 }
-.searchBar button:hover {
-  background: #fff4a8;
-  color: var(--edge);
-}
-.sectionTools select:hover,
-.filterBar button:hover {
-  border-color: var(--edge);
-  background: #fff4a8;
-  color: var(--edge);
-}
-.toolButton:hover,
-.toolButtonActive:hover {
-  border-color: var(--edge);
-  background: #b9efc8;
-  color: #0b381b;
-}
-.stripControls button:hover,
-.favoriteRemove:hover {
-  border-color: var(--edge);
-  background: var(--surface-strong);
-  color: var(--edge);
-}
-.searchBar button:active,
-.filterBar button:active,
-.state button:active,
+.uiButton:active,
+.state .uiButton:active,
 .sectionTools select:active,
-.toolButton:active,
-.stripControls button:active,
-.favoriteRemove:active {
+.toolButton:active {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 var(--edge);
 }
@@ -272,16 +267,10 @@ button, select {
   font-size: 13px;
   font-weight: 750;
 }
-.state button {
+.state .uiButton {
   flex-shrink: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: var(--surface-strong);
   padding: 6px 9px;
-  color: var(--green);
   font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
 }
 .loadingBlock {
   margin-top: 10px;
@@ -344,17 +333,10 @@ button, select {
   color: #6c7567;
   opacity: 1;
 }
-.filterBar button {
+.filterBar .uiButton {
   flex: 0 0 auto;
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 4px 4px 0 var(--edge);
-  background: var(--amber-soft);
   padding: 6px 10px;
-  color: var(--edge);
   font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
   margin: 0;
 }
 .loadingStatus {
@@ -472,11 +454,11 @@ button, select {
 }
 .sectionTools select,
 .toolButton {
-  border: 2px solid var(--edge);
+  border: 2px solid var(--button-border, var(--edge));
   border-radius: 4px;
   box-shadow: 4px 4px 0 var(--edge);
   padding: 6px 28px 6px 10px;
-  color: var(--ink);
+  color: var(--button-color, var(--ink));
   font-size: 13px;
   font-weight: 850;
   cursor: pointer;
@@ -488,12 +470,14 @@ button, select {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: var(--green-soft);
+  background: var(--button-bg, var(--green-soft));
   padding: 6px 10px;
 }
 .toolButtonActive {
-  background: #66c5ef;
-  color: var(--green);
+  --button-bg: #66c5ef;
+  --button-border: #2694bd;
+  --button-hover-bg: #8dd8f2;
+  --button-color: #052235;
 }
 .favoritesBlock {
   min-width: 0;
@@ -787,6 +771,7 @@ button, select {
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
+  gap: 8px;
 }
 .favoriteButton {
   border: 2px solid var(--edge);
@@ -828,7 +813,7 @@ button, select {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 4px 8px;
-  margin-top: 6px;
+  margin-top: 0;
   font-size: 13px;
   color: #4d5549;
 }
@@ -882,6 +867,9 @@ button, select {
     line-height: 1.32;
     white-space: normal;
   }
+  .heroAction {
+    width: 100%;
+  }
   .searchBar {
     gap: 8px;
     padding: 0;
@@ -928,7 +916,7 @@ button, select {
     padding: 6px 7px;
     margin: 0;
   }
-  .filterBar button {
+  .filterBar .uiButton {
     min-height: 34px;
     padding-inline: 10px;
     margin: 0;

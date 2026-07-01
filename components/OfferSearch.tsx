@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { canonicalOfferUrl, filterOffers, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
+import { UiButton } from "./UiButton";
 
 const PAGE_SIZE = 25;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
@@ -90,9 +91,9 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
         if (event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
       }}
     >
-      <button
+      <UiButton
         className="favoriteRemove"
-        type="button"
+        variant="plain"
         onClick={(event) => {
           event.stopPropagation();
           onRemove(offer);
@@ -100,7 +101,7 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
         aria-label="찜 해제"
       >
         <CloseIcon />
-      </button>
+      </UiButton>
       <span>{offer.seller}</span>
       <strong>{formatWon(offer.finalPrice)}</strong>
       <p>{offer.name}</p>
@@ -246,7 +247,7 @@ export function OfferSearch() {
     <main className="page">
       <header className="heroPanel">
         <div className="heroCopy">
-          <h1>구매 그리고 콩값장부</h1>
+          <h1>콩값장부</h1>
           <p>배송비까지 더한 커피콩 최저가</p>
         </div>
         <div className="heroAction">
@@ -263,7 +264,7 @@ export function OfferSearch() {
               </svg>
             </span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-            <button type="submit">콩값 체크</button>
+            <UiButton type="submit" variant="primary">콩값 체크</UiButton>
           </form>
           <div className="heroFacts" aria-label="현재 조회 상태">
             <div>
@@ -274,15 +275,15 @@ export function OfferSearch() {
               <span>최저</span>
               <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
             </div>
-            <button
+            <UiButton
               className="heroFactButton"
-              type="button"
+              variant="plain"
               onClick={() => setShowFavorites((value) => !value)}
               aria-expanded={showFavorites}
             >
               <span>찜</span>
               <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
-            </button>
+            </UiButton>
           </div>
         </div>
       </header>
@@ -293,14 +294,14 @@ export function OfferSearch() {
           <div className="state">
             <strong>결과 없음</strong>
             <span>현재 조건에 맞는 구매 가능 생두가 없습니다.</span>
-            <button type="button" onClick={submitCurrentQuery}>다시 조회</button>
+            <UiButton onClick={submitCurrentQuery}>다시 조회</UiButton>
           </div>
         ) : null}
         {status === "error" ? (
           <div className="state">
             <strong>조회 실패</strong>
             <span>{error}</span>
-            <button type="button" onClick={submitCurrentQuery}>다시 조회</button>
+            <UiButton onClick={submitCurrentQuery}>다시 조회</UiButton>
           </div>
         ) : null}
 
@@ -312,8 +313,8 @@ export function OfferSearch() {
                   <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
                   {favorites.length > 1 ? (
                     <div className="stripControls" aria-label="찜 목록 이동">
-                      <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></button>
-                      <button type="button" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></button>
+                      <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></UiButton>
+                      <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></UiButton>
                     </div>
                   ) : null}
                 </div>
@@ -348,16 +349,16 @@ export function OfferSearch() {
                     <option value="asc">낮은 가격순</option>
                     <option value="desc">높은 가격순</option>
                   </select>
-                  <button
+                  <UiButton
                     className={`toolButton ${showFilters ? "toolButtonActive" : ""}`}
-                    type="button"
+                    variant="condition"
                     onClick={() => setShowFilters((value) => !value)}
                     aria-expanded={showFilters}
                     aria-label="조건"
                   >
                     <FilterIcon />
                     조건
-                  </button>
+                  </UiButton>
                 </div>
               </div>
               {showFilters ? (
@@ -384,12 +385,12 @@ export function OfferSearch() {
                       {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
                     </select>
                   </label>
-                  <button type="button" onClick={() => {
+                  <UiButton onClick={() => {
                     setMinPrice("");
                     setMaxPrice("");
                     setFlavorFilter("");
                     setRoastFilter("");
-                  }}>필터 초기화</button>
+                  }}>필터 초기화</UiButton>
                 </section>
               ) : null}
               {filteredOffers.length ? (
@@ -408,12 +409,12 @@ export function OfferSearch() {
                 <div className="state">
                   <strong>조건 결과 없음</strong>
                   <span>가격이나 태그 조건을 줄이면 다시 보입니다.</span>
-                  <button type="button" onClick={() => {
+                  <UiButton onClick={() => {
                     setMinPrice("");
                     setMaxPrice("");
                     setFlavorFilter("");
                     setRoastFilter("");
-                  }}>필터 초기화</button>
+                  }}>필터 초기화</UiButton>
                 </div>
               )}
             </section>

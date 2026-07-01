@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "구매 그리고 콩값장부",
+  title: "콩값장부",
   description: "배송비까지 더한 커피콩 최저가",
 };
 

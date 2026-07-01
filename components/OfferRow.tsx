@@ -1,4 +1,5 @@
 import type { Offer } from "../src/lib/offers";
+import { UiButton } from "./UiButton";
 
 function formatWon(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
@@ -71,9 +72,9 @@ export function OfferRow({
       <div className="offerInfo">
         <div className="offerMeta">
           {onToggleFavorite ? (
-            <button
+            <UiButton
               className={`favoriteButton ${favorite ? "favoriteButtonActive" : ""}`}
-              type="button"
+              variant="plain"
               onClick={(event) => {
                 event.stopPropagation();
                 onToggleFavorite(offer);
@@ -82,7 +83,7 @@ export function OfferRow({
               aria-label={favorite ? "찜 해제" : "찜하기"}
             >
               <BookmarkIcon />
-            </button>
+            </UiButton>
           ) : null}
           <span className={`sellerBadge ${offer.source === "naver" ? "sellerBadgeNaver" : "sellerBadgeShop"}`}>{offer.seller}</span>
           {sourceLabel !== offer.seller ? <span className={`sourceBadge ${sourceClass}`}>{sourceLabel}</span> : null}
