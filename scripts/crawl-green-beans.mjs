@@ -153,6 +153,7 @@ async function collectNaverPageOffers(page, query) {
 
 async function crawlSpecialtySites(page) {
   const offers = [];
+  const errors = [];
 
   for (const query of SPECIALTY_SITE_QUERIES) {
     await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, {
@@ -163,24 +164,35 @@ async function crawlSpecialtySites(page) {
     offers.push(...(await collectSpecialtyPageOffers(page)));
   }
 
-  offers.push(...(await crawlDirectShopPages(page)));
-  return dedupeOffers(offers);
+  const direct = await crawlDirectShopPages(page);
+  offers.push(...direct.offers);
+  errors.push(...direct.errors);
+  return { offers: dedupeOffers(offers), errors };
 }
 
 async function crawlDirectShopPages(page) {
   const offers = [];
+  const errors = [];
 
   for (const shop of DIRECT_SHOP_PAGES) {
-    await page.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 }).catch(() => null);
+    const navigationError = await page.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+      .then(() => "")
+      .catch((error) => error.message);
+    if (navigationError) {
+      errors.push(`${shop.seller}: ${navigationError}`);
+      continue;
+    }
     await page.waitForTimeout(1500);
-    offers.push(...(await collectDirectShopOffers(page, shop)));
+    const result = await collectDirectShopOffers(page, shop);
+    offers.push(...result.offers);
+    if (result.error) errors.push(result.error);
   }
 
-  return offers;
+  return { offers, errors };
 }
 
 async function collectDirectShopOffers(page, shop) {
-  const items = await page.evaluate(() => {
+  const result = await page.evaluate(() => {
     const productCards = [...document.querySelectorAll('li[id^="anchorBoxId_"], .prdList > li, .shop-item')];
     const nodes = productCards.length ? productCards : [...document.querySelectorAll("a[href]")];
 
@@ -203,11 +215,19 @@ async function collectDirectShopOffers(page, shop) {
 
       return { title, link, lines };
     });
+  }).catch((error) => {
+    const message = `${shop.seller}: ${error.message}`;
+    console.error(`direct shop skipped: ${message}`);
+    return { error: message, items: [] };
   });
+  const items = Array.isArray(result) ? result : result.items;
 
-  return items
+  return {
+    error: Array.isArray(result) ? "" : result.error,
+    offers: items
     .map((item) => parseDirectShopOffer(item, shop))
-    .filter(Boolean);
+    .filter(Boolean),
+  };
 }
 
 function parseDirectShopOffer(item, shop) {
@@ -480,7 +500,8 @@ async function main() {
   const page = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
 
   const naverOffers = await crawlNaver(page, query);
-  const shopOffers = await crawlSpecialtySites(page);
+  const shopResult = await crawlSpecialtySites(page);
+  const shopOffers = shopResult.offers;
   const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
   const coffeeInfo = await enrichCoffeeInfo(page, rawOffers);
   const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
@@ -489,7 +510,7 @@ async function main() {
     query,
     sources: [
       { source: "naver", count: naverOffers.length, error: "" },
-      { source: "shop", count: shopOffers.length, error: "" },
+      { source: "shop", count: shopOffers.length, error: shopResult.errors.join("; ") },
     ],
     offers,
   };
