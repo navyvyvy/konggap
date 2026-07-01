@@ -463,6 +463,8 @@ button, select {
 .inlineFacts .compactLabel,
 .inlineFactButton span {
   color: var(--edge);
+  font-size: inherit;
+  font-weight: inherit;
 }
 .compactValue {
   display: none;
