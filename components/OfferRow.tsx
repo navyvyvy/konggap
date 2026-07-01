@@ -116,7 +116,7 @@ export function OfferRow({
           <span className="productPrice"><BeanIcon />{formatWon(offer.price)}</span>
           <span className={`shippingFee ${offer.shippingKnown ? "" : "shippingUnknown"}`}>
             <TruckIcon />
-            {offer.shippingKnown ? formatWon(offer.shippingFee ?? 0) : "확인 필요"}
+            {offer.shippingKnown ? (offer.shippingFee ? formatWon(offer.shippingFee) : "무료") : "확인 필요"}
           </span>
         </div>
       </div>

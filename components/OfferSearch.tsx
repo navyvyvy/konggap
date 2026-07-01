@@ -201,7 +201,7 @@ export function OfferSearch() {
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
   const fetchedAtLabel = fetchedAt
-    ? `${new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })} 기준`
+    ? new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
     : "";
   const summary = useMemo(() => {
     const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
@@ -250,6 +250,21 @@ export function OfferSearch() {
           <h1>콩값장부</h1>
           <p>배송비까지 더한 커피콩 최저가 모음</p>
         </div>
+        <form
+          className="searchBar listSearchBar desktopSearch"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitCurrentQuery();
+          }}
+        >
+          <span className="searchIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
+            </svg>
+          </span>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
+          <UiButton type="submit" variant="primary">콩값 체크</UiButton>
+        </form>
       </header>
 
       <section className="toolPanel">
@@ -314,7 +329,7 @@ export function OfferSearch() {
                   </UiButton>
                 </div>
                 <form
-                  className="searchBar listSearchBar"
+                  className="searchBar listSearchBar mobileSearch"
                   onSubmit={(event) => {
                     event.preventDefault();
                     submitCurrentQuery();
