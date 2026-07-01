@@ -328,21 +328,6 @@ export function OfferSearch() {
                     찜한 콩 <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
                   </UiButton>
                 </div>
-                <form
-                  className="searchBar listSearchBar mobileSearch"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    submitCurrentQuery();
-                  }}
-                >
-                  <span className="searchIcon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
-                    </svg>
-                  </span>
-                  <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-                  <UiButton type="submit" variant="primary">콩값 체크</UiButton>
-                </form>
                 <div className="sectionTools">
                   <select
                     value={sortOrder}

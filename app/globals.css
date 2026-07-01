@@ -102,9 +102,6 @@ button, select {
   padding: 4px 7px;
   box-shadow: 4px 4px 0 var(--edge);
 }
-.mobileSearch {
-  display: none;
-}
 .searchIcon {
   display: inline-grid;
   place-items: center;
@@ -428,18 +425,32 @@ button, select {
   flex-wrap: wrap;
   gap: 5px;
   min-width: 0;
+  margin-left: auto;
 }
 .inlineFacts > span,
 .inlineFactButton {
   border: 2px solid var(--edge);
   border-radius: 4px;
-  background: var(--amber-soft);
+  background: var(--fact-bg, var(--amber-soft));
   color: var(--edge);
   padding: 6px 10px;
   font-size: 13px;
   font-weight: 850;
   line-height: 1.2;
   box-shadow: 4px 4px 0 var(--edge);
+  --button-hover-bg: var(--fact-hover-bg, #fff4a8);
+}
+.inlineFacts > :nth-child(1) {
+  --fact-bg: var(--green-soft);
+  --fact-hover-bg: #b9efc8;
+}
+.inlineFacts > :nth-child(2) {
+  --fact-bg: var(--amber-soft);
+  --fact-hover-bg: #fff4a8;
+}
+.inlineFacts > :nth-child(3) {
+  --fact-bg: #d9c6ff;
+  --fact-hover-bg: #eadcff;
 }
 .inlineFacts strong {
   margin-left: 3px;
@@ -447,7 +458,7 @@ button, select {
   font-weight: 950;
 }
 .inlineFactButton {
-  background: var(--amber-soft);
+  background: var(--fact-bg, var(--amber-soft));
   cursor: pointer;
 }
 .sectionTools select,
@@ -883,16 +894,8 @@ button, select {
   .listSearchBar {
     width: 100%;
     min-width: 0;
+    margin-top: 7px;
     padding: 4px 7px;
-  }
-  .desktopSearch {
-    display: none;
-  }
-  .mobileSearch {
-    display: grid;
-    flex: 0 0 150px;
-    width: 150px;
-    min-width: 150px;
   }
   .sectionTools select {
     width: 102px;
@@ -951,6 +954,7 @@ button, select {
   .inlineFacts {
     flex: 1 1 220px;
     max-width: calc(100% - 112px);
+    margin-left: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
