@@ -60,8 +60,8 @@ button, select {
 .heroCopy {
   min-width: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 5px;
   align-items: flex-start;
 }
 .heroCopy h1 {
@@ -168,6 +168,7 @@ button, select {
 }
 .searchBar .uiButton {
   padding: 6px 11px;
+  box-shadow: none;
 }
 .listSearchBar .uiButton {
   padding: 4px 9px;
@@ -456,6 +457,11 @@ button, select {
   margin-left: 3px;
   color: var(--edge);
   font-weight: 950;
+}
+.inlineFacts .fullLabel,
+.inlineFacts .compactLabel,
+.inlineFactButton span {
+  color: var(--edge);
 }
 .compactValue {
   display: none;

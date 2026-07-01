@@ -258,7 +258,7 @@ export function OfferSearch() {
       <header className="heroPanel">
         <div className="heroCopy">
           <h1>콩값장부</h1>
-          <p>배송비까지 더한 커피콩 최저가 모음</p>
+          <p>커피콩 최종가 모음</p>
         </div>
         <form
           className="searchBar listSearchBar desktopSearch"
