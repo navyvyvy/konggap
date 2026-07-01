@@ -300,10 +300,15 @@ export function OfferSearch() {
               <section className="favoritesBlock" aria-label="찜 목록">
                 <div className="sectionHeader">
                   <h2>찜 목록 ({favorites.length.toLocaleString("ko-KR")})</h2>
-                  {favorites.length > 1 ? (
+                  {favorites.length ? (
                     <div className="stripControls" aria-label="찜 목록 이동">
-                      <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></UiButton>
-                      <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></UiButton>
+                      <UiButton variant="plain" onClick={() => setFavorites([])} aria-label="찜 모두 해제"><CloseIcon /></UiButton>
+                      {favorites.length > 1 ? (
+                        <>
+                          <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: -320, behavior: "smooth" })} aria-label="왼쪽으로 이동"><ChevronIcon direction="left" /></UiButton>
+                          <UiButton variant="plain" onClick={() => favoriteStripRef.current?.scrollBy({ left: 320, behavior: "smooth" })} aria-label="오른쪽으로 이동"><ChevronIcon direction="right" /></UiButton>
+                        </>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
