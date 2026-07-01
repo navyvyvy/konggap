@@ -16,6 +16,15 @@ function TruckIcon() {
   );
 }
 
+function BeanIcon() {
+  return (
+    <svg className="beanIcon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7.5 18.5c-3.1-3.1-2.5-8.4 1.2-12.1 3.7-3.7 9-4.3 12.1-1.2 3.1 3.1 2.5 8.4-1.2 12.1-3.7 3.7-9 4.3-12.1 1.2Z" />
+      <path d="M8.8 17.2c2.3-1.2 3.1-3 3.6-5.2.5-2.1 1.3-4 3.8-5.2" />
+    </svg>
+  );
+}
+
 function BookmarkIcon() {
   return (
     <svg className="favoriteIcon" viewBox="0 0 24 24" aria-hidden="true">
@@ -104,7 +113,7 @@ export function OfferRow({
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
-          <span className="productPrice">{formatWon(offer.price)}</span>
+          <span className="productPrice"><BeanIcon />{formatWon(offer.price)}</span>
           <span className={`shippingFee ${offer.shippingKnown ? "" : "shippingUnknown"}`}>
             <TruckIcon />
             {offer.shippingKnown ? formatWon(offer.shippingFee ?? 0) : "확인 필요"}

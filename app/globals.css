@@ -88,7 +88,7 @@ button, select {
   gap: 7px;
   align-content: end;
   justify-self: end;
-  width: min(100%, 400px);
+  width: min(100%, 470px);
 }
 .searchBar {
   display: grid;
@@ -101,6 +101,8 @@ button, select {
   background: var(--surface);
   padding: 7px;
   align-items: center;
+  justify-self: end;
+  width: min(100%, 400px);
 }
 .searchIcon {
   display: inline-grid;
@@ -191,12 +193,12 @@ button, select {
 }
 .uiButton-primary {
   --button-bg: var(--amber-soft);
-  --button-border: #c4a800;
+  --button-border: var(--edge);
   --button-hover-bg: #fff4a8;
 }
 .uiButton-condition {
   --button-bg: var(--green-soft);
-  --button-border: #82bf8f;
+  --button-border: var(--edge);
   --button-hover-bg: #b9efc8;
   --button-color: #0b381b;
 }
@@ -475,7 +477,7 @@ button, select {
 }
 .toolButtonActive {
   --button-bg: #66c5ef;
-  --button-border: #2694bd;
+  --button-border: var(--edge);
   --button-hover-bg: #8dd8f2;
   --button-color: #052235;
 }
@@ -783,6 +785,7 @@ button, select {
   width: 31px;
   height: 28px;
   padding: 0;
+  box-shadow: none;
   font-weight: 850;
   cursor: pointer;
 }
@@ -830,6 +833,13 @@ button, select {
   color: var(--edge);
   font-weight: 850;
 }
+.beanIcon {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
 .productPrice {
   background: #fff;
 }
@@ -871,6 +881,7 @@ button, select {
     width: 100%;
   }
   .searchBar {
+    width: 100%;
     gap: 8px;
     padding: 0;
   }

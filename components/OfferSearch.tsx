@@ -248,7 +248,7 @@ export function OfferSearch() {
       <header className="heroPanel">
         <div className="heroCopy">
           <h1>콩값장부</h1>
-          <p>배송비까지 더한 커피콩 최저가</p>
+          <p>배송비까지 더한 커피콩 최저가 모음</p>
         </div>
         <div className="heroAction">
           <form
@@ -272,7 +272,7 @@ export function OfferSearch() {
               <strong>{fetchedAtLabel || "-"}</strong>
             </div>
             <div>
-              <span>최저</span>
+              <span>최저가</span>
               <strong>{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong>
             </div>
             <UiButton
@@ -281,7 +281,7 @@ export function OfferSearch() {
               onClick={() => setShowFavorites((value) => !value)}
               aria-expanded={showFavorites}
             >
-              <span>찜</span>
+              <span>찜한 콩</span>
               <strong>{favorites.length.toLocaleString("ko-KR")}개</strong>
             </UiButton>
           </div>
@@ -335,7 +335,7 @@ export function OfferSearch() {
               <div className="sectionHeader">
                 <div className="sectionTitle">
                   <h2>찾은 콩</h2>
-                  <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
+                  <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
                 </div>
                 <div className="sectionTools">
                   <select
