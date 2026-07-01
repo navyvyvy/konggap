@@ -55,12 +55,7 @@ button, select {
   color: var(--ink);
 }
 .heroPanel::before {
-  content: "";
-  position: absolute;
-  inset: -3px -3px auto -3px;
-  height: 10px;
-  border-bottom: 3px solid var(--edge);
-  background: var(--green);
+  content: none;
 }
 .heroCopy {
   min-width: 0;
@@ -80,7 +75,7 @@ button, select {
 }
 .heroCopy p {
   max-width: 620px;
-  margin: 6px 0 0;
+  margin: 12px 0 0;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -204,7 +199,25 @@ button, select {
   color: var(--green);
 }
 .searchBar button:hover {
-  background: #fff;
+  background: #fff4a8;
+  color: var(--edge);
+}
+.sectionTools select:hover,
+.filterBar button:hover {
+  border-color: var(--edge);
+  background: #fff4a8;
+  color: var(--edge);
+}
+.toolButton:hover,
+.toolButtonActive:hover {
+  border-color: var(--edge);
+  background: #b9efc8;
+  color: #0b381b;
+}
+.stripControls button:hover,
+.favoriteRemove:hover {
+  border-color: var(--edge);
+  background: var(--surface-strong);
   color: var(--edge);
 }
 .searchBar button:active,
@@ -280,6 +293,8 @@ button, select {
   border-radius: 0;
   background: var(--surface);
   padding: 0 0 8px;
+  animation: panelReveal .18s ease-out;
+  transform-origin: top;
 }
 .filterBar label {
   display: grid;
@@ -413,6 +428,16 @@ button, select {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+@keyframes panelReveal {
+  from {
+    opacity: 0;
+    transform: scaleY(.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
 .sectionHeader {
   display: flex;
   align-items: baseline;
@@ -476,6 +501,8 @@ button, select {
   box-shadow: none;
   background: var(--surface);
   padding: 2px 0 0;
+  animation: panelReveal .18s ease-out;
+  transform-origin: top;
 }
 .emptyFavorite {
   border: 2px solid var(--edge);
@@ -648,6 +675,14 @@ button, select {
   color: var(--edge);
   font-weight: 850;
 }
+.sellerBadgeNaver {
+  background: #80e4a5;
+  color: #0b381b;
+}
+.sellerBadgeShop {
+  background: #ff9bc2;
+  color: #3c1021;
+}
 .sourceBadgeNaver {
   border: 2px solid var(--edge);
   background: #80e4a5;
@@ -673,10 +708,65 @@ button, select {
   color: #052235;
   font-weight: 850;
 }
+.tagNatural {
+  border: 2px solid var(--edge);
+  background: #ff9bc2;
+  color: #3c1021;
+  font-weight: 850;
+}
+.tagWashed {
+  border: 2px solid var(--edge);
+  background: #66c5ef;
+  color: #052235;
+  font-weight: 850;
+}
+.tagHoney {
+  border: 2px solid var(--edge);
+  background: #ffe560;
+  color: #3e2b00;
+  font-weight: 850;
+}
+.tagDecaf,
+.tagMwp {
+  border: 2px solid var(--edge);
+  background: #d9c6ff;
+  color: #24114d;
+  font-weight: 850;
+}
+.tagSugarcane {
+  border: 2px solid var(--edge);
+  background: #bff07a;
+  color: #1f3700;
+  font-weight: 850;
+}
+.tagAnaerobic {
+  border: 2px solid var(--edge);
+  background: #ffb36b;
+  color: #472500;
+  font-weight: 850;
+}
 .roastTag {
   background: #80e4a5;
   border: 2px solid var(--edge);
   color: #0b381b;
+  font-weight: 850;
+}
+.tagLightRoast {
+  border: 2px solid var(--edge);
+  background: #fff2a8;
+  color: #3d3200;
+  font-weight: 850;
+}
+.tagMediumRoast {
+  border: 2px solid var(--edge);
+  background: #d4a067;
+  color: #321a00;
+  font-weight: 850;
+}
+.tagDarkRoast {
+  border: 2px solid var(--edge);
+  background: #8a5b3b;
+  color: #fff8eb;
   font-weight: 850;
 }
 .tasteNote {
@@ -704,15 +794,15 @@ button, select {
   color: #30352d;
   display: inline-grid;
   place-items: center;
-  width: 23px;
-  height: 23px;
+  width: 31px;
+  height: 28px;
   padding: 0;
   font-weight: 850;
   cursor: pointer;
 }
 .favoriteIcon {
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
@@ -794,7 +884,7 @@ button, select {
     font-size: 42px;
   }
   .heroCopy p {
-    margin-top: 5px;
+    margin-top: 9px;
     font-size: 14px;
     line-height: 1.32;
     white-space: normal;
@@ -938,8 +1028,8 @@ button, select {
     text-align: right;
   }
   .favoriteButton {
-    width: 23px;
-    height: 23px;
+    width: 31px;
+    height: 28px;
   }
   .priceLabel { grid-column: 2; }
   .finalPrice {
@@ -960,7 +1050,9 @@ button, select {
   button, select {
     transition: none;
   }
-  .skeleton {
+  .skeleton,
+  .filterBar,
+  .favoritesBlock {
     animation: none;
   }
 }

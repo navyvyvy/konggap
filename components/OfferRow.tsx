@@ -23,6 +23,28 @@ function BookmarkIcon() {
   );
 }
 
+function flavorTone(tag: string) {
+  const tones: Record<string, string> = {
+    "내추럴": "tagNatural",
+    "워시드": "tagWashed",
+    "허니": "tagHoney",
+    "디카페인": "tagDecaf",
+    "MWP": "tagMwp",
+    "슈가케인": "tagSugarcane",
+    "무산소": "tagAnaerobic",
+  };
+  return tones[tag] ?? "flavorTag";
+}
+
+function roastTone(tag: string) {
+  const tones: Record<string, string> = {
+    "약배전": "tagLightRoast",
+    "중배전": "tagMediumRoast",
+    "강배전": "tagDarkRoast",
+  };
+  return tones[tag] ?? "roastTag";
+}
+
 export function OfferRow({
   offer,
   favorite,
@@ -62,15 +84,15 @@ export function OfferRow({
               <BookmarkIcon />
             </button>
           ) : null}
-          <span className={`sellerBadge ${sourceLabel === offer.seller ? sourceClass : ""}`}>{offer.seller}</span>
+          <span className={`sellerBadge ${offer.source === "naver" ? "sellerBadgeNaver" : "sellerBadgeShop"}`}>{offer.seller}</span>
           {sourceLabel !== offer.seller ? <span className={`sourceBadge ${sourceClass}`}>{sourceLabel}</span> : null}
           {hasTags ? (
             <>
             {offer.flavorTags.map((tag) => (
-              <span className="tag flavorTag" key={tag}>{tag}</span>
+              <span className={`tag ${flavorTone(tag)}`} key={tag}>{tag}</span>
             ))}
             {offer.roastTags.map((tag) => (
-              <span className="tag roastTag" key={tag}>{tag}</span>
+              <span className={`tag ${roastTone(tag)}`} key={tag}>{tag}</span>
             ))}
             </>
           ) : null}
