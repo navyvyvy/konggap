@@ -321,7 +321,7 @@ export function OfferSearch() {
             <section className="resultsPanel" aria-label="가격 목록">
               <div className="sectionHeader">
                 <div className="sectionTitle">
-                  <h2>가격 목록</h2>
+                  <h2>구매 후보</h2>
                   <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
                 </div>
                 <div className="sectionTools">

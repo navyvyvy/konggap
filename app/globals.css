@@ -71,8 +71,15 @@ button, select {
   align-items: flex-start;
 }
 .heroCopy h1 {
+  display: inline-block;
+  max-width: 100%;
   margin: 0;
-  font-size: 54px;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 var(--edge);
+  background: var(--amber-soft);
+  padding: 3px 10px 7px;
+  font-size: 50px;
   line-height: 1;
   letter-spacing: 0;
   color: var(--edge);
@@ -80,8 +87,12 @@ button, select {
   text-wrap: balance;
 }
 .heroCopy p {
+  display: inline-block;
   max-width: 620px;
-  margin: 6px 0 0;
+  margin: 11px 0 0;
+  border-bottom: 3px solid var(--edge);
+  background: var(--surface);
+  padding: 0 4px 5px;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -233,18 +244,6 @@ button, select {
   position: sticky;
   top: 12px;
 }
-.finderRail::before {
-  content: "조건";
-  display: block;
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--amber-soft);
-  padding: 10px 12px;
-  color: var(--edge);
-  font-size: 15px;
-  font-weight: 950;
-}
 .resultsPanel {
   border: 0;
   border-radius: 0;
@@ -254,13 +253,24 @@ button, select {
 .siteFooter {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px 14px;
-  margin-top: 12px;
-  color: var(--muted);
+  justify-content: space-between;
+  gap: 6px 10px;
+  margin-top: 10px;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 var(--edge);
+  background: var(--surface);
+  padding: 8px 10px;
+  color: var(--edge);
   font-size: 12px;
-  font-weight: 750;
+  font-weight: 900;
   text-align: center;
+}
+.siteFooter span {
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--green-soft);
+  padding: 3px 7px;
 }
 .state {
   display: flex;
@@ -439,12 +449,16 @@ button, select {
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  margin: 0 0 6px;
-  padding: 0 2px;
+  margin: 0 0 8px;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 var(--edge);
+  background: var(--surface-strong);
+  padding: 8px 10px;
 }
 .sectionHeader h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: 18px;
   line-height: 1.2;
 }
 .sectionTitle {
@@ -479,14 +493,14 @@ button, select {
 .favoritesBlock {
   grid-column: 1 / -1;
   min-width: 0;
-  border-top: 3px solid var(--edge);
-  border-bottom: 3px solid var(--edge);
-  border-radius: 0;
+  border: 3px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 var(--edge);
   background: var(--surface);
-  padding: 8px 0;
+  padding: 8px;
 }
 .favoritesBlock .sectionHeader {
-  padding: 0 10px;
+  margin-bottom: 8px;
 }
 .stripControls {
   display: inline-flex;
@@ -542,10 +556,10 @@ button, select {
   position: relative;
   min-width: 0;
   min-height: 84px;
-  border: 3px solid #b78111;
+  border: 3px solid var(--edge);
   border-radius: 4px;
-  box-shadow: 5px 5px 0 #b78111;
-  background: #fffdf5;
+  box-shadow: 5px 5px 0 var(--edge);
+  background: var(--surface-strong);
   padding: 7px 32px 7px 9px;
   cursor: pointer;
   scroll-snap-align: start;
@@ -585,9 +599,9 @@ button, select {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: 2px solid #b78111;
+  border: 2px solid var(--edge);
   border-radius: 999px;
-  box-shadow: 3px 3px 0 #b78111;
+  box-shadow: 3px 3px 0 var(--edge);
   background: #fff;
   color: var(--amber);
   padding: 0;
