@@ -6,7 +6,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: refresh-offers
@@ -15,6 +17,9 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,17 +32,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node scripts/crawl-green-beans.mjs "생두"
       - run: |
-          mkdir -p /tmp/offer-data
-          cp data/latest-offers.json data/coffee-info.json /tmp/offer-data/
+          mkdir -p public/data
+          cp data/latest-offers.json data/coffee-info.json public/data/
+      - run: rm -rf app/api
+      - run: npm run build
+        env:
+          GITHUB_PAGES: "1"
+          NEXT_PUBLIC_STATIC_EXPORT: "1"
 
-      - name: Publish refreshed data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin gh-pages || true
-          git switch gh-pages || git switch --orphan gh-pages
-          mkdir -p data
-          cp /tmp/offer-data/latest-offers.json /tmp/offer-data/coffee-info.json data/
-          git add data/latest-offers.json data/coffee-info.json
-          git diff --cached --quiet || git commit -m "data: refresh offers"
-          git push origin gh-pages
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: out
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

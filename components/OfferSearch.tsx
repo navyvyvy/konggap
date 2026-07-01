@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { canonicalOfferUrl, filterOffers, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer } from "../src/lib/offers";
+import { canonicalOfferUrl, filterOffers, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type OfferSource, type RawOffer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 import { UiButton } from "./UiButton";
 
@@ -20,6 +20,24 @@ type ApiResult = {
   fetchedAt: string;
   offers: Offer[];
   error?: string;
+};
+
+type SnapshotOffer = {
+  title: string;
+  link: string;
+  price: number;
+  shippingFee?: number | null;
+  seller?: string;
+  source?: string;
+  flavorTags?: string[];
+  roastTags?: string[];
+  tasteNote?: string;
+  rawDescription?: string;
+};
+
+type OfferSnapshot = {
+  fetchedAt: string;
+  offers: SnapshotOffer[];
 };
 
 function formatWon(value: number) {
@@ -163,12 +181,15 @@ export function OfferSearch() {
     const params = new URLSearchParams({ q: submittedQuery });
     if (reloadKey > 0) params.set("refresh", "1");
 
-    fetch(`/api/offers?${params.toString()}`)
-      .then(async (response) => {
-        const data = (await response.json()) as ApiResult;
-        if (!response.ok) throw new Error(data.error || "조회 실패");
-        return data;
-      })
+    const request = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
+      ? fetchStaticSnapshot()
+      : fetch(`/api/offers?${params.toString()}`).then(async (response) => {
+          const data = (await response.json()) as ApiResult;
+          if (!response.ok) throw new Error(data.error || "조회 실패");
+          return data;
+        });
+
+    request
       .then((data) => {
         if (cancelled) return;
         setOffers(data.offers);
@@ -427,4 +448,26 @@ export function OfferSearch() {
       </section>
     </main>
   );
+}
+
+async function fetchStaticSnapshot() {
+  const response = await fetch("data/latest-offers.json", { cache: "no-store" });
+  if (!response.ok) throw new Error("정적 가격 목록을 불러오지 못했습니다.");
+  const data = (await response.json()) as OfferSnapshot;
+  const offers = sortOffersByFinalPrice(data.offers.map((item, index) => normalizeOffer({
+    id: `${item.source ?? "snapshot"}-${index}-${item.link}`,
+    name: item.title,
+    seller: item.seller ?? item.source ?? "판매처",
+    source: item.source === "shop" || item.source === "coupang" ? item.source as OfferSource : "naver",
+    sourceUrl: item.link,
+    price: item.price,
+    shippingFee: item.shippingFee ?? null,
+    flavorTags: item.flavorTags,
+    roastTags: item.roastTags,
+    tasteNote: item.tasteNote,
+    rawDescription: item.rawDescription,
+    fetchedAt: data.fetchedAt,
+  } satisfies RawOffer)));
+
+  return { fetchedAt: data.fetchedAt, offers };
 }
