@@ -71,6 +71,7 @@ button, select {
   letter-spacing: 0;
   color: var(--edge);
   text-shadow: none;
+  word-break: keep-all;
   text-wrap: balance;
 }
 .heroCopy p {
@@ -680,8 +681,8 @@ button, select {
   color: #0b381b;
 }
 .sellerBadgeShop {
-  background: #ff9bc2;
-  color: #3c1021;
+  background: #d9c6ff;
+  color: #24114d;
 }
 .sourceBadgeNaver {
   border: 2px solid var(--edge);
@@ -710,8 +711,8 @@ button, select {
 }
 .tagNatural {
   border: 2px solid var(--edge);
-  background: #ff9bc2;
-  color: #3c1021;
+  background: #ffb36b;
+  color: #472500;
   font-weight: 850;
 }
 .tagWashed {
@@ -779,7 +780,7 @@ button, select {
   position: relative;
   border-left: 2px solid var(--edge);
   margin: -7px -10px -7px 0;
-  padding: 7px 12px 7px 12px;
+  padding: 9px 12px;
   background: #fff0a3;
   text-align: right;
   display: flex;
@@ -815,17 +816,9 @@ button, select {
 .favoriteButtonActive .favoriteIcon {
   fill: currentColor;
 }
-.priceLabel {
-  color: #4b3f10;
-  font-size: 11px;
-  font-weight: 850;
-}
-.pricePanelUnknown .priceLabel {
-  color: var(--amber);
-}
 .finalPrice {
   white-space: nowrap;
-  font-size: 34px;
+  font-size: 38px;
   line-height: 1.02;
   font-weight: 950;
   color: #10130f;
@@ -835,7 +828,7 @@ button, select {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 4px 8px;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 13px;
   color: #4d5549;
 }
@@ -1031,10 +1024,9 @@ button, select {
     width: 31px;
     height: 28px;
   }
-  .priceLabel { grid-column: 2; }
   .finalPrice {
     grid-column: 2;
-    font-size: 31px;
+    font-size: 34px;
   }
   .costLine {
     grid-column: 1;

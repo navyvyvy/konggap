@@ -246,8 +246,8 @@ export function OfferSearch() {
     <main className="page">
       <header className="heroPanel">
         <div className="heroCopy">
-          <h1>콩값 장부</h1>
-          <p>배송비 포함 커피콩 최저가 탐색</p>
+          <h1>구매 그리고 콩값장부</h1>
+          <p>배송비까지 더한 커피콩 최저가</p>
         </div>
         <div className="heroAction">
           <form
@@ -263,7 +263,7 @@ export function OfferSearch() {
               </svg>
             </span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-            <button type="submit">목록 확인</button>
+            <button type="submit">콩값 체크</button>
           </form>
           <div className="heroFacts" aria-label="현재 조회 상태">
             <div>
@@ -333,7 +333,7 @@ export function OfferSearch() {
             <section className="resultsPanel" aria-label="가격 목록">
               <div className="sectionHeader">
                 <div className="sectionTitle">
-                  <h2>구매 후보</h2>
+                  <h2>찾은 콩</h2>
                   <span>{visibleOffers.length.toLocaleString("ko-KR")} / {filteredOffers.length.toLocaleString("ko-KR")}</span>
                 </div>
                 <div className="sectionTools">
@@ -353,10 +353,10 @@ export function OfferSearch() {
                     type="button"
                     onClick={() => setShowFilters((value) => !value)}
                     aria-expanded={showFilters}
-                    aria-label="필터"
+                    aria-label="조건"
                   >
                     <FilterIcon />
-                    필터
+                    조건
                   </button>
                 </div>
               </div>

@@ -101,7 +101,6 @@ export function OfferRow({
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
-        <div className="priceLabel">{offer.shippingKnown ? "배송 포함" : "배송 확인"}</div>
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
           <span className="productPrice">{formatWon(offer.price)}</span>

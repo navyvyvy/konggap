@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "콩값 장부",
-  description: "배송비 포함 커피콩 최저가 탐색",
+  title: "구매 그리고 콩값장부",
+  description: "배송비까지 더한 커피콩 최저가",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
