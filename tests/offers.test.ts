@@ -184,6 +184,10 @@ test("canonicalOfferUrl keeps product identity and removes tracking noise", () =
     "https://gsc.coffee/goods/goods_view.php?goodsNo=1000000328",
   );
   assert.equal(
+    canonicalOfferUrl("https://kapkawa.com/product/sample-coffee-1kg/139/category/25/display/1/?utm=tracking"),
+    "https://kapkawa.com/product/sample-coffee-1kg/139",
+  );
+  assert.equal(
     canonicalOfferUrl("https://m.coffeesys.co.kr/product/colombia/1979/category/1/display/15/?icid=tracking"),
     "https://coffeesys.co.kr/product/colombia/1979",
   );

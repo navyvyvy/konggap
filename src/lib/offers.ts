@@ -81,7 +81,7 @@ export function canonicalOfferUrl(url: string) {
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
     if (host === "gsc.coffee" && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
-    if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
+    if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg|kapkawa)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
       if (productPath) return `${origin}${productPath}`;
     }

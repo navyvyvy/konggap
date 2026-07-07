@@ -25,7 +25,8 @@ const SPECIALTY_SITE_QUERIES = [
   "site:gsc.coffee 에티오피아 생두 1kg",
   "site:gsc.coffee 케냐 생두 1kg",
   "site:gsc.coffee 과테말라 생두 1kg",
-  "site:coffeelibre.kr 생두",
+  "site:coffeelibre.kr 생두소분",
+  "site:kapkawa.com 생두 1kg",
   "site:coffeeplant.co.kr 생두",
   "site:momos.co.kr 생두",
   "site:smartstore.naver.com/58coffee 생두 1kg",
@@ -59,12 +60,13 @@ const WHOLE_BEAN_SITE_QUERIES = [
 const DIRECT_SHOP_PAGES = [
   { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true },
   { url: "https://www.gsc.coffee/goods/goods_list.php?cateCd=014", seller: "GSC" },
+  { url: "https://kapkawa.com/category/%EC%83%9D%EB%91%90/25/", seller: "캅카와" },
   { url: "https://rehmcoffee.co.kr", seller: "레햄코리아" },
   { url: "https://m.almacielo.com", seller: "알마씨엘로" },
   { url: "https://m.sopexkorea.com", seller: "소펙스코리아" },
   { url: "https://coffeeplant.co.kr/", seller: "생두몰" },
   { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
-  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90/56/", seller: "커피리브레" },
+  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레" },
   { url: "https://smartstore.naver.com/58coffee", seller: "58커피" },
   { url: "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1", seller: "릭커피" },
   { url: "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1", seller: "마리산" },
@@ -229,7 +231,7 @@ async function collectNaverPageOffers(page) {
   return items.map((item) => parseOfferFromLines(item.lines, item.link)).filter(Boolean);
 }
 
-async function crawlSpecialtySites(page, productKind) {
+async function crawlSpecialtySites(page, browser, productKind) {
   const offers = [];
   const errors = [];
 
@@ -242,26 +244,29 @@ async function crawlSpecialtySites(page, productKind) {
     offers.push(...(await collectSpecialtyPageOffers(page, productKind)));
   }
 
-  const direct = await crawlDirectShopPages(page);
+  const direct = await crawlDirectShopPages(browser);
   offers.push(...direct.offers);
   errors.push(...direct.errors);
   return { offers: dedupeOffers(offers), errors };
 }
 
-async function crawlDirectShopPages(page) {
+async function crawlDirectShopPages(browser) {
   const offers = [];
   const errors = [];
 
   for (const shop of DIRECT_SHOP_PAGES) {
-    const navigationError = await page.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+    const shopPage = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
+    const navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
       .then(() => "")
       .catch((error) => error.message);
     if (navigationError) {
       errors.push(`${shop.seller}: ${navigationError}`);
+      await shopPage.close();
       continue;
     }
-    await page.waitForTimeout(1500);
-    const result = await collectDirectShopOffers(page, shop);
+    await shopPage.waitForTimeout(1500);
+    const result = await collectDirectShopOffers(shopPage, shop);
+    await shopPage.close();
     offers.push(...result.offers);
     if (result.error) errors.push(result.error);
   }
@@ -371,7 +376,7 @@ async function collectSpecialtyPageOffers(page, productKind) {
       };
     })
     .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos|unspecialty|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
+      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|kapkawa|coffeeplant|momos|unspecialty|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
       /\d+\s*(kg|g)/i.test(item.title),
     ));
 
@@ -409,6 +414,7 @@ function sellerFromUrl(url) {
   if (/almacielo/.test(url)) return "알마씨엘로";
   if (/sopexkorea/.test(url)) return "소펙스코리아";
   if (/coffeelibre/.test(url)) return "커피리브레";
+  if (/kapkawa/.test(url)) return "캅카와";
   if (/coffeeplant/.test(url)) return "생두몰";
   if (/momos/.test(url)) return "모모스커피";
   if (/smartstore\.naver\.com\/58coffee/.test(url)) return "58커피";
@@ -759,7 +765,7 @@ function canonicalOfferUrl(url) {
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
     if (host === "gsc.coffee" && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
-    if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
+    if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg|kapkawa)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
       if (productPath) return `${origin}${productPath}`;
     }
@@ -790,7 +796,7 @@ async function main() {
   const page = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
 
   const naverOffers = await crawlNaver(page, query);
-  const shopResult = await crawlSpecialtySites(page, productKind);
+  const shopResult = await crawlSpecialtySites(page, browser, productKind);
   const shopOffers = shopResult.offers;
   const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
   const coffeeInfo = await enrichCoffeeInfo(rawOffers, page);
