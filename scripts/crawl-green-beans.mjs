@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
-const MAX_OFFERS = 200;
+const MAX_OFFERS = 400;
 const MAX_REASONABLE_PRICE = 1_000_000;
 const DATA_DIR = "data";
 const MOBILE_UA =
@@ -54,20 +54,22 @@ const WHOLE_BEAN_SITE_QUERIES = [
   "site:smartstore.naver.com/whichcoffee 원두",
   "site:smartstore.naver.com/hyangcho 원두",
   "site:smartstore.naver.com/gadelo 원두",
+  "site:kapkawa.com 원두",
   "site:gustocoffee.co.kr 원두",
   "site:editiondenmark.com coffee",
   "site:unspecialty.com 원두",
 ];
 const DIRECT_SHOP_PAGES = [
-  { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true },
-  { url: "https://www.gsc.coffee/goods/goods_list.php?cateCd=014", seller: "GSC" },
-  { url: "https://kapkawa.com/category/%EC%83%9D%EB%91%90/25/", seller: "캅카와" },
-  { url: "https://rehmcoffee.co.kr", seller: "레햄코리아" },
-  { url: "https://m.almacielo.com", seller: "알마씨엘로" },
-  { url: "https://m.sopexkorea.com", seller: "소펙스코리아" },
-  { url: "https://coffeeplant.co.kr/", seller: "생두몰" },
-  { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피" },
-  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레" },
+  { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true, kind: "green" },
+  { url: "https://www.gsc.coffee/goods/goods_list.php?cateCd=014", seller: "GSC", kind: "green" },
+  { url: "https://kapkawa.com/category/%EC%83%9D%EB%91%90/25/", seller: "캅카와", kind: "green" },
+  { url: "https://kapkawa.com/category/%EC%9B%90%EB%91%90/24/", seller: "캅카와", kind: "whole" },
+  { url: "https://rehmcoffee.co.kr", seller: "레햄코리아", kind: "green" },
+  { url: "https://www.almacielo.com/shop/big_section.php?cno1=1070", seller: "알마씨엘로", kind: "green" },
+  { url: "https://m.sopexkorea.com", seller: "소펙스코리아", kind: "green" },
+  { url: "https://coffeeplant.co.kr/", seller: "생두몰", kind: "green" },
+  { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피", kind: "green" },
+  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레", kind: "green" },
   { url: "https://smartstore.naver.com/58coffee", seller: "58커피" },
   { url: "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1", seller: "릭커피" },
   { url: "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1", seller: "마리산" },
@@ -77,9 +79,9 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
   { url: "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40", seller: "가델로" },
   { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들" },
-  { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피" },
-  { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크" },
-  { url: "https://unspecialty.com/", seller: "언스페셜티" },
+  { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피", kind: "whole" },
+  { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크", kind: "whole" },
+  { url: "https://unspecialty.com/", seller: "언스페셜티", kind: "whole" },
 ];
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
@@ -245,17 +247,18 @@ async function crawlSpecialtySites(page, browser, productKind) {
     offers.push(...(await collectSpecialtyPageOffers(page, productKind)));
   }
 
-  const direct = await crawlDirectShopPages(browser);
+  const direct = await crawlDirectShopPages(browser, productKind);
   offers.push(...direct.offers);
   errors.push(...direct.errors);
   return { offers: dedupeOffers(offers), errors };
 }
 
-async function crawlDirectShopPages(browser) {
+async function crawlDirectShopPages(browser, productKind) {
   const offers = [];
   const errors = [];
 
   for (const shop of DIRECT_SHOP_PAGES) {
+    if (shop.kind && shop.kind !== productKind) continue;
     const shopPage = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
     const navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
       .then(() => "")
