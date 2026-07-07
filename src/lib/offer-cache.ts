@@ -4,7 +4,7 @@ export type CacheEntry<T> = {
   value?: T;
 };
 
-export const OFFER_CACHE_TTL_MS = 30 * 60 * 1000;
+export const OFFER_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 export function cacheKey(query: string) {
   return query.trim().toLowerCase() || "생두";

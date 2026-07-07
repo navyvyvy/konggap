@@ -49,10 +49,6 @@ export function normalizeOffer(raw: RawOffer): Offer {
   };
 }
 
-export function paginateOffers<T>(offers: T[], offset: number, pageSize: number) {
-  return offers.slice(offset, offset + pageSize);
-}
-
 export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers: T[], direction: "asc" | "desc" = "asc") {
   const multiplier = direction === "asc" ? 1 : -1;
   return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
@@ -92,28 +88,6 @@ export function canonicalOfferUrl(url: string) {
   } catch {
     return url.trim();
   }
-}
-
-export function buildFlavorCacheKey(name: string) {
-  const cleaned = stripHtml(name).toLowerCase();
-  const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";
-  const process = /(내추럴|natural|워시드|washed|허니|honey|디카페인|decaf|mwp|슈가케인|sugarcane|무산소|anaerobic)/i.exec(cleaned)?.[0] ?? "";
-  const withoutWeight = cleaned
-    .replace(/에디오피아/g, "에티오피아")
-    .replace(/([가-힣])(내추럴|워시드|허니|무산소|디카페인)/g, "$1 $2")
-    .replace(/[-–]\s*홈카페.*$/i, " ")
-    .replace(/\[[^\]]+\]/g, " ")
-    .replace(/\bnew\s*crop\b|커피\s*생두|커피\s*원두|생두|원두|홀빈|로스팅\s*원두|스페셜티|싱글\s*오리진|뉴크롭|프리미엄|할인|판매가|필더컵|외\s*\d+종/gi, " ")
-    .replace(/\d+\s*개/g, " ")
-    .replace(/g\s*[1-5]/gi, " ")
-    .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
-    .replace(/\d[\d,]*원/g, " ")
-    .replace(/\d+(\.\d+)?\s*(g|kg)/gi, " ")
-    .replace(/[,，-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return `${withoutWeight}|${grade}|${process}`;
 }
 
 export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">) {
@@ -156,14 +130,39 @@ function inferRoastTags(text: string) {
 }
 
 function inferTasteNote(text: string) {
+  const tasteText = `${text} ${englishTasteAliases(text)}`;
   const notes = [
-    "꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과",
-    "자스민", "복숭아", "포도", "사탕수수", "캐러멜", "카라멜", "바닐라",
-    "딸기", "체리", "오렌지", "대추야자", "건자두", "레드와인",
-    "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디",
-  ].filter((note) => text.includes(note.toLowerCase()));
+    "꽃향", "플로럴", "라벤더", "자스민", "재스민", "베르가못",
+    "베리", "라즈베리", "크랜베리", "블루베리", "딸기", "체리",
+    "시트러스", "레몬", "오렌지", "천혜향", "청사과", "복숭아",
+    "백도", "살구", "자두", "무화과", "포도", "청포도", "애플망고",
+    "파인애플", "열대과일", "사탕수수", "조청", "시럽", "메이플시럽",
+    "캐러멜", "카라멜", "바닐라", "대추야자", "건자두", "레드와인",
+    "초콜릿", "밀크초콜릿", "견과", "아몬드", "헤이즐넛", "피칸",
+    "꿀", "와인", "허브", "삼나무", "산미", "단맛", "바디", "실키", "쥬시",
+  ].filter((note) => tasteText.includes(note.toLowerCase()));
 
   return notes.length ? notes.slice(0, 4).join(", ") : "";
+}
+
+function englishTasteAliases(text: string) {
+  return [
+    /(floral|flower|jasmine)/i.test(text) && "꽃향 자스민",
+    /(citrus|bergamot)/i.test(text) && "시트러스 베르가못",
+    /lemon/i.test(text) && "레몬",
+    /orange/i.test(text) && "오렌지",
+    /(berry|berries|raspberry|blueberry)/i.test(text) && "베리",
+    /(peach|apricot)/i.test(text) && "복숭아 살구",
+    /(grape|wine)/i.test(text) && "포도 와인",
+    /(chocolate|chocalate|cacao)/i.test(text) && "초콜릿",
+    /(caramel|toffee)/i.test(text) && "캐러멜",
+    /(nut|nutty|almond|pecan|hazelnut)/i.test(text) && "견과",
+    /honey/i.test(text) && "꿀",
+    /(sweet|sweetness|syrup)/i.test(text) && "단맛 시럽",
+    /(acidity|acidic)/i.test(text) && "산미",
+    /(body|mouthfeel)/i.test(text) && "바디",
+    /(earthy|herb)/i.test(text) && "허브",
+  ].filter(Boolean).join(" ");
 }
 
 function unique(values: string[]) {

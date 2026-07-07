@@ -41,6 +41,6 @@ export async function GET(request: Request) {
 async function readLatestSnapshot(query: string, productKind: ProductKind) {
   const fileName = productKind === "whole" ? "data/latest-offers-whole.json" : "data/latest-offers.json";
   return readFile(fileName, "utf8")
-    .then((text) => payloadFromSnapshot(JSON.parse(text), query, Date.now(), productKind))
+    .then((text) => payloadFromSnapshot(JSON.parse(text), query, Date.now(), productKind, null))
     .catch(() => null);
 }

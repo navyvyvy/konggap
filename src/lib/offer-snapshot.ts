@@ -8,9 +8,9 @@ type OfferSnapshot = {
   offers: CrawledOffer[];
 };
 
-export function payloadFromSnapshot(snapshot: OfferSnapshot, query: string, now = Date.now(), productKind: ProductKind = "green") {
+export function payloadFromSnapshot(snapshot: OfferSnapshot, query: string, now = Date.now(), productKind: ProductKind = "green", maxAgeMs: number | null = OFFER_CACHE_TTL_MS) {
   const fetchedAtMs = Date.parse(snapshot.fetchedAt);
-  if (cacheKey(snapshot.query) !== cacheKey(query) || Number.isNaN(fetchedAtMs) || now - fetchedAtMs > OFFER_CACHE_TTL_MS) return null;
+  if (cacheKey(snapshot.query) !== cacheKey(query) || Number.isNaN(fetchedAtMs) || (maxAgeMs !== null && now - fetchedAtMs > maxAgeMs)) return null;
 
   const offers = sortOffersByFinalPrice(mapCrawledOffers(snapshot.offers, snapshot.fetchedAt, productKind).map(normalizeOffer));
   return { fetchedAt: snapshot.fetchedAt, offers };

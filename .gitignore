@@ -11,4 +11,5 @@ next-dev*.log
 ui-*.png
 data/*.json
 !data/mungstery-beans.json
+!data/coffee-manual-presets.json
 brainstorm-*.html

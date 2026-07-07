@@ -71,7 +71,7 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://smartstore.naver.com/closecoffee/category/6480ceb6ab784e389d574235b7a7dc09?cp=2", seller: "클로즈커피" },
   { url: "https://smartstore.naver.com/whichcoffee", seller: "위치커피" },
   { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
-  { url: "https://smartstore.naver.com/gadelo/best?cp=1", seller: "가델로" },
+  { url: "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40", seller: "가델로" },
   { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들" },
   { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피" },
   { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크" },
@@ -136,13 +136,20 @@ function isBuyableOffer(title, source = "naver", productKind = "green") {
   return source === "shop" && isCoffeeProductName(title);
 }
 
+function isBuyableDirectShopOffer(title, productKind = "green") {
+  if (isBlockedShoppingTitle(title, productKind)) return false;
+  if (productKind === "green" && /생두|커피생두|green\s*bean/i.test(title)) return true;
+  if (productKind === "whole" && /원두|홀빈|whole\s*bean|roasted\s*bean/i.test(title)) return true;
+  return isCoffeeProductName(title);
+}
+
 function isBlockedShoppingTitle(title, productKind) {
-  if (/([2-9]\d*\s*개|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample)/i.test(title)) return true;
+  if (/([2-9]\d*\s*개|\d+\s*\+\s*\d+|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample|머신|machine|액세서리|accessory|도구|장비|봉투|소분신청|월픽)/i.test(title)) return true;
   if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
   return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
 }
 
-function parseOfferFromLines(lines, link, query) {
+function parseOfferFromLines(lines, link) {
   for (let index = 0; index < lines.length; index += 1) {
     const title = cleanTitle(lines[index]);
     if (!isProductTitle(title)) continue;
@@ -173,7 +180,7 @@ async function crawlNaver(page, query) {
 
     const pageLimit = variant === query ? 3 : 1;
     for (let pageIndex = 0; pageIndex < pageLimit && offers.length < MAX_OFFERS; pageIndex += 1) {
-      offers.push(...(await collectNaverPageOffers(page, variant)));
+      offers.push(...(await collectNaverPageOffers(page)));
       const next = page.getByText("다음 페이지").first();
       if (!(await next.isVisible().catch(() => false))) break;
       await next.click().catch(() => null);
@@ -184,7 +191,7 @@ async function crawlNaver(page, query) {
   return dedupeOffers(offers);
 }
 
-async function collectNaverPageOffers(page, query) {
+async function collectNaverPageOffers(page) {
   const items = await page.evaluate(() => [...document.querySelectorAll("li")]
     .map((item) => {
       const lines = item.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
@@ -197,7 +204,7 @@ async function collectNaverPageOffers(page, query) {
     })
     .filter((item) => item.link && item.titleCount === 1 && item.lines.some((line) => /원$/.test(line))));
 
-  return items.map((item) => parseOfferFromLines(item.lines, item.link, query)).filter(Boolean);
+  return items.map((item) => parseOfferFromLines(item.lines, item.link)).filter(Boolean);
 }
 
 async function crawlSpecialtySites(page, productKind) {
@@ -210,7 +217,7 @@ async function crawlSpecialtySites(page, productKind) {
       timeout: 30_000,
     });
     await page.waitForTimeout(1200);
-    offers.push(...(await collectSpecialtyPageOffers(page)));
+    offers.push(...(await collectSpecialtyPageOffers(page, productKind)));
   }
 
   const direct = await crawlDirectShopPages(page);
@@ -282,9 +289,10 @@ async function collectDirectShopOffers(page, shop) {
 function parseDirectShopOffer(item, shop) {
   let title = cleanTitle(item.title);
   const linkTitle = titleFromProductUrl(item.link);
-  if (isWeakShopTitle(title) && linkTitle) title = linkTitle;
+  if ((isWeakShopTitle(title) || !isCoffeeProductName(title)) && linkTitle) title = linkTitle;
+  if (/goods_list\.php/i.test(item.link)) return null;
   if (!title || /생두컨시어지|신규생두|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
-  if (!isBuyableOffer(title, "shop", currentProductKind)) return null;
+  if (!isBuyableDirectShopOffer(title, currentProductKind)) return null;
 
   const context = item.lines.join(" ");
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
@@ -293,7 +301,7 @@ function parseDirectShopOffer(item, shop) {
   const price = prices.at(-1) ?? 0;
   if (!price) return null;
 
-  if (!/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
+  if (currentProductKind === "green" && !/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
   return { title, link: item.link, price, shippingFee: inferShopShippingFee({ seller: shop.seller, link: item.link, price }), seller: shop.seller, source: "shop" };
 }
 
@@ -316,10 +324,10 @@ function titleFromProductUrl(url) {
 }
 
 function isCoffeeProductName(title) {
-  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey)/i.test(title);
+  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|허니|게이샤|게샤|블렌드|에스프레소|디카페인|파나마|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey|Geisha|Gesha|Blend|Espresso|Decaf|Panama)/i.test(title);
 }
 
-async function collectSpecialtyPageOffers(page) {
+async function collectSpecialtyPageOffers(page, productKind) {
   const items = await page.evaluate(() => [...document.querySelectorAll("a[href]")]
     .map((anchor) => {
       let container = anchor;
@@ -335,17 +343,16 @@ async function collectSpecialtyPageOffers(page) {
       };
     })
     .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos|unspecialty/.test(item.link) &&
-      /생두|커피생두/.test(item.title) &&
+      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|coffeeplant|momos|unspecialty|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
       /\d+\s*(kg|g)/i.test(item.title),
     ));
 
-  return items.map((item) => parseSpecialtyOffer(item)).filter(Boolean);
+  return items.map((item) => parseSpecialtyOffer(item, productKind)).filter(Boolean);
 }
 
-function parseSpecialtyOffer(item) {
+function parseSpecialtyOffer(item, productKind) {
   const title = cleanTitle(item.title);
-  if (!isProductTitle(title)) return null;
+  if (!isBuyableOffer(title, "shop", productKind)) return null;
   if (/식품의 유형|배송비|판매가|www\.|›/.test(title)) return null;
 
   const priceLine = item.lines.find((line) => /판매가\s*[:：]/.test(line)) ?? item.lines.find((line) => /^\d[\d,]*원/.test(line));
@@ -391,22 +398,108 @@ function sellerFromUrl(url) {
   return "전문몰";
 }
 
-async function enrichCoffeeInfo(offers) {
+async function enrichCoffeeInfo(offers, page) {
+  const manualPresets = await readManualCoffeePresets();
   const mungsteryBeans = await readMungsteryBeans();
+  const savedInfo = await readJson("coffee-info.json", {});
   const info = {};
   const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))];
 
   for (const key of keys) {
+    const manualInfo = findManualCoffeeInfo(key, manualPresets);
+    if (hasCompleteCoffeeInfo(manualInfo)) {
+      info[key] = manualInfo;
+      continue;
+    }
+    if (hasCompleteCoffeeInfo(savedInfo[key])) {
+      info[key] = savedInfo[key];
+      continue;
+    }
     const mungsteryInfo = findMungsteryCoffeeInfo(key, mungsteryBeans);
-    info[key] = mungsteryInfo ?? findCommonCoffeeInfo(key);
+    if (hasCompleteCoffeeInfo(mungsteryInfo)) {
+      info[key] = mungsteryInfo;
+      continue;
+    }
+    info[key] = null;
+  }
+
+  await fillDetailCoffeeInfo(page, offers, info);
+
+  for (const key of keys) {
+    if (!hasCompleteCoffeeInfo(info[key])) info[key] = mergeCoffeeInfo(key, info[key], findCommonCoffeeInfo(key));
   }
 
   return info;
 }
 
+async function readManualCoffeePresets() {
+  return readJson("coffee-manual-presets.json", {});
+}
+
 async function readMungsteryBeans() {
   const data = await readJson("mungstery-beans.json", { beans: [] });
   return Array.isArray(data.beans) ? data.beans : [];
+}
+
+function findManualCoffeeInfo(key, presets) {
+  const preset = presets[key];
+  if (!preset) return null;
+  return {
+    ...buildCoffeeInfo(key, trustedCoffeeInfoText(preset.rawDescription ?? "")),
+    flavorTags: Array.isArray(preset.flavorTags) ? preset.flavorTags : [],
+    roastTags: Array.isArray(preset.roastTags) ? preset.roastTags : [],
+    tasteNote: preset.tasteNote ?? "",
+    rawDescription: trustedCoffeeInfoText(preset.rawDescription ?? ""),
+  };
+}
+
+function hasCompleteCoffeeInfo(info) {
+  return Boolean(info?.tasteNote && info?.roastTags?.length);
+}
+
+function mergeCoffeeInfo(key, primary, fallback) {
+  if (!primary) return fallback;
+  return {
+    key,
+    rawDescription: primary.rawDescription || fallback.rawDescription,
+    flavorTags: [...new Set([...(primary.flavorTags ?? []), ...(fallback.flavorTags ?? [])])],
+    roastTags: primary.roastTags?.length ? primary.roastTags : fallback.roastTags,
+    tasteNote: primary.tasteNote || fallback.tasteNote,
+  };
+}
+
+async function fillDetailCoffeeInfo(page, offers, info) {
+  const candidates = new Map();
+  for (const offer of offers) {
+    const key = coffeeKey(offer.title);
+    if (!key || hasCompleteCoffeeInfo(info[key]) || candidates.has(key)) continue;
+    if (offer.source !== "shop" || !/^https?:\/\//.test(offer.link) || /smartstore\.naver\.com|shopping\.naver\.com|ader\.naver\.com/.test(offer.link)) continue;
+    candidates.set(key, offer);
+  }
+
+  for (const [key, offer] of candidates) {
+    const detail = await fetchCoffeeDetailText(page, offer.link);
+    if (!detail) continue;
+    const metadata = buildCoffeeInfo(key, detail);
+    if (metadata.tasteNote || metadata.roastTags.length || metadata.flavorTags.length) info[key] = metadata;
+  }
+}
+
+async function fetchCoffeeDetailText(page, link) {
+  const navigationError = await page.goto(link, { waitUntil: "domcontentloaded", timeout: 20_000 })
+    .then(() => "")
+    .catch((error) => error.message);
+  if (navigationError) return "";
+  await page.waitForTimeout(700);
+  return page.evaluate(() => {
+    const keywords = /(컵\s*노트|컵노트|향미|flavor|note|roast|배전|로스팅\s*포인트|가공|process|품종|variety|농장|farm|지역|region|산미|단맛|바디|꽃향|베리|시트러스|자스민|복숭아|초콜릿|견과|캐러멜|카라멜|와인|허니|내추럴|워시드|디카페인|무산소)/i;
+    return (document.body?.innerText ?? "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 1 && line.length < 180 && keywords.test(line))
+      .slice(0, 80)
+      .join("\n");
+  }).catch(() => "");
 }
 
 function findMungsteryCoffeeInfo(key, beans) {
@@ -452,6 +545,22 @@ const COMMON_COFFEE_PRESETS = [
   { test: /에스프레소.*아라비카|아라비카.*에스프레소/i, roast: "강배전", taste: "초콜릿, 견과, 바디", flavor: [] },
   { test: /블렌드.*아라비카|아라비카.*블렌드/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: [] },
   { test: /브라질.*(산토스|세하도|모지아나|옐로우버번|블렌드|아라비카)/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: ["내추럴"] },
+  { test: /에티오피아.*(내추럴|natural)/i, roast: "약배전", taste: "꽃향, 베리, 시트러스", flavor: ["내추럴"] },
+  { test: /에티오피아.*(워시드|washed)|에티오피아|ethiopia/i, roast: "약배전", taste: "꽃향, 시트러스, 자스민", flavor: ["워시드"] },
+  { test: /케냐|kenya/i, roast: "중약배전", taste: "시트러스, 베리, 산미", flavor: ["워시드"] },
+  { test: /과테말라|guatemala/i, roast: "중배전", taste: "초콜릿, 견과, 산미", flavor: ["워시드"] },
+  { test: /브라질|brazil/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: ["내추럴"] },
+  { test: /온두라스|honduras/i, roast: "중배전", taste: "캐러멜, 오렌지, 견과", flavor: ["워시드"] },
+  { test: /니카라과|nicaragua/i, roast: "중배전", taste: "캐러멜, 사과, 견과", flavor: ["워시드"] },
+  { test: /페루|peru/i, roast: "중배전", taste: "견과, 초콜릿, 산미", flavor: ["워시드"] },
+  { test: /코스타리카|costa\s*rica/i, roast: "중배전", taste: "꿀, 시트러스, 견과", flavor: ["워시드"] },
+  { test: /엘살바도르|el\s*salvador/i, roast: "중배전", taste: "캐러멜, 견과, 오렌지", flavor: ["워시드"] },
+  { test: /에콰도르|ecuador/i, roast: "중약배전", taste: "꽃향, 복숭아, 시트러스", flavor: ["워시드"] },
+  { test: /볼리비아|bolivia/i, roast: "중배전", taste: "캐러멜, 사과, 견과", flavor: ["워시드"] },
+  { test: /라오스|laos/i, roast: "중배전", taste: "견과, 초콜릿, 단맛", flavor: ["워시드"] },
+  { test: /인도.*로부스타|india.*robusta/i, roast: "강배전", taste: "초콜릿, 견과, 바디", flavor: [] },
+  { test: /자메이카|jamaica/i, roast: "중배전", taste: "견과, 초콜릿, 단맛", flavor: ["워시드"] },
+  { test: /콜롬비아|colombia/i, roast: "중배전", taste: "캐러멜, 견과, 산미", flavor: ["워시드"] },
 ];
 
 function findCommonCoffeeInfo(key) {
@@ -563,13 +672,34 @@ function inferMetadata(text) {
     /(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text) && "중배전",
     /(강배전|다크\s*로스트|dark\s*roast)/i.test(text) && "강배전",
   ].filter(Boolean);
-  const tasteNote = ["꽃향", "플로럴", "베리", "블루베리", "시트러스", "레몬", "청사과", "자스민", "복숭아", "포도", "사탕수수", "캐러멜", "카라멜", "바닐라", "딸기", "체리", "오렌지", "대추야자", "건자두", "레드와인", "초콜릿", "견과", "꿀", "와인", "허브", "산미", "바디"]
-    .filter((note) => lower.includes(note.toLowerCase()))
+  const tasteText = `${lower} ${englishTasteAliases(lower)}`;
+  const tasteNote = ["꽃향", "플로럴", "라벤더", "자스민", "재스민", "베르가못", "베리", "라즈베리", "크랜베리", "블루베리", "딸기", "체리", "시트러스", "레몬", "오렌지", "천혜향", "청사과", "복숭아", "백도", "살구", "자두", "무화과", "포도", "청포도", "애플망고", "파인애플", "열대과일", "사탕수수", "조청", "시럽", "메이플시럽", "캐러멜", "카라멜", "바닐라", "대추야자", "건자두", "레드와인", "초콜릿", "밀크초콜릿", "견과", "아몬드", "헤이즐넛", "피칸", "꿀", "와인", "허브", "삼나무", "산미", "단맛", "바디", "실키", "쥬시"]
+    .filter((note) => tasteText.includes(note.toLowerCase()))
     .slice(0, 4)
     .join(", ");
 
   const uniqueRoastTags = [...new Set(roastTags)];
   return { flavorTags: [...new Set(flavorTags)], roastTags: uniqueRoastTags.length > 2 ? [] : uniqueRoastTags, tasteNote };
+}
+
+function englishTasteAliases(text) {
+  return [
+    /(floral|flower|jasmine)/i.test(text) && "꽃향 자스민",
+    /(citrus|bergamot)/i.test(text) && "시트러스 베르가못",
+    /lemon/i.test(text) && "레몬",
+    /orange/i.test(text) && "오렌지",
+    /(berry|berries|raspberry|blueberry)/i.test(text) && "베리",
+    /(peach|apricot)/i.test(text) && "복숭아 살구",
+    /(grape|wine)/i.test(text) && "포도 와인",
+    /(chocolate|chocalate|cacao)/i.test(text) && "초콜릿",
+    /(caramel|toffee)/i.test(text) && "캐러멜",
+    /(nut|nutty|almond|pecan|hazelnut)/i.test(text) && "견과",
+    /honey/i.test(text) && "꿀",
+    /(sweet|sweetness|syrup)/i.test(text) && "단맛 시럽",
+    /(acidity|acidic)/i.test(text) && "산미",
+    /(body|mouthfeel)/i.test(text) && "바디",
+    /(earthy|herb)/i.test(text) && "허브",
+  ].filter(Boolean).join(" ");
 }
 
 function dedupeOffers(offers) {
@@ -634,7 +764,7 @@ async function main() {
   const shopResult = await crawlSpecialtySites(page, productKind);
   const shopOffers = shopResult.offers;
   const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
-  const coffeeInfo = await enrichCoffeeInfo(rawOffers);
+  const coffeeInfo = await enrichCoffeeInfo(rawOffers, page);
   const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
   const result = {
     fetchedAt,

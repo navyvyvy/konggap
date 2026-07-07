@@ -62,7 +62,6 @@ export function OfferRow({
   favorite?: boolean;
   onToggleFavorite?: (offer: Offer) => void;
 }) {
-  const hasTags = offer.flavorTags.length > 0 || offer.roastTags.length > 0;
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
   const topBadges: TopBadge[] = [
     { key: "seller", label: offer.seller },
@@ -97,16 +96,14 @@ export function OfferRow({
               <BookmarkIcon />
             </UiButton>
           ) : null}
-          {hasTags || topBadges.length > 0 ? (
-            topBadges.map((badge, index) => (
-              <span
-                className={`offerMetaBadge ${topBadgeTone(index)}`}
-                key={`${badge.key}-${index}`}
-              >
-                {badge.label}
-              </span>
-            ))
-          ) : null}
+          {topBadges.map((badge, index) => (
+            <span
+              className={`offerMetaBadge ${topBadgeTone(index)}`}
+              key={`${badge.key}-${index}`}
+            >
+              {badge.label}
+            </span>
+          ))}
         </div>
         <a
           className="offerTitle"
@@ -120,7 +117,7 @@ export function OfferRow({
         </a>
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
-      <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>
+      <div className="pricePanel">
         <div className="finalPrice">{formatWon(offer.finalPrice)}</div>
         <div className="costLine">
           <span className="productPrice"><BeanIcon />{formatWon(offer.price)}</span>

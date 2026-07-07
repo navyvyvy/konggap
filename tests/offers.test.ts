@@ -7,19 +7,16 @@ import {
 } from "../src/lib/offer-cache";
 import { payloadFromSnapshot } from "../src/lib/offer-snapshot";
 import {
-  buildFlavorCacheKey,
   canonicalOfferUrl,
   filterOffers,
   getStableMetadata,
   normalizeOffer,
-  paginateOffers,
   sortOffersByFinalPrice,
   stripHtml,
   toggleFavoriteOffer,
 } from "../src/lib/offers";
 import {
   inferShopShippingFee,
-  isBuyableGreenBeanOffer,
   isBuyableOffer,
   mapCrawledOffers,
   toGreenBeanQuery,
@@ -61,19 +58,6 @@ test("normalizeOffer treats unknown shipping as zero but marks it unknown", () =
 
   assert.equal(offer.finalPrice, 19000);
   assert.equal(offer.shippingKnown, false);
-});
-
-test("paginateOffers returns the requested slice", () => {
-  const offers = Array.from({ length: 30 }, (_, index) => ({ id: String(index) }));
-
-  assert.deepEqual(
-    paginateOffers(offers, 0, 25).map((offer) => offer.id),
-    Array.from({ length: 25 }, (_, index) => String(index)),
-  );
-  assert.deepEqual(
-    paginateOffers(offers, 25, 25).map((offer) => offer.id),
-    ["25", "26", "27", "28", "29"],
-  );
 });
 
 test("sortOffersByFinalPrice sorts by final payment amount", () => {
@@ -153,7 +137,8 @@ test("payloadFromSnapshot reuses only fresh matching snapshots", () => {
   };
 
   assert.equal(payloadFromSnapshot(snapshot, "예가체프", Date.parse(fetchedAt) + 1000), null);
-  assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 31 * 60 * 1000), null);
+  assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 7 * 60 * 60 * 1000), null);
+  assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 7 * 60 * 60 * 1000, "green", null)?.offers[0]?.finalPrice, 15000);
   assert.equal(payloadFromSnapshot(snapshot, "생두", Date.parse(fetchedAt) + 1000)?.offers[0]?.finalPrice, 15000);
 });
 
@@ -197,28 +182,6 @@ test("canonicalOfferUrl keeps product identity and removes tracking noise", () =
   assert.equal(
     canonicalOfferUrl("https://m.coffeesys.co.kr/product/colombia/1979/category/1/display/15/?icid=tracking"),
     "https://coffeesys.co.kr/product/colombia/1979",
-  );
-});
-
-test("buildFlavorCacheKey separates grade and process", () => {
-  assert.notEqual(
-    buildFlavorCacheKey("에티오피아 예가체프 G1 내추럴 생두 2kg"),
-    buildFlavorCacheKey("에티오피아 예가체프 G2 워시드 생두 2kg"),
-  );
-});
-
-test("buildFlavorCacheKey ignores listing noise", () => {
-  assert.equal(
-    buildFlavorCacheKey("[New Crop / 생두] 에티오피아 예가체프 아리차 G1 워시드 2025/2026 1kg, 1개 판매가 19,600원"),
-    buildFlavorCacheKey("에티오피아 예가체프 아리차 G1 워시드 생두 500g"),
-  );
-  assert.equal(
-    buildFlavorCacheKey("커피생두1kg 스페셜티 케냐 니에리 레드 마운틴 AA"),
-    buildFlavorCacheKey("케냐 니에리 레드 마운틴 AA 원두 200g"),
-  );
-  assert.equal(
-    buildFlavorCacheKey("에디오피아 예가체프G1 코케허니 생두 1kg"),
-    buildFlavorCacheKey("에티오피아 예가체프 G1 코케 허니 원두 200g"),
   );
 });
 
@@ -456,9 +419,9 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
   );
 
   assert.deepEqual(offers.map((offer) => offer.name), ["에티오피아 예가체프 생두 2kg"]);
-  assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg"), true);
-  assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg 3개"), false);
-  assert.equal(isBuyableGreenBeanOffer("에티오피아 예가체프 생두 홀빈 1kg"), false);
+  assert.equal(isBuyableOffer("브라질 세하도 생두 1kg"), true);
+  assert.equal(isBuyableOffer("브라질 세하도 생두 1kg 3개"), false);
+  assert.equal(isBuyableOffer("에티오피아 예가체프 생두 홀빈 1kg"), false);
   assert.equal(isBuyableOffer("에티오피아 예가체프 원두 1kg", "naver", "whole"), true);
   assert.equal(isBuyableOffer("에티오피아 예가체프 원두 샘플 100g", "naver", "whole"), false);
 });

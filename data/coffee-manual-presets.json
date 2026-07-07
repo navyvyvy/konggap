@@ -1,0 +1,116 @@
+{
+  "에티오피아 예가체프 첼바 내추럴": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["약배전"],
+    "tasteNote": "꽃향, 베리, 시트러스",
+    "rawDescription": "에티오피아 예가체프 첼바 내추럴\n약배전\n꽃향\n베리\n시트러스\n내추럴"
+  },
+  "콜롬비아 메델린 슈프리모": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "캐러멜, 견과, 산미",
+    "rawDescription": "콜롬비아 메델린 슈프리모\n중배전\n캐러멜\n견과\n산미\n워시드"
+  },
+  "케냐 kiambu AA": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중약배전"],
+    "tasteNote": "시트러스, 베리, 와인",
+    "rawDescription": "케냐 Kiambu AA\n중약배전\n시트러스\n베리\n와인\n워시드"
+  },
+  "에티오피아 예가체프 Washed": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["약배전"],
+    "tasteNote": "자스민, 시트러스, 복숭아",
+    "rawDescription": "에티오피아 예가체프 워시드\n약배전\n자스민\n시트러스\n복숭아\n워시드"
+  },
+  "코스타리카 따라쥬 SHB EP": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "꿀, 시트러스, 견과",
+    "rawDescription": "코스타리카 따라주 SHB EP\n중배전\n꿀\n시트러스\n견과\n워시드"
+  },
+  "브라질 산토스 NY2 17UP": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["중배전"],
+    "tasteNote": "견과, 초콜릿, 캐러멜",
+    "rawDescription": "브라질 산토스 NY2 17UP\n중배전\n견과\n초콜릿\n캐러멜\n내추럴"
+  },
+  "콜롬비아 파라이소92 옴블리곤 파파요 싱글 아네로빅": {
+    "flavorTags": ["무산소"],
+    "roastTags": ["약배전"],
+    "tasteNote": "복숭아, 베리, 와인",
+    "rawDescription": "콜롬비아 파라이소92 옴블리곤 파파요 싱글 아네로빅\n약배전\n복숭아\n베리\n와인\n무산소"
+  },
+  "베트남 로부스타": {
+    "flavorTags": [],
+    "roastTags": ["강배전"],
+    "tasteNote": "초콜릿, 견과, 바디",
+    "rawDescription": "베트남 로부스타\n강배전\n초콜릿\n견과\n바디"
+  },
+  "코스타리카 SHB EP 따라주": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "꿀, 시트러스, 견과",
+    "rawDescription": "코스타리카 SHB EP 따라주\n중배전\n꿀\n시트러스\n견과\n워시드"
+  },
+  "인도네시아 만델링 TP": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["강배전"],
+    "tasteNote": "허브, 초콜릿, 바디",
+    "rawDescription": "인도네시아 만델링 TP\n강배전\n허브\n초콜릿\n바디\n워시드"
+  },
+  "브라질 GC 산토스": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["중배전"],
+    "tasteNote": "견과, 초콜릿, 캐러멜",
+    "rawDescription": "브라질 GC 산토스\n중배전\n견과\n초콜릿\n캐러멜\n내추럴"
+  },
+  "브라질 옐로우버번": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["중배전"],
+    "tasteNote": "견과, 초콜릿, 캐러멜",
+    "rawDescription": "브라질 옐로우버번\n중배전\n견과\n초콜릿\n캐러멜\n내추럴"
+  },
+  "브라질 FC 모지아나": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["중배전"],
+    "tasteNote": "견과, 초콜릿, 캐러멜",
+    "rawDescription": "브라질 FC 모지아나\n중배전\n견과\n초콜릿\n캐러멜\n내추럴"
+  },
+  "브라질 FC 세하도 파트로치니오": {
+    "flavorTags": ["내추럴"],
+    "roastTags": ["중배전"],
+    "tasteNote": "견과, 초콜릿, 캐러멜",
+    "rawDescription": "브라질 FC 세하도 파트로치니오\n중배전\n견과\n초콜릿\n캐러멜\n내추럴"
+  },
+  "콜롬비아 수프리모 우일라": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "캐러멜, 견과, 산미",
+    "rawDescription": "콜롬비아 수프리모 우일라\n중배전\n캐러멜\n견과\n산미\n워시드"
+  },
+  "콜롬비아 수프리모 리사랄다": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "캐러멜, 견과, 산미",
+    "rawDescription": "콜롬비아 수프리모 리사랄다\n중배전\n캐러멜\n견과\n산미\n워시드"
+  },
+  "케냐 AA FAQ": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중약배전"],
+    "tasteNote": "시트러스, 베리, 와인",
+    "rawDescription": "케냐 AA FAQ\n중약배전\n시트러스\n베리\n와인\n워시드"
+  },
+  "과테말라 SHB 안티구아": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "초콜릿, 견과, 산미",
+    "rawDescription": "과테말라 SHB 안티구아\n중배전\n초콜릿\n견과\n산미\n워시드"
+  },
+  "과테말라 SHB EP": {
+    "flavorTags": ["워시드"],
+    "roastTags": ["중배전"],
+    "tasteNote": "초콜릿, 견과, 산미",
+    "rawDescription": "과테말라 SHB EP\n중배전\n초콜릿\n견과\n산미\n워시드"
+  }
+}

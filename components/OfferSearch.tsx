@@ -143,7 +143,7 @@ export function OfferSearch() {
   const [activeProduct, setActiveProduct] = useState<ProductKind>("green");
   const [query, setQuery] = useState(PRODUCT_LABELS.green.query);
   const [submittedQuery, setSubmittedQuery] = useState(PRODUCT_LABELS.green.query);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [refreshNonce, setRefreshNonce] = useState(0);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedAt, setFetchedAt] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -197,7 +197,7 @@ export function OfferSearch() {
     }, 1000);
 
     const params = new URLSearchParams({ q: submittedQuery, product: activeProduct });
-    if (reloadKey > 0) params.set("refresh", "1");
+    if (refreshNonce > 0) params.set("refresh", "1");
 
     const request = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
       ? fetchStaticSnapshot(activeProduct)
@@ -228,7 +228,7 @@ export function OfferSearch() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [submittedQuery, reloadKey, activeProduct]);
+  }, [submittedQuery, activeProduct, refreshNonce]);
 
   const tagOptions = useMemo(() => ({
     flavors: [...new Set(offers.flatMap((offer) => offer.flavorTags))].sort(),
@@ -243,6 +243,8 @@ export function OfferSearch() {
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(filteredOffers, sortOrder), [filteredOffers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
+  const hasVisibleTable = offers.length > 0;
+  const isRefreshing = status === "loading" && hasVisibleTable;
   const fetchedAtLabel = fetchedAt
     ? new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
     : "";
@@ -278,10 +280,7 @@ export function OfferSearch() {
   }, [filteredOffers.length]);
   const submitCurrentQuery = () => {
     const nextQuery = query.trim() || PRODUCT_LABELS[activeProduct].query;
-    setReloadKey((key) => key + 1);
-    if (nextQuery === submittedQuery) {
-      return;
-    }
+    setRefreshNonce((count) => count + 1);
     setSubmittedQuery(nextQuery);
   };
   const handleToggleFavorite = (offer: Offer) => {
@@ -329,7 +328,7 @@ export function OfferSearch() {
       </header>
 
       <section className="toolPanel">
-        {status === "loading" ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
+        {status === "loading" && !hasVisibleTable ? <LoadingRows elapsedSeconds={elapsedSeconds} /> : null}
         {status === "empty" ? (
           <div className="state">
             <strong>결과 없음</strong>
@@ -345,7 +344,7 @@ export function OfferSearch() {
           </div>
         ) : null}
 
-        {status === "ready" ? (
+        {status === "ready" || isRefreshing ? (
           <div className="workspaceGrid">
             {showFavorites ? (
               <section className="favoritesBlock" aria-label="찜 목록">
@@ -394,10 +393,11 @@ export function OfferSearch() {
                     ))}
                   </div>
                   <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
+                  {isRefreshing ? <span className="refreshPill" aria-live="polite">불러오는 중</span> : null}
                 </div>
                 <div className="inlineFacts" aria-label="현재 조회 상태">
                   <span><span className="fullLabel">기준</span><span className="compactLabel">기준</span> <strong className="fullValue">{fetchedAtLabel || "-"}</strong><strong className="compactValue">{fetchedAtCompactLabel || "-"}</strong></span>
-                  <span><span className="fullLabel">최저가</span><span className="compactLabel">최저</span> <strong className="fullValue">{status === "ready" && summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong><strong className="compactValue">{status === "ready" && summary.lowestFinalPrice ? formatNumber(summary.lowestFinalPrice) : "-"}</strong></span>
+                  <span><span className="fullLabel">최저가</span><span className="compactLabel">최저</span> <strong className="fullValue">{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong><strong className="compactValue">{summary.lowestFinalPrice ? formatNumber(summary.lowestFinalPrice) : "-"}</strong></span>
                   <UiButton
                     className="inlineFactButton"
                     variant="plain"
@@ -461,7 +461,9 @@ export function OfferSearch() {
                   }}>필터 초기화</UiButton>
                 </section>
               ) : null}
-              {filteredOffers.length ? (
+              {isRefreshing ? (
+                <LoadingRows elapsedSeconds={elapsedSeconds} />
+              ) : filteredOffers.length ? (
                 <div className="offerList scrollList" ref={listRef}>
                   {visibleOffers.map((offer) => (
                     <OfferRow

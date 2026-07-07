@@ -28,7 +28,6 @@ export type CrawledOffer = {
 
 type EngineResult = {
   offers?: CrawledOffer[];
-  must_invoke_playwright_mcp?: boolean;
 };
 
 export function toGreenBeanQuery(query: string) {
@@ -40,10 +39,6 @@ export function toProductQuery(query: string, productKind: ProductKind = "green"
   if (productKind === "green") return toGreenBeanQuery(query);
   const trimmed = query.trim() || "원두";
   return /원두|홀빈|whole\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 원두`;
-}
-
-export function isBuyableGreenBeanOffer(title: string, source?: string) {
-  return isBuyableOffer(title, source, "green");
 }
 
 export function isBuyableOffer(title: string, source?: string, productKind: ProductKind = "green") {
@@ -101,6 +96,22 @@ function dedupeKeys(item: CrawledOffer) {
   return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
 
+function parseEngineResult(stdout: string) {
+  try {
+    return JSON.parse(stdout || "{}") as EngineResult;
+  } catch {
+    return {};
+  }
+}
+
+function parseCrawlerResult(stdout: string) {
+  try {
+    return JSON.parse(stdout || "{}") as { offers?: CrawledOffer[] };
+  } catch {
+    return {};
+  }
+}
+
 function isBlockedShoppingTitle(title: string, productKind: ProductKind) {
   if (/([2-9]\d*\s*개|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample)/i.test(title)) return true;
   if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
@@ -125,15 +136,15 @@ async function runEngine(query: string) {
     maxBuffer: 10 * 1024 * 1024,
   }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
 
-  return JSON.parse(result.stdout || "{}") as EngineResult;
+  return parseEngineResult(result.stdout);
 }
 
 async function runPlaywrightCrawler(query: string) {
   const result = await execFileAsync("node", ["scripts/crawl-green-beans.mjs", query], {
-    timeout: 120_000,
+    timeout: 180_000,
     maxBuffer: 10 * 1024 * 1024,
-  });
-  return JSON.parse(result.stdout || "{}") as { offers?: CrawledOffer[] };
+  }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
+  return parseCrawlerResult(result.stdout);
 }
 
 export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString(), productKind: ProductKind = "green") {
