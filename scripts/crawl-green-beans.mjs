@@ -83,6 +83,7 @@ const SHOP_SHIPPING_RULES = [
   { test: /coffeecg\.com|커피창고/, fee: 3000, freeOver: 70_000 },
   { test: /coffeeplant\.co\.kr|생두몰/, fee: 4000, freeOver: 50_000 },
   { test: /coffeesys\.co\.kr|커피시스/, fee: 3000, freeOver: 50_000 },
+  { test: /gustocoffee\.co\.kr|구스토커피/, fee: 3000 },
 ];
 
 function greenBeanQuery(query) {
@@ -112,6 +113,26 @@ function moneyLineToNumber(line) {
 function moneyTextToNumber(line) {
   const match = line.match(/(\d[\d,]*)원/);
   return match ? Number(match[1].replace(/,/g, "")) : 0;
+}
+
+function directShopPriceFromLines(lines) {
+  const candidates = lines.filter((line, index) => {
+    const price = moneyTextToNumber(line);
+    if (!price) return false;
+    const context = `${lines[index - 1] ?? ""} ${line}`;
+    if (/\(\s*\d+\s*%\s*\)/.test(line)) return false;
+    return !/(배송비|배송|택배|delivery|적립|포인트|마일리지|할인금액|상품구매금액|총\s*상품|결제|옵션)/i.test(context);
+  });
+  return moneyTextToNumber(candidates.at(-1) ?? "");
+}
+
+function shippingFeeFromLines(lines) {
+  const shippingLineIndex = lines.findIndex((line) => /배송비/.test(line));
+  if (shippingLineIndex < 0) return null;
+
+  const shippingText = `${lines[shippingLineIndex]} ${lines[shippingLineIndex + 1] ?? ""}`;
+  if (/무료/.test(shippingText)) return 0;
+  return moneyTextToNumber(shippingText) || null;
 }
 
 function cleanTitle(line) {
@@ -297,12 +318,18 @@ function parseDirectShopOffer(item, shop) {
   const context = item.lines.join(" ");
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
 
-  const prices = item.lines.map(moneyTextToNumber).filter((price) => price > 0);
-  const price = prices.at(-1) ?? 0;
+  const price = directShopPriceFromLines(item.lines);
   if (!price) return null;
 
   if (currentProductKind === "green" && !/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
-  return { title, link: item.link, price, shippingFee: inferShopShippingFee({ seller: shop.seller, link: item.link, price }), seller: shop.seller, source: "shop" };
+  return {
+    title,
+    link: item.link,
+    price,
+    shippingFee: shippingFeeFromLines(item.lines) ?? inferShopShippingFee({ seller: shop.seller, link: item.link, price }),
+    seller: shop.seller,
+    source: "shop",
+  };
 }
 
 function isWeakShopTitle(title) {
