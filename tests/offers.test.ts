@@ -20,8 +20,10 @@ import {
 import {
   inferShopShippingFee,
   isBuyableGreenBeanOffer,
+  isBuyableOffer,
   mapCrawledOffers,
   toGreenBeanQuery,
+  toProductQuery,
 } from "../src/lib/sources/insane-search";
 
 test("stripHtml removes markup and collapses whitespace", () => {
@@ -285,6 +287,8 @@ test("getStableMetadata extracts common cup notes and process tags", () => {
 test("toGreenBeanQuery appends green bean intent when missing", () => {
   assert.equal(toGreenBeanQuery("예가체프"), "예가체프 생두");
   assert.equal(toGreenBeanQuery("커피 생두"), "커피 생두");
+  assert.equal(toProductQuery("예가체프", "whole"), "예가체프 원두");
+  assert.equal(toProductQuery("커피 원두", "whole"), "커피 원두");
 });
 
 test("mapCrawledOffers keeps only priced crawled offers", () => {
@@ -447,4 +451,6 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
   assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg"), true);
   assert.equal(isBuyableGreenBeanOffer("브라질 세하도 생두 1kg 3개"), false);
   assert.equal(isBuyableGreenBeanOffer("에티오피아 예가체프 생두 홀빈 1kg"), false);
+  assert.equal(isBuyableOffer("에티오피아 예가체프 원두 1kg", "naver", "whole"), true);
+  assert.equal(isBuyableOffer("에티오피아 예가체프 원두 샘플 100g", "naver", "whole"), false);
 });

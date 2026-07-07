@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { cacheKey, getCachedValue } from "../../../src/lib/offer-cache";
 import { payloadFromSnapshot } from "../../../src/lib/offer-snapshot";
 import { normalizeOffer, sortOffersByFinalPrice } from "../../../src/lib/offers";
-import { fetchCrawledOffers } from "../../../src/lib/sources/insane-search";
+import { fetchCrawledOffers, type ProductKind } from "../../../src/lib/sources/insane-search";
 
 type OffersPayload = {
   fetchedAt: string;
@@ -14,18 +14,19 @@ const offerCache = new Map<string, { expiresAt: number; pending?: Promise<Offers
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q")?.trim() || "생두";
+  const productKind: ProductKind = searchParams.get("product") === "whole" ? "whole" : "green";
+  const query = searchParams.get("q")?.trim() || (productKind === "whole" ? "원두" : "생두");
   const refresh = searchParams.get("refresh") === "1";
 
   try {
-    const payload = await getCachedValue(offerCache, cacheKey(query), async () => {
+    const payload = await getCachedValue(offerCache, cacheKey(`${productKind}:${query}`), async () => {
       if (!refresh) {
-        const snapshot = await readLatestSnapshot(query);
+        const snapshot = await readLatestSnapshot(query, productKind);
         if (snapshot) return snapshot;
       }
 
       const fetchedAt = new Date().toISOString();
-      const rawOffers = await fetchCrawledOffers(query, fetchedAt);
+      const rawOffers = await fetchCrawledOffers(query, fetchedAt, productKind);
       const offers = sortOffersByFinalPrice(rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0));
       return { fetchedAt, offers };
     }, Date.now(), undefined, refresh);
@@ -37,8 +38,9 @@ export async function GET(request: Request) {
   }
 }
 
-async function readLatestSnapshot(query: string) {
-  return readFile("data/latest-offers.json", "utf8")
-    .then((text) => payloadFromSnapshot(JSON.parse(text), query))
+async function readLatestSnapshot(query: string, productKind: ProductKind) {
+  const fileName = productKind === "whole" ? "data/latest-offers-whole.json" : "data/latest-offers.json";
+  return readFile(fileName, "utf8")
+    .then((text) => payloadFromSnapshot(JSON.parse(text), query, Date.now(), productKind))
     .catch(() => null);
 }

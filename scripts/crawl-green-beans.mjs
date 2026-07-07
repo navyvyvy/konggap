@@ -43,6 +43,19 @@ const SPECIALTY_SITE_QUERIES = [
   "site:m.almacielo.com 생두 1kg",
   "site:m.sopexkorea.com 생두 1kg",
 ];
+const WHOLE_BEAN_SITE_QUERIES = [
+  "site:smartstore.naver.com/58coffee 원두",
+  "site:smartstore.naver.com/rick 원두",
+  "site:smartstore.naver.com/marisan_store 원두",
+  "site:smartstore.naver.com/coffeejg 원두",
+  "site:smartstore.naver.com/closecoffee 원두",
+  "site:smartstore.naver.com/whichcoffee 원두",
+  "site:smartstore.naver.com/hyangcho 원두",
+  "site:smartstore.naver.com/gadelo 원두",
+  "site:gustocoffee.co.kr 원두",
+  "site:editiondenmark.com coffee",
+  "site:unspecialty.com 원두",
+];
 const DIRECT_SHOP_PAGES = [
   { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true },
   { url: "https://rehmcoffee.co.kr", seller: "레햄코리아" },
@@ -77,6 +90,16 @@ function greenBeanQuery(query) {
   return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
 }
 
+function productKindFromQuery(query) {
+  return /원두|홀빈|whole\s*bean/i.test(query) ? "whole" : "green";
+}
+
+function productQuery(query, productKind) {
+  if (productKind === "green") return greenBeanQuery(query);
+  const trimmed = query.trim() || "원두";
+  return /원두|홀빈|whole\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 원두`;
+}
+
 function queryVariants(query) {
   return [...new Set([query, `${query} 1kg`, query.includes("커피") ? query : `커피${query}`])];
 }
@@ -101,17 +124,22 @@ function cleanTitle(line) {
 }
 
 function isProductTitle(line) {
-  return isBuyableGreenBeanOffer(line);
+  return isBuyableOffer(line, "naver", currentProductKind);
 }
 
-function isBuyableGreenBeanOffer(title, source = "naver") {
-  if (isBlockedShoppingTitle(title) || !/\d+\s*(kg|g)/i.test(title)) return false;
-  if (/생두|커피생두|green\s*bean/i.test(title)) return true;
+let currentProductKind = "green";
+
+function isBuyableOffer(title, source = "naver", productKind = "green") {
+  if (isBlockedShoppingTitle(title, productKind) || !/\d+\s*(kg|g)/i.test(title)) return false;
+  if (productKind === "green" && /생두|커피생두|green\s*bean/i.test(title)) return true;
+  if (productKind === "whole" && /원두|홀빈|whole\s*bean|roasted\s*bean/i.test(title)) return true;
   return source === "shop" && isCoffeeProductName(title);
 }
 
-function isBlockedShoppingTitle(title) {
-  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|홀빈|볶은|볶음|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
+function isBlockedShoppingTitle(title, productKind) {
+  if (/([2-9]\d*\s*개|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample)/i.test(title)) return true;
+  if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
+  return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
 }
 
 function parseOfferFromLines(lines, link, query) {
@@ -160,7 +188,7 @@ async function collectNaverPageOffers(page, query) {
   const items = await page.evaluate(() => [...document.querySelectorAll("li")]
     .map((item) => {
       const lines = item.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
-      const titles = lines.filter((line) => /생두|커피생두/.test(line) && /\d+\s*(kg|g)/i.test(line));
+      const titles = lines.filter((line) => /\d+\s*(kg|g)/i.test(line));
       const links = [...item.querySelectorAll("a[href]")].map((anchor) => anchor.href);
       const link =
         links.find((href) => /shopping\.naver\.com\/v2\/bridge/.test(href) && /[?&]nv_mid=/.test(href)) ??
@@ -172,11 +200,11 @@ async function collectNaverPageOffers(page, query) {
   return items.map((item) => parseOfferFromLines(item.lines, item.link, query)).filter(Boolean);
 }
 
-async function crawlSpecialtySites(page) {
+async function crawlSpecialtySites(page, productKind) {
   const offers = [];
   const errors = [];
 
-  for (const query of SPECIALTY_SITE_QUERIES) {
+  for (const query of productKind === "whole" ? WHOLE_BEAN_SITE_QUERIES : SPECIALTY_SITE_QUERIES) {
     await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
@@ -256,7 +284,7 @@ function parseDirectShopOffer(item, shop) {
   const linkTitle = titleFromProductUrl(item.link);
   if (isWeakShopTitle(title) && linkTitle) title = linkTitle;
   if (!title || /생두컨시어지|신규생두|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
-  if (isBlockedShoppingTitle(title) || (!/생두|커피생두|green\s*bean/i.test(title) && !isCoffeeProductName(title))) return null;
+  if (!isBuyableOffer(title, "shop", currentProductKind)) return null;
 
   const context = item.lines.join(" ");
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
@@ -589,13 +617,16 @@ async function readJson(name, fallback) {
 }
 
 async function main() {
-  const query = greenBeanQuery(process.argv.slice(2).join(" "));
+  const rawQuery = process.argv.slice(2).join(" ");
+  const productKind = productKindFromQuery(rawQuery);
+  currentProductKind = productKind;
+  const query = productQuery(rawQuery, productKind);
   const fetchedAt = new Date().toISOString();
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
 
   const naverOffers = await crawlNaver(page, query);
-  const shopResult = await crawlSpecialtySites(page);
+  const shopResult = await crawlSpecialtySites(page, productKind);
   const shopOffers = shopResult.offers;
   const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
   const coffeeInfo = await enrichCoffeeInfo(page, rawOffers);
@@ -611,7 +642,7 @@ async function main() {
   };
 
   await browser.close();
-  await saveJson("latest-offers.json", result);
+  await saveJson(productKind === "whole" ? "latest-offers-whole.json" : "latest-offers.json", result);
   await saveJson("coffee-info.json", coffeeInfo);
   process.stdout.write(JSON.stringify(result, null, 2));
 }

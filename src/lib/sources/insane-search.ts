@@ -4,6 +4,7 @@ import { canonicalOfferUrl, type RawOffer, type OfferSource } from "../offers";
 
 const execFileAsync = promisify(execFile);
 const MAX_REASONABLE_PRICE = 1_000_000;
+export type ProductKind = "green" | "whole";
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
   { test: /momos\.co\.kr|모모스커피/, fee: 2500, freeOver: 40_000 },
@@ -35,17 +36,28 @@ export function toGreenBeanQuery(query: string) {
   return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
 }
 
+export function toProductQuery(query: string, productKind: ProductKind = "green") {
+  if (productKind === "green") return toGreenBeanQuery(query);
+  const trimmed = query.trim() || "원두";
+  return /원두|홀빈|whole\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 원두`;
+}
+
 export function isBuyableGreenBeanOffer(title: string, source?: string) {
-  if (isBlockedShoppingTitle(title) || !/\d+\s*(kg|g)/i.test(title)) return false;
-  if (/생두|커피생두|green\s*bean/i.test(title)) return true;
+  return isBuyableOffer(title, source, "green");
+}
+
+export function isBuyableOffer(title: string, source?: string, productKind: ProductKind = "green") {
+  if (isBlockedShoppingTitle(title, productKind) || !/\d+\s*(kg|g)/i.test(title)) return false;
+  if (productKind === "green" && /생두|커피생두|green\s*bean/i.test(title)) return true;
+  if (productKind === "whole" && /원두|홀빈|whole\s*bean|roasted\s*bean/i.test(title)) return true;
   return source === "shop" && isCoffeeProductName(title);
 }
 
-export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string): RawOffer[] {
+export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string, productKind: ProductKind = "green"): RawOffer[] {
   const seen = new Set<string>();
 
   return items
-    .filter((item) => item.price > 0 && item.price <= MAX_REASONABLE_PRICE && item.link && item.title && isBuyableGreenBeanOffer(item.title, item.source))
+    .filter((item) => item.price > 0 && item.price <= MAX_REASONABLE_PRICE && item.link && item.title && isBuyableOffer(item.title, item.source, productKind))
     .filter((item) => {
       const keys = dedupeKeys(item);
       if (keys.some((key) => seen.has(key))) return false;
@@ -89,8 +101,10 @@ function dedupeKeys(item: CrawledOffer) {
   return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
 
-function isBlockedShoppingTitle(title: string) {
-  return /([2-9]\d*\s*개|세트|묶음|박스|box|set|원두|홀빈|볶은|볶음|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
+function isBlockedShoppingTitle(title: string, productKind: ProductKind) {
+  if (/([2-9]\d*\s*개|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample)/i.test(title)) return true;
+  if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
+  return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
 }
 
 function isCoffeeProductName(title: string) {
@@ -122,15 +136,15 @@ async function runPlaywrightCrawler(query: string) {
   return JSON.parse(result.stdout || "{}") as { offers?: CrawledOffer[] };
 }
 
-export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString()) {
-  const greenQuery = toGreenBeanQuery(query);
-  const crawlerResult = await runPlaywrightCrawler(greenQuery);
+export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString(), productKind: ProductKind = "green") {
+  const productQuery = toProductQuery(query, productKind);
+  const crawlerResult = await runPlaywrightCrawler(productQuery);
   let offers = crawlerResult.offers ?? [];
 
   if (!offers.length) {
-    const engineResult = await runEngine(greenQuery);
+    const engineResult = await runEngine(productQuery);
     offers = engineResult.offers ?? [];
   }
 
-  return mapCrawledOffers(offers, fetchedAt);
+  return mapCrawledOffers(offers, fetchedAt, productKind);
 }

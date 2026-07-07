@@ -32,9 +32,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node scripts/crawl-mungstery-beans.mjs
       - run: node scripts/crawl-green-beans.mjs "생두"
+      - run: node scripts/crawl-green-beans.mjs "원두"
       - run: |
           mkdir -p public/data
-          cp data/latest-offers.json data/coffee-info.json data/mungstery-beans.json public/data/
+          cp data/latest-offers.json data/latest-offers-whole.json data/coffee-info.json data/mungstery-beans.json public/data/
       - run: rm -rf app/api
 
       - name: Deploy to Vercel

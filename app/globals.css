@@ -408,6 +408,26 @@ button, select {
   gap: 7px;
   min-width: 0;
 }
+.productTabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.productTab {
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  background: var(--surface);
+  box-shadow: 3px 3px 0 var(--edge);
+  color: var(--edge);
+  padding: 4px 9px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.productTab:hover,
+.productTabActive {
+  background: var(--amber-soft);
+}
 .sectionHeader span {
   color: var(--muted);
   font-size: 13px;
@@ -722,11 +742,13 @@ button, select {
   color: #fff8eb;
 }
 .offerTitle {
+  display: block;
   font-size: 18px;
   line-height: 1.28;
   font-weight: 900;
   word-break: keep-all;
   overflow-wrap: break-word;
+  cursor: pointer;
 }
 .flavorTag {
   border: 2px solid var(--edge);
@@ -1031,6 +1053,11 @@ button, select {
     order: 1;
     flex: 1 1 100%;
     gap: 3px;
+  }
+  .productTab {
+    padding: 3px 7px;
+    font-size: 12px;
+    box-shadow: 2px 2px 0 var(--edge);
   }
   .sectionTitle h2 {
     font-size: 15px;

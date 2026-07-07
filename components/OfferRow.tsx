@@ -108,7 +108,16 @@ export function OfferRow({
             ))
           ) : null}
         </div>
-        <div className="offerTitle">{offer.name}</div>
+        <a
+          className="offerTitle"
+          href={offer.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          {offer.name}
+        </a>
         {offer.tasteNote ? <div className="tasteNote">{offer.tasteNote}</div> : null}
       </div>
       <div className={`pricePanel ${offer.shippingKnown ? "" : "pricePanelUnknown"}`}>

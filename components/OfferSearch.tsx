@@ -7,10 +7,11 @@ import { UiButton } from "./UiButton";
 
 const PAGE_SIZE = 25;
 const FAVORITES_STORAGE_KEY = "coffee-favorite-offers";
+const PRODUCT_TAB_STORAGE_KEY = "coffee-product-tab";
 const LOADING_STEPS = [
   "판매처 목록 확인 중",
   "가격과 배송비 정리 중",
-  "구매 가능한 생두만 추리는 중",
+  "구매 가능한 상품만 추리는 중",
   "중복 링크 정리 중",
   "향미와 배전 단서 확인 중",
   "가격순 목록 준비 중",
@@ -38,6 +39,13 @@ type SnapshotOffer = {
 type OfferSnapshot = {
   fetchedAt: string;
   offers: SnapshotOffer[];
+};
+
+type ProductKind = "green" | "whole";
+
+const PRODUCT_LABELS: Record<ProductKind, { label: string; query: string }> = {
+  green: { label: "생두", query: "생두" },
+  whole: { label: "홀빈", query: "원두" },
 };
 
 function formatWon(value: number) {
@@ -132,8 +140,9 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
 }
 
 export function OfferSearch() {
-  const [query, setQuery] = useState("생두");
-  const [submittedQuery, setSubmittedQuery] = useState("생두");
+  const [activeProduct, setActiveProduct] = useState<ProductKind>("green");
+  const [query, setQuery] = useState(PRODUCT_LABELS.green.query);
+  const [submittedQuery, setSubmittedQuery] = useState(PRODUCT_LABELS.green.query);
   const [reloadKey, setReloadKey] = useState(0);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedAt, setFetchedAt] = useState("");
@@ -154,6 +163,12 @@ export function OfferSearch() {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const savedProduct = localStorage.getItem(PRODUCT_TAB_STORAGE_KEY);
+    if (savedProduct === "whole") {
+      setActiveProduct("whole");
+      setQuery(PRODUCT_LABELS.whole.query);
+      setSubmittedQuery(PRODUCT_LABELS.whole.query);
+    }
     const saved = localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!saved) return;
     try {
@@ -166,6 +181,9 @@ export function OfferSearch() {
   useEffect(() => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
   }, [favorites]);
+  useEffect(() => {
+    localStorage.setItem(PRODUCT_TAB_STORAGE_KEY, activeProduct);
+  }, [activeProduct]);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,11 +196,11 @@ export function OfferSearch() {
       setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
     }, 1000);
 
-    const params = new URLSearchParams({ q: submittedQuery });
+    const params = new URLSearchParams({ q: submittedQuery, product: activeProduct });
     if (reloadKey > 0) params.set("refresh", "1");
 
     const request = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
-      ? fetchStaticSnapshot()
+      ? fetchStaticSnapshot(activeProduct)
       : fetch(`/api/offers?${params.toString()}`).then(async (response) => {
           const data = (await response.json()) as ApiResult;
           if (!response.ok) throw new Error(data.error || "조회 실패");
@@ -210,7 +228,7 @@ export function OfferSearch() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [submittedQuery, reloadKey]);
+  }, [submittedQuery, reloadKey, activeProduct]);
 
   const tagOptions = useMemo(() => ({
     flavors: [...new Set(offers.flatMap((offer) => offer.flavorTags))].sort(),
@@ -259,7 +277,7 @@ export function OfferSearch() {
     return () => observer.disconnect();
   }, [filteredOffers.length]);
   const submitCurrentQuery = () => {
-    const nextQuery = query.trim() || "생두";
+    const nextQuery = query.trim() || PRODUCT_LABELS[activeProduct].query;
     setReloadKey((key) => key + 1);
     if (nextQuery === submittedQuery) {
       return;
@@ -272,6 +290,18 @@ export function OfferSearch() {
       if (next.length > items.length) setShowFavorites(true);
       return next;
     });
+  };
+  const switchProduct = (product: ProductKind) => {
+    if (product === activeProduct) return;
+    const nextQuery = PRODUCT_LABELS[product].query;
+    setActiveProduct(product);
+    setQuery(nextQuery);
+    setSubmittedQuery(nextQuery);
+    setMinPrice("");
+    setMaxPrice("");
+    setFlavorFilter("");
+    setRoastFilter("");
+    setVisibleCount(PAGE_SIZE);
   };
 
   return (
@@ -349,7 +379,20 @@ export function OfferSearch() {
             <section className="resultsPanel" aria-label="가격 목록">
               <div className="sectionHeader">
                 <div className="sectionTitle">
-                  <h2>찾은 콩</h2>
+                  <div className="productTabs" role="tablist" aria-label="상품 종류">
+                    {(Object.keys(PRODUCT_LABELS) as ProductKind[]).map((product) => (
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeProduct === product}
+                        className={activeProduct === product ? "productTab productTabActive" : "productTab"}
+                        onClick={() => switchProduct(product)}
+                        key={product}
+                      >
+                        {PRODUCT_LABELS[product].label}
+                      </button>
+                    ))}
+                  </div>
                   <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
                 </div>
                 <div className="inlineFacts" aria-label="현재 조회 상태">
@@ -450,8 +493,9 @@ export function OfferSearch() {
   );
 }
 
-async function fetchStaticSnapshot() {
-  const response = await fetch("data/latest-offers.json", { cache: "no-store" });
+async function fetchStaticSnapshot(productKind: ProductKind) {
+  const fileName = productKind === "whole" ? "latest-offers-whole.json" : "latest-offers.json";
+  const response = await fetch(`data/${fileName}`, { cache: "no-store" });
   if (!response.ok) throw new Error("정적 가격 목록을 불러오지 못했습니다.");
   const data = (await response.json()) as OfferSnapshot;
   const offers = sortOffersByFinalPrice(data.offers.map((item, index) => normalizeOffer({
