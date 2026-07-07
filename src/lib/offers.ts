@@ -99,13 +99,17 @@ export function buildFlavorCacheKey(name: string) {
   const grade = cleaned.match(/\bg[1-5]\b/i)?.[0] ?? "";
   const process = /(내추럴|natural|워시드|washed|허니|honey|디카페인|decaf|mwp|슈가케인|sugarcane|무산소|anaerobic)/i.exec(cleaned)?.[0] ?? "";
   const withoutWeight = cleaned
+    .replace(/에디오피아/g, "에티오피아")
+    .replace(/([가-힣])(내추럴|워시드|허니|무산소|디카페인)/g, "$1 $2")
+    .replace(/[-–]\s*홈카페.*$/i, " ")
     .replace(/\[[^\]]+\]/g, " ")
-    .replace(/\bnew\s*crop\b|커피생두|생두|뉴크롭|프리미엄|할인|판매가|외\s*\d+종/gi, " ")
+    .replace(/\bnew\s*crop\b|커피\s*생두|커피\s*원두|생두|원두|홀빈|로스팅\s*원두|스페셜티|싱글\s*오리진|뉴크롭|프리미엄|할인|판매가|필더컵|외\s*\d+종/gi, " ")
     .replace(/\d+\s*개/g, " ")
+    .replace(/g\s*[1-5]/gi, " ")
     .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
     .replace(/\d[\d,]*원/g, " ")
-    .replace(/\b\d+(\.\d+)?\s*(g|kg)\b/gi, " ")
-    .replace(/[,，]/g, " ")
+    .replace(/\d+(\.\d+)?\s*(g|kg)/gi, " ")
+    .replace(/[,，-]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -127,7 +131,7 @@ function trustedCoffeeInfoText(text: string) {
   return text
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line && !/(쿠팡|원두|홀빈|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅|로스팅홀빈)/i.test(line))
+    .filter((line) => line && !/(쿠팡|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅)/i.test(line))
     .join(" ");
 }
 

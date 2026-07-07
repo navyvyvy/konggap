@@ -212,6 +212,14 @@ test("buildFlavorCacheKey ignores listing noise", () => {
     buildFlavorCacheKey("[New Crop / 생두] 에티오피아 예가체프 아리차 G1 워시드 2025/2026 1kg, 1개 판매가 19,600원"),
     buildFlavorCacheKey("에티오피아 예가체프 아리차 G1 워시드 생두 500g"),
   );
+  assert.equal(
+    buildFlavorCacheKey("커피생두1kg 스페셜티 케냐 니에리 레드 마운틴 AA"),
+    buildFlavorCacheKey("케냐 니에리 레드 마운틴 AA 원두 200g"),
+  );
+  assert.equal(
+    buildFlavorCacheKey("에디오피아 예가체프G1 코케허니 생두 1kg"),
+    buildFlavorCacheKey("에티오피아 예가체프 G1 코케 허니 원두 200g"),
+  );
 });
 
 test("getStableMetadata extracts process, roast, and taste text when present", () => {

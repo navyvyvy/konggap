@@ -391,29 +391,14 @@ function sellerFromUrl(url) {
   return "전문몰";
 }
 
-async function enrichCoffeeInfo(page, offers) {
-  const cached = normalizeCoffeeInfo(await readJson("coffee-info.json", {}));
+async function enrichCoffeeInfo(offers) {
   const mungsteryBeans = await readMungsteryBeans();
-  const info = { ...cached };
-  const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))].slice(0, 24);
+  const info = {};
+  const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))];
 
   for (const key of keys) {
-    if (info[key]?.tasteNote) continue;
     const mungsteryInfo = findMungsteryCoffeeInfo(key, mungsteryBeans);
-    if (mungsteryInfo) {
-      info[key] = mungsteryInfo;
-      continue;
-    }
-    if (info[key]?.rawDescription) continue;
-
-    await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(`${key} 향미 배전 생두`)}`, {
-      waitUntil: "domcontentloaded",
-      timeout: 20_000,
-    }).catch(() => null);
-    await page.waitForTimeout(600);
-
-    const rawDescription = await page.locator("body").innerText().then((text) => trustedCoffeeInfoText(focusDescription(key, text))).catch(() => "");
-    info[key] = buildCoffeeInfo(key, rawDescription);
+    info[key] = mungsteryInfo ?? findCommonCoffeeInfo(key);
   }
 
   return info;
@@ -453,16 +438,42 @@ function findMungsteryCoffeeInfo(key, beans) {
   };
 }
 
-function isMungsteryMatch(sharedTokens) {
-  const namedTokens = sharedTokens.filter((token) => !isCountryToken(token) && !isProcessToken(token));
-  return sharedTokens.length >= 3 && (sharedTokens.some(isCountryToken) || sharedTokens.some(isProcessToken)) && namedTokens.length > 0;
+const COMMON_COFFEE_PRESETS = [
+  { test: /에티오피아.*예가체프.*(워시드|washed)|예가체프.*(워시드|washed)/i, roast: "약배전", taste: "자스민, 시트러스, 복숭아", flavor: ["워시드"] },
+  { test: /에티오피아.*예가체프.*(내추럴|natural)|예가체프.*(내추럴|natural)/i, roast: "약배전", taste: "꽃향, 베리, 시트러스", flavor: ["내추럴"] },
+  { test: /에티오피아.*코케.*허니|코케.*허니/i, roast: "중약배전", taste: "꽃향, 꿀, 시트러스", flavor: ["허니"] },
+  { test: /콜롬비아.*파라이소|옴블리곤|파파요|아네로빅|무산소/i, roast: "약배전", taste: "복숭아, 베리, 와인", flavor: ["무산소"] },
+  { test: /콜롬비아.*(수프리모|슈프리모|후일라|우일라|메델린|리사랄다)/i, roast: "중배전", taste: "캐러멜, 견과, 산미", flavor: ["워시드"] },
+  { test: /케냐.*(AA|니에리|kiambu|FAQ)/i, roast: "중약배전", taste: "시트러스, 베리, 와인", flavor: ["워시드"] },
+  { test: /과테말라.*(안티구아|SHB|EP)/i, roast: "중배전", taste: "초콜릿, 견과, 산미", flavor: ["워시드"] },
+  { test: /코스타리카.*(따라주|따라쥬|tarrazu)/i, roast: "중배전", taste: "꿀, 시트러스, 견과", flavor: ["워시드"] },
+  { test: /인도네시아.*만델링/i, roast: "강배전", taste: "허브, 초콜릿, 바디", flavor: ["워시드"] },
+  { test: /베트남.*로부스타/i, roast: "강배전", taste: "초콜릿, 견과, 바디", flavor: [] },
+  { test: /에스프레소.*아라비카|아라비카.*에스프레소/i, roast: "강배전", taste: "초콜릿, 견과, 바디", flavor: [] },
+  { test: /블렌드.*아라비카|아라비카.*블렌드/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: [] },
+  { test: /브라질.*(산토스|세하도|모지아나|옐로우버번|블렌드|아라비카)/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: ["내추럴"] },
+];
+
+function findCommonCoffeeInfo(key) {
+  const preset = COMMON_COFFEE_PRESETS.find((item) => item.test.test(key));
+  if (!preset) return buildCoffeeInfo(key, "");
+  const rawDescription = trustedCoffeeInfoText([
+    key,
+    preset.roast,
+    preset.taste,
+    ...preset.flavor,
+  ].join("\n"));
+  return {
+    ...buildCoffeeInfo(key, rawDescription),
+    flavorTags: [...new Set(preset.flavor)],
+    roastTags: [preset.roast],
+    tasteNote: preset.taste,
+  };
 }
 
-function normalizeCoffeeInfo(info) {
-  return Object.fromEntries(Object.entries(info).map(([key, value]) => {
-    const rawDescription = trustedCoffeeInfoText(value?.rawDescription ?? "");
-    return [key, { ...value, ...buildCoffeeInfo(key, rawDescription) }];
-  }));
+function isMungsteryMatch(sharedTokens) {
+  const namedTokens = sharedTokens.filter((token) => !isCountryToken(token) && !isProcessToken(token) && !isGenericCoffeeToken(token));
+  return sharedTokens.length >= 3 && (sharedTokens.some(isCountryToken) || sharedTokens.some(isProcessToken)) && namedTokens.length > 0;
 }
 
 function buildCoffeeInfo(key, rawDescription) {
@@ -471,7 +482,7 @@ function buildCoffeeInfo(key, rawDescription) {
   return {
     key,
     rawDescription,
-    flavorTags: keyMetadata.flavorTags,
+    flavorTags: [...new Set([...keyMetadata.flavorTags, ...fullMetadata.flavorTags])],
     roastTags: fullMetadata.roastTags,
     tasteNote: fullMetadata.tasteNote,
   };
@@ -492,13 +503,17 @@ function applyCoffeeInfo(offers, info) {
 
 function coffeeKey(title) {
   return title
+    .replace(/에디오피아/g, "에티오피아")
+    .replace(/([가-힣])(내추럴|워시드|허니|무산소|디카페인)/g, "$1 $2")
+    .replace(/[-–]\s*홈카페.*$/i, " ")
     .replace(/\[[^\]]+\]/g, " ")
-    .replace(/\b\d+(\.\d+)?\s*(kg|g)\b/gi, " ")
+    .replace(/\d+(\.\d+)?\s*(kg|g)/gi, " ")
     .replace(/\d+\s*개/g, " ")
-    .replace(/\bnew\s*crop\b|커피생두|생두|뉴크롭|프리미엄|할인|판매가|외\s*\d+종/gi, " ")
+    .replace(/g\s*[1-5]/gi, " ")
+    .replace(/\bnew\s*crop\b|커피\s*생두|커피\s*원두|생두|원두|홀빈|로스팅\s*원두|스페셜티|싱글\s*오리진|뉴크롭|프리미엄|할인|판매가|필더컵|외\s*\d+종/gi, " ")
     .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
     .replace(/\d[\d,]*원/g, " ")
-    .replace(/[,，]/g, " ")
+    .replace(/[,，-]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 60);
@@ -520,25 +535,15 @@ function isProcessToken(token) {
   return /^(내추럴|워시드|허니|무산소|디카페인|mwp|anaerobic|natural|washed|honey)$/i.test(token);
 }
 
-function focusDescription(key, text) {
-  const tokens = key.split(/\s+/).filter((token) => token.length > 1).slice(0, 4);
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) =>
-      tokens.some((token) => line.includes(token)) ||
-      /컵노트|향미|산미|단맛|바디|배전|로스팅|가공|내추럴|워시드|허니|프로세스|무산소|슈가케인|MWP/i.test(line),
-    )
-    .slice(0, 40)
-    .join("\n")
-    .slice(0, 2500);
+function isGenericCoffeeToken(token) {
+  return /^(예가체프|yirgacheffe|시다모|sidamo|구지|guji|산토스|santos|수프리모|supremo|안티구아|antigua|만델링|mandheling|따라주|tarrazu|아라비카|arabica|로부스타|robusta)$/i.test(token);
 }
 
 function trustedCoffeeInfoText(text) {
   return text
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line && !/(쿠팡|원두|홀빈|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅|로스팅홀빈)/i.test(line))
+    .filter((line) => line && !/(쿠팡|드립백|캡슐|분쇄|당일\s*로스팅|당일로스팅)/i.test(line))
     .join("\n");
 }
 
@@ -629,7 +634,7 @@ async function main() {
   const shopResult = await crawlSpecialtySites(page, productKind);
   const shopOffers = shopResult.offers;
   const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
-  const coffeeInfo = await enrichCoffeeInfo(page, rawOffers);
+  const coffeeInfo = await enrichCoffeeInfo(rawOffers);
   const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
   const result = {
     fetchedAt,
