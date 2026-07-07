@@ -79,6 +79,7 @@ export function canonicalOfferUrl(url: string) {
     if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
+    if (host === "gsc.coffee" && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
     if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];

@@ -180,6 +180,10 @@ test("canonicalOfferUrl keeps product identity and removes tracking noise", () =
     "https://coffeecg.com/product/detail.html?product_no=3777",
   );
   assert.equal(
+    canonicalOfferUrl("https://www.gsc.coffee/goods/goods_view.php?goodsNo=1000000328&cateCd=014"),
+    "https://gsc.coffee/goods/goods_view.php?goodsNo=1000000328",
+  );
+  assert.equal(
     canonicalOfferUrl("https://m.coffeesys.co.kr/product/colombia/1979/category/1/display/15/?icid=tracking"),
     "https://coffeesys.co.kr/product/colombia/1979",
   );

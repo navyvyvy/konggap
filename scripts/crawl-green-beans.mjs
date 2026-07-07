@@ -58,6 +58,7 @@ const WHOLE_BEAN_SITE_QUERIES = [
 ];
 const DIRECT_SHOP_PAGES = [
   { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true },
+  { url: "https://www.gsc.coffee/goods/goods_list.php?cateCd=014", seller: "GSC" },
   { url: "https://rehmcoffee.co.kr", seller: "레햄코리아" },
   { url: "https://m.almacielo.com", seller: "알마씨엘로" },
   { url: "https://m.sopexkorea.com", seller: "소펙스코리아" },
@@ -756,6 +757,7 @@ function canonicalOfferUrl(url) {
     if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
+    if (host === "gsc.coffee" && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
     if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
