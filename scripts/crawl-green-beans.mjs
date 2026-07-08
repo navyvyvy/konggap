@@ -223,6 +223,12 @@ async function crawlNaver(page, query) {
       timeout: 30_000,
     });
     await page.waitForTimeout(1500);
+    await page.evaluate(async () => {
+      for (let index = 0; index < 5; index += 1) {
+        window.scrollBy(0, 900);
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+    });
 
     const pageLimit = variant === query ? 3 : 1;
     for (let pageIndex = 0; pageIndex < pageLimit && offers.length < MAX_OFFERS; pageIndex += 1) {
@@ -241,7 +247,9 @@ async function collectNaverPageOffers(page) {
   const items = await page.evaluate(() => [...document.querySelectorAll("li")]
     .map((item) => {
       const lines = item.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
-      const titles = lines.filter((line) => /\d+\s*(kg|g)/i.test(line));
+      const titles = lines.filter((line) =>
+        /\d+\s*(kg|g)/i.test(line) && !/^\(|\d+\s*(kg|g)\s*당|원$/i.test(line),
+      );
       const links = [...item.querySelectorAll("a[href]")].map((anchor) => anchor.href);
       const link =
         links.find((href) => /shopping\.naver\.com\/v2\/bridge/.test(href) && /[?&]nv_mid=/.test(href)) ??
