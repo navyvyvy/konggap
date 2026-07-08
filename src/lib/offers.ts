@@ -26,6 +26,7 @@ export type Offer = Omit<RawOffer, "flavorTags" | "roastTags" | "tasteNote"> & {
 export type OfferFilters = {
   minPrice?: number;
   maxPrice?: number;
+  originTag?: string;
   flavorTag?: string;
   roastTag?: string;
   tasteNote?: string;
@@ -55,10 +56,11 @@ export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers:
   return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
 }
 
-export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[]; tasteNote: string }>(offers: T[], filters: OfferFilters) {
+export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[]; tasteNote: string; name?: string; rawDescription?: string }>(offers: T[], filters: OfferFilters) {
   return offers.filter((offer) =>
     (filters.minPrice === undefined || offer.finalPrice >= filters.minPrice) &&
     (filters.maxPrice === undefined || offer.finalPrice <= filters.maxPrice) &&
+    (!filters.originTag || inferOriginTags(`${offer.name ?? ""} ${offer.rawDescription ?? ""}`).includes(filters.originTag)) &&
     (!filters.flavorTag || offer.flavorTags.includes(filters.flavorTag)) &&
     (!filters.roastTag || offer.roastTags.includes(filters.roastTag)) &&
     (!filters.tasteNote || offer.tasteNote.split(",").map((note) => note.trim()).includes(filters.tasteNote)),
@@ -104,6 +106,10 @@ export function getStableMetadata(raw: Pick<RawOffer, "name" | "rawDescription">
   };
 }
 
+export function getOriginTags(raw: Pick<RawOffer, "name" | "rawDescription">) {
+  return inferOriginTags(`${raw.name} ${raw.rawDescription ?? ""}`);
+}
+
 function trustedCoffeeInfoText(text: string) {
   return text
     .split(/\r?\n/)
@@ -146,6 +152,34 @@ function inferTasteNote(text: string) {
   ].filter((note) => tasteText.includes(note.toLowerCase()));
 
   return notes.length ? notes.slice(0, 4).join(", ") : "";
+}
+
+function inferOriginTags(text: string) {
+  const origins: Array<[string, RegExp]> = [
+    ["에티오피아", /(에티오피아|ethiopia|yirgacheffe|예가체프|sidamo|시다모|guji|구지|limu|리무)/i],
+    ["브라질", /(브라질|brazil|cerrado|세하도|santos|산토스)/i],
+    ["콜롬비아", /(콜롬비아|colombia|huila|우일라|narino|나리뇨)/i],
+    ["케냐", /(케냐|kenya|kiambu|키암부|nyeri|니에리)/i],
+    ["과테말라", /(과테말라|guatemala|antigua|안티구아|huehuetenango|우에우에테낭고)/i],
+    ["온두라스", /(온두라스|honduras)/i],
+    ["니카라과", /(니카라과|nicaragua)/i],
+    ["코스타리카", /(코스타리카|costa\s*rica)/i],
+    ["엘살바도르", /(엘살바도르|el\s*salvador)/i],
+    ["페루", /(페루|peru)/i],
+    ["파나마", /(파나마|panama)/i],
+    ["르완다", /(르완다|rwanda)/i],
+    ["탄자니아", /(탄자니아|tanzania)/i],
+    ["베트남", /(베트남|vietnam|robusta|로부스타)/i],
+    ["인도네시아", /(인도네시아|indonesia|만델링|mandheling|sumatra|수마트라)/i],
+    ["인도", /(인도|india|monsooned|몬순)/i],
+    ["멕시코", /(멕시코|mexico)/i],
+    ["볼리비아", /(볼리비아|bolivia)/i],
+    ["에콰도르", /(에콰도르|ecuador)/i],
+    ["동티모르", /(동티모르|timor)/i],
+    ["자메이카", /(자메이카|jamaica|blue\s*mountain|블루마운틴)/i],
+  ];
+
+  return origins.filter(([, test]) => test.test(text)).map(([origin]) => origin);
 }
 
 function englishTasteAliases(text: string) {

@@ -10,6 +10,7 @@ import {
   canonicalOfferUrl,
   filterOffers,
   getStableMetadata,
+  getOriginTags,
   normalizeOffer,
   sortOffersByFinalPrice,
   stripHtml,
@@ -79,9 +80,9 @@ test("sortOffersByFinalPrice sorts by final payment amount", () => {
 
 test("filterOffers filters by final price and tags", () => {
   const offers = [
-    { id: "a", finalPrice: 12000, flavorTags: ["내추럴"], roastTags: ["중배전"], tasteNote: "초콜릿, 견과" },
-    { id: "b", finalPrice: 18000, flavorTags: ["워시드"], roastTags: ["약배전"], tasteNote: "시트러스, 꽃향" },
-    { id: "c", finalPrice: 26000, flavorTags: ["내추럴"], roastTags: ["강배전"], tasteNote: "베리, 와인" },
+    { id: "a", name: "브라질 세하도 생두 1kg", finalPrice: 12000, flavorTags: ["내추럴"], roastTags: ["중배전"], tasteNote: "초콜릿, 견과" },
+    { id: "b", name: "에티오피아 예가체프 생두 1kg", finalPrice: 18000, flavorTags: ["워시드"], roastTags: ["약배전"], tasteNote: "시트러스, 꽃향" },
+    { id: "c", name: "케냐 AA 생두 1kg", finalPrice: 26000, flavorTags: ["내추럴"], roastTags: ["강배전"], tasteNote: "베리, 와인" },
   ];
 
   assert.deepEqual(
@@ -96,6 +97,15 @@ test("filterOffers filters by final price and tags", () => {
     filterOffers(offers, { tasteNote: "견과" }).map((offer) => offer.id),
     ["a"],
   );
+  assert.deepEqual(
+    filterOffers(offers, { originTag: "에티오피아" }).map((offer) => offer.id),
+    ["b"],
+  );
+});
+
+test("getOriginTags extracts country-level origins", () => {
+  assert.deepEqual(getOriginTags({ name: "에티오피아 예가체프 G1 워시드 생두 1kg" }), ["에티오피아"]);
+  assert.deepEqual(getOriginTags({ name: "Guatemala Antigua SHB 1kg" }), ["과테말라"]);
 });
 
 test("getCachedValue reuses fresh values and pending loads", async () => {

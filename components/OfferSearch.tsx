@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { canonicalOfferUrl, filterOffers, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type RawOffer } from "../src/lib/offers";
+import { canonicalOfferUrl, filterOffers, getOriginTags, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type RawOffer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 import { UiButton } from "./UiButton";
 
@@ -150,6 +150,7 @@ export function OfferSearch() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [originFilter, setOriginFilter] = useState("");
   const [flavorFilter, setFlavorFilter] = useState("");
   const [roastFilter, setRoastFilter] = useState("");
   const [tasteFilter, setTasteFilter] = useState("");
@@ -232,6 +233,7 @@ export function OfferSearch() {
   }, [submittedQuery, activeProduct, refreshNonce]);
 
   const tagOptions = useMemo(() => ({
+    origins: [...new Set(offers.flatMap((offer) => getOriginTags(offer)))].sort(),
     flavors: [...new Set(offers.flatMap((offer) => offer.flavorTags))].sort(),
     roasts: [...new Set(offers.flatMap((offer) => offer.roastTags))].sort(),
     tastes: [...new Set(offers.flatMap((offer) => offer.tasteNote.split(",").map((note) => note.trim()).filter(Boolean)))].sort(),
@@ -239,10 +241,11 @@ export function OfferSearch() {
   const filteredOffers = useMemo(() => filterOffers(offers, {
     minPrice: minPrice ? Number(minPrice) : undefined,
     maxPrice: maxPrice ? Number(maxPrice) : undefined,
+    originTag: originFilter,
     flavorTag: flavorFilter,
     roastTag: roastFilter,
     tasteNote: tasteFilter,
-  }), [offers, minPrice, maxPrice, flavorFilter, roastFilter, tasteFilter]);
+  }), [offers, minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter]);
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(filteredOffers, sortOrder), [filteredOffers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
@@ -266,7 +269,7 @@ export function OfferSearch() {
   }, [filteredOffers]);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [minPrice, maxPrice, flavorFilter, roastFilter, tasteFilter, sortOrder]);
+  }, [minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter, sortOrder]);
   useEffect(() => {
     const list = listRef.current;
     const sentinel = sentinelRef.current;
@@ -289,6 +292,7 @@ export function OfferSearch() {
   const clearFilters = () => {
     setMinPrice("");
     setMaxPrice("");
+    setOriginFilter("");
     setFlavorFilter("");
     setRoastFilter("");
     setTasteFilter("");
@@ -445,6 +449,13 @@ export function OfferSearch() {
                   <label>
                     <span>최대가</span>
                     <input inputMode="numeric" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value.replace(/\D/g, ""))} placeholder="제한 없음" />
+                  </label>
+                  <label>
+                    <span>산지</span>
+                    <select value={originFilter} onChange={(event) => setOriginFilter(event.target.value)}>
+                      <option value="">전체</option>
+                      {tagOptions.origins.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+                    </select>
                   </label>
                   <label>
                     <span>향미</span>
