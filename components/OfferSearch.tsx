@@ -403,7 +403,9 @@ export function OfferSearch() {
                       </button>
                     ))}
                   </div>
-                  <span>{filteredOffers.length.toLocaleString("ko-KR")}개</span>
+                  <span className="countPill">
+                    <span className="fullLabel">찾은 콩</span> {filteredOffers.length.toLocaleString("ko-KR")}개
+                  </span>
                   {isRefreshing ? <span className="refreshPill" aria-live="polite">불러오는 중</span> : null}
                 </div>
                 <div className="inlineFacts" aria-label="현재 조회 상태">

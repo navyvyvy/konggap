@@ -448,6 +448,26 @@ button, select {
   font-size: 12px;
   font-weight: 900;
 }
+.sectionHeader .countPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 25px;
+  border: 2px solid var(--edge);
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 var(--edge);
+  background: #9de5ae;
+  color: var(--edge);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.countPill .fullLabel {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
 .sectionTools {
   display: flex;
   align-items: center;
@@ -1009,8 +1029,14 @@ button, select {
   .sectionTitle h2 {
     font-size: 15px;
   }
-  .sectionHeader .sectionTitle span {
+  .sectionHeader .sectionTitle > span:not(.countPill) {
     font-size: 11px;
+  }
+  .sectionHeader .countPill {
+    min-height: 22px;
+    padding: 1px 6px;
+    font-size: 11px;
+    box-shadow: 2px 2px 0 var(--edge);
   }
   .sectionHeader .refreshPill {
     min-height: 22px;
