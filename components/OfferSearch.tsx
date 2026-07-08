@@ -152,6 +152,7 @@ export function OfferSearch() {
   const [maxPrice, setMaxPrice] = useState("");
   const [flavorFilter, setFlavorFilter] = useState("");
   const [roastFilter, setRoastFilter] = useState("");
+  const [tasteFilter, setTasteFilter] = useState("");
   const [favorites, setFavorites] = useState<Offer[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
@@ -233,13 +234,15 @@ export function OfferSearch() {
   const tagOptions = useMemo(() => ({
     flavors: [...new Set(offers.flatMap((offer) => offer.flavorTags))].sort(),
     roasts: [...new Set(offers.flatMap((offer) => offer.roastTags))].sort(),
+    tastes: [...new Set(offers.flatMap((offer) => offer.tasteNote.split(",").map((note) => note.trim()).filter(Boolean)))].sort(),
   }), [offers]);
   const filteredOffers = useMemo(() => filterOffers(offers, {
     minPrice: minPrice ? Number(minPrice) : undefined,
     maxPrice: maxPrice ? Number(maxPrice) : undefined,
     flavorTag: flavorFilter,
     roastTag: roastFilter,
-  }), [offers, minPrice, maxPrice, flavorFilter, roastFilter]);
+    tasteNote: tasteFilter,
+  }), [offers, minPrice, maxPrice, flavorFilter, roastFilter, tasteFilter]);
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(filteredOffers, sortOrder), [filteredOffers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
@@ -263,7 +266,7 @@ export function OfferSearch() {
   }, [filteredOffers]);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [minPrice, maxPrice, flavorFilter, roastFilter, sortOrder]);
+  }, [minPrice, maxPrice, flavorFilter, roastFilter, tasteFilter, sortOrder]);
   useEffect(() => {
     const list = listRef.current;
     const sentinel = sentinelRef.current;
@@ -288,6 +291,7 @@ export function OfferSearch() {
     setMaxPrice("");
     setFlavorFilter("");
     setRoastFilter("");
+    setTasteFilter("");
   };
   const handleToggleFavorite = (offer: Offer) => {
     setFavorites((items) => {
@@ -454,6 +458,13 @@ export function OfferSearch() {
                     <select value={roastFilter} onChange={(event) => setRoastFilter(event.target.value)}>
                       <option value="">전체</option>
                       {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span>맛</span>
+                    <select value={tasteFilter} onChange={(event) => setTasteFilter(event.target.value)}>
+                      <option value="">전체</option>
+                      {tagOptions.tastes.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
                     </select>
                   </label>
                   <UiButton onClick={clearFilters}>필터 초기화</UiButton>

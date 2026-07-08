@@ -28,6 +28,7 @@ export type OfferFilters = {
   maxPrice?: number;
   flavorTag?: string;
   roastTag?: string;
+  tasteNote?: string;
 };
 
 export function stripHtml(value: string) {
@@ -54,12 +55,13 @@ export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers:
   return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
 }
 
-export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[] }>(offers: T[], filters: OfferFilters) {
+export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[]; tasteNote: string }>(offers: T[], filters: OfferFilters) {
   return offers.filter((offer) =>
     (filters.minPrice === undefined || offer.finalPrice >= filters.minPrice) &&
     (filters.maxPrice === undefined || offer.finalPrice <= filters.maxPrice) &&
     (!filters.flavorTag || offer.flavorTags.includes(filters.flavorTag)) &&
-    (!filters.roastTag || offer.roastTags.includes(filters.roastTag)),
+    (!filters.roastTag || offer.roastTags.includes(filters.roastTag)) &&
+    (!filters.tasteNote || offer.tasteNote.split(",").map((note) => note.trim()).includes(filters.tasteNote)),
   );
 }
 

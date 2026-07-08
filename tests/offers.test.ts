@@ -79,9 +79,9 @@ test("sortOffersByFinalPrice sorts by final payment amount", () => {
 
 test("filterOffers filters by final price and tags", () => {
   const offers = [
-    { id: "a", finalPrice: 12000, flavorTags: ["내추럴"], roastTags: ["중배전"] },
-    { id: "b", finalPrice: 18000, flavorTags: ["워시드"], roastTags: ["약배전"] },
-    { id: "c", finalPrice: 26000, flavorTags: ["내추럴"], roastTags: ["강배전"] },
+    { id: "a", finalPrice: 12000, flavorTags: ["내추럴"], roastTags: ["중배전"], tasteNote: "초콜릿, 견과" },
+    { id: "b", finalPrice: 18000, flavorTags: ["워시드"], roastTags: ["약배전"], tasteNote: "시트러스, 꽃향" },
+    { id: "c", finalPrice: 26000, flavorTags: ["내추럴"], roastTags: ["강배전"], tasteNote: "베리, 와인" },
   ];
 
   assert.deepEqual(
@@ -91,6 +91,10 @@ test("filterOffers filters by final price and tags", () => {
   assert.deepEqual(
     filterOffers(offers, { roastTag: "약배전" }).map((offer) => offer.id),
     ["b"],
+  );
+  assert.deepEqual(
+    filterOffers(offers, { tasteNote: "견과" }).map((offer) => offer.id),
+    ["a"],
   );
 });
 
