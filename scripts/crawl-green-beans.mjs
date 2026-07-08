@@ -54,10 +54,26 @@ const WHOLE_BEAN_SITE_QUERIES = [
   "site:smartstore.naver.com/whichcoffee 원두",
   "site:smartstore.naver.com/hyangcho 원두",
   "site:smartstore.naver.com/gadelo 원두",
+  "site:smartstore.naver.com/58coffee 홀빈 1kg",
+  "site:smartstore.naver.com/rick 홀빈 1kg",
+  "site:smartstore.naver.com/marisan_store 홀빈 1kg",
+  "site:smartstore.naver.com/coffeejg 홀빈 1kg",
+  "site:smartstore.naver.com/closecoffee 홀빈 1kg",
+  "site:smartstore.naver.com/whichcoffee 홀빈 1kg",
+  "site:smartstore.naver.com/hyangcho 홀빈 1kg",
+  "site:smartstore.naver.com/gadelo 홀빈 1kg",
   "site:kapkawa.com 원두",
+  "site:kapkawa.com 홀빈 1kg",
+  "site:coffeecg.com 원두 1kg",
+  "site:coffeecg.com 원두 200g",
+  "site:coffeelibre.kr 원두",
+  "site:coffeelibre.kr 홀빈",
+  "site:momos.co.kr 원두",
   "site:gustocoffee.co.kr 원두",
+  "site:gustocoffee.co.kr 홀빈 1kg",
   "site:editiondenmark.com coffee",
   "site:unspecialty.com 원두",
+  "site:unspecialty.com 홀빈 1kg",
 ];
 const DIRECT_SHOP_PAGES = [
   { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true, kind: "green" },
@@ -78,7 +94,9 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://smartstore.naver.com/whichcoffee", seller: "위치커피" },
   { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
   { url: "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40", seller: "가델로" },
-  { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들" },
+  { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들", kind: "whole" },
+  { url: "https://www.coffeecg.com/category/%EC%9B%90%EB%91%90/80/", seller: "커피창고", kind: "whole" },
+  { url: "https://m.coffeelibre.kr/product/list.html?cate_no=53&sort_method=2", seller: "커피리브레", kind: "whole" },
   { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피", kind: "whole" },
   { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크", kind: "whole" },
   { url: "https://unspecialty.com/", seller: "언스페셜티", kind: "whole" },
@@ -117,7 +135,8 @@ function moneyLineToNumber(line) {
 }
 
 function moneyTextToNumber(line) {
-  const match = line.match(/(\d[\d,]*)원/);
+  const matches = [...line.matchAll(/(\d[\d,]*)원/g)];
+  const match = matches.at(-1);
   return match ? Number(match[1].replace(/,/g, "")) : 0;
 }
 
@@ -326,6 +345,7 @@ function parseDirectShopOffer(item, shop) {
   if (!isBuyableDirectShopOffer(title, currentProductKind)) return null;
 
   const context = item.lines.join(" ");
+  if (/sold\s*out|품절|구매하실 수 없는|일시품절/i.test(context)) return null;
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
 
   const price = directShopPriceFromLines(item.lines);
