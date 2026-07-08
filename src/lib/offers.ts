@@ -1,4 +1,4 @@
-export type OfferSource = "naver" | "coupang" | "shop";
+export type OfferSource = "naver" | "shop";
 
 export type RawOffer = {
   id: string;

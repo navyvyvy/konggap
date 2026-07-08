@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { canonicalOfferUrl, filterOffers, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type OfferSource, type RawOffer } from "../src/lib/offers";
+import { canonicalOfferUrl, filterOffers, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type RawOffer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 import { UiButton } from "./UiButton";
 
@@ -283,6 +283,12 @@ export function OfferSearch() {
     setRefreshNonce((count) => count + 1);
     setSubmittedQuery(nextQuery);
   };
+  const clearFilters = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setFlavorFilter("");
+    setRoastFilter("");
+  };
   const handleToggleFavorite = (offer: Offer) => {
     setFavorites((items) => {
       const next = toggleFavoriteOffer(items, offer);
@@ -296,10 +302,7 @@ export function OfferSearch() {
     setActiveProduct(product);
     setQuery(nextQuery);
     setSubmittedQuery(nextQuery);
-    setMinPrice("");
-    setMaxPrice("");
-    setFlavorFilter("");
-    setRoastFilter("");
+    clearFilters();
     setVisibleCount(PAGE_SIZE);
   };
 
@@ -453,12 +456,7 @@ export function OfferSearch() {
                       {tagOptions.roasts.map((tag) => <option value={tag} key={tag}>{tag}</option>)}
                     </select>
                   </label>
-                  <UiButton onClick={() => {
-                    setMinPrice("");
-                    setMaxPrice("");
-                    setFlavorFilter("");
-                    setRoastFilter("");
-                  }}>필터 초기화</UiButton>
+                  <UiButton onClick={clearFilters}>필터 초기화</UiButton>
                 </section>
               ) : null}
               {isRefreshing ? (
@@ -479,12 +477,7 @@ export function OfferSearch() {
                 <div className="state">
                   <strong>조건 결과 없음</strong>
                   <span>가격이나 태그 조건을 줄이면 다시 보입니다.</span>
-                  <UiButton onClick={() => {
-                    setMinPrice("");
-                    setMaxPrice("");
-                    setFlavorFilter("");
-                    setRoastFilter("");
-                  }}>필터 초기화</UiButton>
+                  <UiButton onClick={clearFilters}>필터 초기화</UiButton>
                 </div>
               )}
             </section>
@@ -504,7 +497,7 @@ async function fetchStaticSnapshot(productKind: ProductKind) {
     id: `${item.source ?? "snapshot"}-${index}-${item.link}`,
     name: item.title,
     seller: item.seller ?? item.source ?? "판매처",
-    source: item.source === "shop" || item.source === "coupang" ? item.source as OfferSource : "naver",
+    source: item.source === "shop" ? "shop" : "naver",
     sourceUrl: item.link,
     price: item.price,
     shippingFee: item.shippingFee ?? null,

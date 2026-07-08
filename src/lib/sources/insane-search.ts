@@ -27,10 +27,6 @@ export type CrawledOffer = {
   rawDescription?: string;
 };
 
-type EngineResult = {
-  offers?: CrawledOffer[];
-};
-
 export function toGreenBeanQuery(query: string) {
   const trimmed = query.trim() || "생두";
   return /생두|green\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 생두`;
@@ -63,7 +59,7 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string, produ
     .slice(0, 400)
     .map((item, index) => {
       const source: OfferSource =
-        item.source === "coupang" ? "coupang" : item.source === "shop" ? "shop" : "naver";
+        item.source === "shop" ? "shop" : "naver";
 
       return {
         id: `${source}-${index}-${item.link}`,
@@ -97,15 +93,7 @@ function dedupeKeys(item: CrawledOffer) {
   return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
 }
 
-function parseEngineResult(stdout: string) {
-  try {
-    return JSON.parse(stdout || "{}") as EngineResult;
-  } catch {
-    return {};
-  }
-}
-
-function parseCrawlerResult(stdout: string) {
+function parseResult(stdout: string) {
   try {
     return JSON.parse(stdout || "{}") as { offers?: CrawledOffer[] };
   } catch {
@@ -137,7 +125,7 @@ async function runEngine(query: string) {
     maxBuffer: 10 * 1024 * 1024,
   }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
 
-  return parseEngineResult(result.stdout);
+  return parseResult(result.stdout);
 }
 
 async function runPlaywrightCrawler(query: string) {
@@ -145,7 +133,7 @@ async function runPlaywrightCrawler(query: string) {
     timeout: 360_000,
     maxBuffer: 10 * 1024 * 1024,
   }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
-  return parseCrawlerResult(result.stdout);
+  return parseResult(result.stdout);
 }
 
 export async function fetchCrawledOffers(query: string, fetchedAt = new Date().toISOString(), productKind: ProductKind = "green") {
