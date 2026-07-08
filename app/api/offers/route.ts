@@ -28,6 +28,10 @@ export async function GET(request: Request) {
       const fetchedAt = new Date().toISOString();
       const rawOffers = await fetchCrawledOffers(query, fetchedAt, productKind);
       const offers = sortOffersByFinalPrice(rawOffers.map(normalizeOffer).filter((offer) => offer.price > 0));
+      if (!offers.length) {
+        const snapshot = await readLatestSnapshot(query, productKind);
+        if (snapshot) return snapshot;
+      }
       return { fetchedAt, offers };
     }, Date.now(), undefined, refresh);
 

@@ -60,7 +60,7 @@ export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string, produ
       keys.forEach((key) => seen.add(key));
       return true;
     })
-    .slice(0, 200)
+    .slice(0, 400)
     .map((item, index) => {
       const source: OfferSource =
         item.source === "coupang" ? "coupang" : item.source === "shop" ? "shop" : "naver";
@@ -142,7 +142,7 @@ async function runEngine(query: string) {
 
 async function runPlaywrightCrawler(query: string) {
   const result = await execFileAsync("node", ["scripts/crawl-green-beans.mjs", query], {
-    timeout: 180_000,
+    timeout: 360_000,
     maxBuffer: 10 * 1024 * 1024,
   }).catch((error: { stdout?: string }) => ({ stdout: error.stdout ?? "{}" }));
   return parseCrawlerResult(result.stdout);
