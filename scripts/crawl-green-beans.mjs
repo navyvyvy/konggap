@@ -54,6 +54,7 @@ const WHOLE_BEAN_SITE_QUERIES = [
   "site:smartstore.naver.com/whichcoffee 원두",
   "site:smartstore.naver.com/hyangcho 원두",
   "site:smartstore.naver.com/gadelo 원두",
+  "site:smartstore.naver.com/dotscoffee_kr 원두",
   "site:smartstore.naver.com/58coffee 홀빈 1kg",
   "site:smartstore.naver.com/rick 홀빈 1kg",
   "site:smartstore.naver.com/marisan_store 홀빈 1kg",
@@ -62,6 +63,7 @@ const WHOLE_BEAN_SITE_QUERIES = [
   "site:smartstore.naver.com/whichcoffee 홀빈 1kg",
   "site:smartstore.naver.com/hyangcho 홀빈 1kg",
   "site:smartstore.naver.com/gadelo 홀빈 1kg",
+  "site:smartstore.naver.com/dotscoffee_kr 홀빈 1kg",
   "site:kapkawa.com 원두",
   "site:kapkawa.com 홀빈 1kg",
   "site:coffeecg.com 원두 1kg",
@@ -94,6 +96,7 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://smartstore.naver.com/whichcoffee", seller: "위치커피" },
   { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
   { url: "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40", seller: "가델로" },
+  { url: "https://smartstore.naver.com/dotscoffee_kr/category/31LQarAuGzWsnfTDAaEvK_ALL_PRODUCT?cp=1", seller: "도츠커피", kind: "whole" },
   { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들", kind: "whole" },
   { url: "https://www.coffeecg.com/category/%EC%9B%90%EB%91%90/80/", seller: "커피창고", kind: "whole" },
   { url: "https://m.coffeelibre.kr/product/list.html?cate_no=53&sort_method=2", seller: "커피리브레", kind: "whole" },
@@ -457,6 +460,7 @@ function sellerFromUrl(url) {
   if (/smartstore\.naver\.com\/whichcoffee/.test(url)) return "위치커피";
   if (/smartstore\.naver\.com\/hyangcho/.test(url)) return "향초커피";
   if (/smartstore\.naver\.com\/gadelo/.test(url)) return "가델로";
+  if (/smartstore\.naver\.com\/dotscoffee_kr/.test(url)) return "도츠커피";
   if (/xn--sh1bx7bj4cm6h09ezw0a\.com/.test(url)) return "콩볶는사람들";
   if (/gustocoffee/.test(url)) return "구스토커피";
   if (/editiondenmark/.test(url)) return "에디션덴마크";
