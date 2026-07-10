@@ -12,6 +12,8 @@ const SHOP_SHIPPING_RULES = [
   { test: /coffeeplant\.co\.kr|생두몰/, fee: 4000, freeOver: 50_000 },
   { test: /coffeesys\.co\.kr|커피시스/, fee: 3000, freeOver: 50_000 },
   { test: /gustocoffee\.co\.kr|구스토커피/, fee: 3000 },
+  { test: /clubespresso\.co\.kr|클럽에스프레소/, fee: 3000, freeOver: 50_000 },
+  { test: /wbeans\.com|더블유빈/, fee: 3500, freeOver: 150_000 },
 ];
 
 export type CrawledOffer = {

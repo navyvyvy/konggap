@@ -10,7 +10,7 @@ Home roasters who buy green coffee beans with their own money and need to compar
 
 ## Product Purpose
 
-This product helps home roasters choose green coffee beans by showing final purchase cost first, then enough flavor and roasting context to decide whether the bean is worth trying. Success means a user can scan a price range, compare total cost and per-kg cost, understand the likely flavor, and open the seller link without fighting the interface.
+This product helps home roasters choose green coffee beans by showing final purchase cost first, then enough flavor and roasting context to decide whether the bean is worth trying. Success means a user can scan a price range, compare product and shipping cost, understand the likely flavor, and open the seller link without fighting the interface.
 
 ## Brand Personality
 
@@ -22,7 +22,7 @@ Avoid emotional cafe shopping pages where large images and mood copy hide the pr
 
 ## Design Principles
 
-1. Price is the first read: final cost leads, with product price, shipping, and per-kg cost close by.
+1. Price is the first read: final cost leads, with product price and shipping close by.
 2. Flavor explains the price decision: tags and short notes sit beside the cost, never buried.
 3. Green beans come first: whole beans remain a later comparison aid, not the core surface.
 4. Compare without clutter: list rows should scan like a table while still reading like buying notes.

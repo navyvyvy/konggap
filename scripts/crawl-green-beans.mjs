@@ -1,8 +1,10 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const MAX_OFFERS = 400;
 const MAX_REASONABLE_PRICE = 1_000_000;
+const MIN_DEFAULT_OFFERS = { green: 50, whole: 20 };
 const DATA_DIR = "data";
 const MOBILE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
@@ -44,6 +46,9 @@ const SPECIALTY_SITE_QUERIES = [
   "site:rehmcoffee.co.kr 생두 1kg",
   "site:m.almacielo.com 생두 1kg",
   "site:m.sopexkorea.com 생두 1kg",
+  "site:commandcoffee.co.kr 생두 1kg",
+  "site:clubespresso.co.kr 생두 1kg",
+  "site:wbeans.com 생두 1kg",
 ];
 const WHOLE_BEAN_SITE_QUERIES = [
   "site:smartstore.naver.com/58coffee 원두",
@@ -76,6 +81,7 @@ const WHOLE_BEAN_SITE_QUERIES = [
   "site:editiondenmark.com coffee",
   "site:unspecialty.com 원두",
   "site:unspecialty.com 홀빈 1kg",
+  "site:1kgcoffee.co.kr 1kg 싱글 원두",
 ];
 const DIRECT_SHOP_PAGES = [
   { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true, kind: "green" },
@@ -87,7 +93,7 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://m.sopexkorea.com", seller: "소펙스코리아", kind: "green" },
   { url: "https://coffeeplant.co.kr/", seller: "생두몰", kind: "green" },
   { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피", kind: "green" },
-  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레", kind: "green" },
+  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레", kind: "green", desktop: true },
   { url: "https://smartstore.naver.com/58coffee", seller: "58커피" },
   { url: "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1", seller: "릭커피" },
   { url: "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1", seller: "마리산" },
@@ -99,10 +105,14 @@ const DIRECT_SHOP_PAGES = [
   { url: "https://smartstore.naver.com/dotscoffee_kr/category/31LQarAuGzWsnfTDAaEvK_ALL_PRODUCT?cp=1", seller: "도츠커피", kind: "whole" },
   { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들", kind: "whole" },
   { url: "https://www.coffeecg.com/category/%EC%9B%90%EB%91%90/80/", seller: "커피창고", kind: "whole" },
-  { url: "https://m.coffeelibre.kr/product/list.html?cate_no=53&sort_method=2", seller: "커피리브레", kind: "whole" },
+  { url: "https://coffeelibre.kr/product/list.html?cate_no=53&sort_method=2", seller: "커피리브레", kind: "whole", desktop: true },
   { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피", kind: "whole" },
   { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크", kind: "whole" },
   { url: "https://unspecialty.com/", seller: "언스페셜티", kind: "whole" },
+  { url: "https://commandcoffee.co.kr/", seller: "커맨드커피", kind: "green" },
+  { url: "https://clubespresso.co.kr/", seller: "클럽에스프레소", kind: "green" },
+  { url: "https://www.wbeans.com/", seller: "더블유빈", kind: "green" },
+  { url: "https://www.1kgcoffee.co.kr/goods/goods_list.php?cateCd=034001", seller: "1킬로커피", kind: "whole", titleSuffix: "100g부터" },
 ];
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
@@ -111,6 +121,8 @@ const SHOP_SHIPPING_RULES = [
   { test: /coffeeplant\.co\.kr|생두몰/, fee: 4000, freeOver: 50_000 },
   { test: /coffeesys\.co\.kr|커피시스/, fee: 3000, freeOver: 50_000 },
   { test: /gustocoffee\.co\.kr|구스토커피/, fee: 3000 },
+  { test: /clubespresso\.co\.kr|클럽에스프레소/, fee: 3000, freeOver: 50_000 },
+  { test: /wbeans\.com|더블유빈/, fee: 3500, freeOver: 150_000 },
 ];
 
 function greenBeanQuery(query) {
@@ -120,6 +132,17 @@ function greenBeanQuery(query) {
 
 function productKindFromQuery(query) {
   return /원두|홀빈|whole\s*bean/i.test(query) ? "whole" : "green";
+}
+
+function isDefaultCrawlQuery(query) {
+  return !query.trim() || /^(생두|원두|홀빈)$/.test(query.trim());
+}
+
+function assertCrawlQuality(query, productKind, offerCount, previousCount = 0) {
+  const minimum = Math.max(MIN_DEFAULT_OFFERS[productKind], Math.floor(previousCount * 0.6));
+  if (isDefaultCrawlQuery(query) && offerCount < minimum) {
+    throw new Error(`${productKind} crawl produced only ${offerCount} offers; previous snapshot kept`);
+  }
 }
 
 function productQuery(query, productKind) {
@@ -133,21 +156,22 @@ function queryVariants(query) {
 }
 
 function moneyLineToNumber(line) {
-  const match = line.trim().match(/^(\d[\d,]*)원$/);
+  const match = line.trim().match(/^(\d[\d,]*)\s*원$/);
   return match ? Number(match[1].replace(/,/g, "")) : 0;
 }
 
 function moneyTextToNumber(line) {
-  const matches = [...line.matchAll(/(\d[\d,]*)원/g)];
+  const matches = [...line.matchAll(/(?<![A-Za-z0-9])(\d[\d,]*)\s*원(?![가-힣])/g)];
   const match = matches.at(-1);
   return match ? Number(match[1].replace(/,/g, "")) : 0;
 }
 
 function directShopPriceFromLines(lines) {
-  const candidates = lines.filter((line, index) => {
+  const normalizedLines = lines.map((line, index) => lines[index + 1] === "원" ? `${line}원` : line);
+  const candidates = normalizedLines.filter((line, index) => {
     const price = moneyTextToNumber(line);
     if (!price) return false;
-    const context = `${lines[index - 1] ?? ""} ${line}`;
+    const context = `${normalizedLines[index - 1] ?? ""} ${line}`;
     if (/\(\s*\d+\s*%\s*\)/.test(line)) return false;
     return !/(배송비|배송|택배|delivery|적립|포인트|마일리지|할인금액|상품구매금액|총\s*상품|결제|옵션)/i.test(context);
   });
@@ -207,7 +231,8 @@ function parseOfferFromLines(lines, link) {
     const shippingIndex = next.findIndex((line) => line === "배송비");
     const priceScope = shippingIndex >= 0 ? next.slice(0, shippingIndex) : next;
     const price = priceScope.map(moneyLineToNumber).filter(Boolean).at(-1) ?? 0;
-    const shippingFee = shippingIndex >= 0 ? moneyLineToNumber(next[shippingIndex + 1] ?? "") || null : null;
+    const shippingText = shippingIndex >= 0 ? `${next[shippingIndex]} ${next[shippingIndex + 1] ?? ""}` : "";
+    const shippingFee = shippingIndex >= 0 ? (/무료/.test(shippingText) ? 0 : moneyLineToNumber(next[shippingIndex + 1] ?? "") || null) : null;
 
     if (price > 0) {
       return { title, link, price, shippingFee, seller: "네이버", source: "naver" };
@@ -278,9 +303,8 @@ async function crawlSpecialtySites(page, browser, productKind) {
   }
 
   const direct = await crawlDirectShopPages(browser, productKind);
-  offers.push(...direct.offers);
   errors.push(...direct.errors);
-  return { offers: dedupeOffers(offers), errors };
+  return { offers: dedupeOffers([...direct.offers, ...offers]), errors };
 }
 
 async function crawlDirectShopPages(browser, productKind) {
@@ -289,17 +313,23 @@ async function crawlDirectShopPages(browser, productKind) {
 
   for (const shop of DIRECT_SHOP_PAGES) {
     if (shop.kind && shop.kind !== productKind) continue;
-    const shopPage = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
-    const navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+    const shopPage = await browser.newPage(shop.desktop ? { locale: "ko-KR" } : { locale: "ko-KR", userAgent: MOBILE_UA });
+    let navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
       .then(() => "")
       .catch((error) => error.message);
+    if (navigationError) {
+      await shopPage.waitForTimeout(500);
+      navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+        .then(() => "")
+        .catch((error) => error.message);
+    }
     if (navigationError) {
       errors.push(`${shop.seller}: ${navigationError}`);
       await shopPage.close();
       continue;
     }
     await shopPage.waitForTimeout(1500);
-    const result = await collectDirectShopOffers(shopPage, shop);
+    const result = await collectDirectShopOffers(shopPage, shop, productKind);
     await shopPage.close();
     offers.push(...result.offers);
     if (result.error) errors.push(result.error);
@@ -308,27 +338,37 @@ async function crawlDirectShopPages(browser, productKind) {
   return { offers, errors };
 }
 
-async function collectDirectShopOffers(page, shop) {
+async function collectDirectShopOffers(page, shop, productKind = currentProductKind) {
   const result = await page.evaluate(() => {
-    const productCards = [...document.querySelectorAll('li[id^="anchorBoxId_"], .prdList > li, .shop-item')];
+    const productCards = [...document.querySelectorAll('li[id^="anchorBoxId_"], .prdList > li, .item_gallery_type > ul > li, .shop-item')];
     const nodes = productCards.length ? productCards : [...document.querySelectorAll("a[href]")];
 
     return nodes.map((node) => {
       let container = node;
       if (node instanceof HTMLAnchorElement) {
         for (let index = 0; index < 5 && container.parentElement; index += 1) {
-          if (/\d[\d,]*원/.test(container.innerText || container.textContent || "")) break;
+          if (/\d[\d,]*\s*원/.test(container.innerText || container.textContent || "")) break;
           container = container.parentElement;
         }
       }
 
       const lines = (container.innerText || container.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean);
       const anchors = [...container.querySelectorAll("a[href]")];
+      const productAnchors = anchors.filter((anchor) => /\/product\/|\/products\/|\/goods\/goods_view\.php|\/product\/detail\.html|\/shop_view\/|\/shop\/detail\.php/i.test(anchor.href));
+      const productAnchor = productAnchors[0];
+      const productAnchorTitle = productAnchors
+        .filter((anchor) => !productAnchor || anchor.href === productAnchor.href)
+        .map((anchor) => (anchor.innerText || anchor.textContent || "").replace(/\s+/g, " ").trim())
+        .find(Boolean);
       const title =
-        lines.find((line) => !/^(ADD|WISH|NEW|SOLD OUT|\d[\d,]*원|판매가\s*[:：]|컵노트\s*[:：]|[\d\s]+)$/.test(line)) ??
+        productAnchorTitle ??
+        lines.find((line) => !/^(ADD|WISH|NEW|SOLD OUT|REVIEW|\d[\d,]*원|판매가\s*[:：]|컵노트\s*[:：]|[\d\s]+)$|리뷰|평점/i.test(line)) ??
         anchors.map((anchor) => (anchor.innerText || anchor.textContent || "").replace(/\s+/g, " ").trim()).find(Boolean) ??
         "";
-      const link = anchors.map((anchor) => anchor.href).find((href) => !/javascript:|#/.test(href)) ?? (node instanceof HTMLAnchorElement ? node.href : "");
+      const links = anchors.map((anchor) => anchor.href).filter((href) => !/javascript:|#/.test(href));
+      const link = productAnchor?.href ??
+        links[0] ??
+        (node instanceof HTMLAnchorElement ? node.href : "");
 
       return { title, link, lines };
     });
@@ -342,18 +382,19 @@ async function collectDirectShopOffers(page, shop) {
   return {
     error: Array.isArray(result) ? "" : result.error,
     offers: items
-    .map((item) => parseDirectShopOffer(item, shop))
+    .map((item) => parseDirectShopOffer(item, shop, productKind))
     .filter(Boolean),
   };
 }
 
-function parseDirectShopOffer(item, shop) {
+function parseDirectShopOffer(item, shop, productKind = currentProductKind) {
   let title = cleanTitle(item.title);
   const linkTitle = titleFromProductUrl(item.link);
   if ((isWeakShopTitle(title) || !isCoffeeProductName(title)) && linkTitle) title = linkTitle;
+  if (!isProductLink(item.link, shop.url)) return null;
   if (/goods_list\.php/i.test(item.link)) return null;
   if (!title || /생두컨시어지|신규생두|공지|친구|소분 생두|카테고리|전체보기|사업자|20kg 지대/.test(title)) return null;
-  if (!isBuyableDirectShopOffer(title, currentProductKind)) return null;
+  if (!isBuyableDirectShopOffer(title, productKind)) return null;
 
   const context = item.lines.join(" ");
   if (/sold\s*out|품절|구매하실 수 없는|일시품절/i.test(context)) return null;
@@ -362,7 +403,8 @@ function parseDirectShopOffer(item, shop) {
   const price = directShopPriceFromLines(item.lines);
   if (!price) return null;
 
-  if (currentProductKind === "green" && !/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
+  if (shop.titleSuffix && !/\d+\s*(kg|g)/i.test(title)) title = `${title} ${shop.titleSuffix}`;
+  else if (productKind === "green" && !/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
   return {
     title,
     link: item.link,
@@ -371,6 +413,17 @@ function parseDirectShopOffer(item, shop) {
     seller: shop.seller,
     source: "shop",
   };
+}
+
+function isProductLink(link, shopUrl) {
+  try {
+    const host = (value) => new URL(value).hostname.replace(/^(m|www)\./, "");
+    if (host(link) !== host(shopUrl)) return false;
+    const path = new URL(link).pathname;
+    return /\/product\/|\/products\/|\/goods\/goods_view\.php|\/product\/detail\.html|\/shop_view\/|\/shop\/detail\.php/i.test(path);
+  } catch {
+    return false;
+  }
 }
 
 function isWeakShopTitle(title) {
@@ -411,7 +464,7 @@ async function collectSpecialtyPageOffers(page, productKind) {
       };
     })
     .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|kapkawa|coffeeplant|momos|unspecialty|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
+      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|kapkawa|coffeeplant|momos|unspecialty|commandcoffee|clubespresso|wbeans|1kgcoffee|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
       /\d+\s*(kg|g)/i.test(item.title),
     ));
 
@@ -465,6 +518,10 @@ function sellerFromUrl(url) {
   if (/gustocoffee/.test(url)) return "구스토커피";
   if (/editiondenmark/.test(url)) return "에디션덴마크";
   if (/unspecialty/.test(url)) return "언스페셜티";
+  if (/commandcoffee/.test(url)) return "커맨드커피";
+  if (/clubespresso/.test(url)) return "클럽에스프레소";
+  if (/wbeans/.test(url)) return "더블유빈";
+  if (/1kgcoffee/.test(url)) return "1킬로커피";
   return "전문몰";
 }
 
@@ -499,7 +556,7 @@ async function enrichCoffeeInfo(offers, page) {
     if (!hasCompleteCoffeeInfo(info[key])) info[key] = mergeCoffeeInfo(key, info[key], findCommonCoffeeInfo(key));
   }
 
-  return info;
+  return { ...savedInfo, ...info };
 }
 
 async function readManualCoffeePresets() {
@@ -616,21 +673,8 @@ const COMMON_COFFEE_PRESETS = [
   { test: /블렌드.*아라비카|아라비카.*블렌드/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: [] },
   { test: /브라질.*(산토스|세하도|모지아나|옐로우버번|블렌드|아라비카)/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: ["내추럴"] },
   { test: /에티오피아.*(내추럴|natural)/i, roast: "약배전", taste: "꽃향, 베리, 시트러스", flavor: ["내추럴"] },
-  { test: /에티오피아.*(워시드|washed)|에티오피아|ethiopia/i, roast: "약배전", taste: "꽃향, 시트러스, 자스민", flavor: ["워시드"] },
-  { test: /케냐|kenya/i, roast: "중약배전", taste: "시트러스, 베리, 산미", flavor: ["워시드"] },
-  { test: /과테말라|guatemala/i, roast: "중배전", taste: "초콜릿, 견과, 산미", flavor: ["워시드"] },
-  { test: /브라질|brazil/i, roast: "중배전", taste: "견과, 초콜릿, 캐러멜", flavor: ["내추럴"] },
-  { test: /온두라스|honduras/i, roast: "중배전", taste: "캐러멜, 오렌지, 견과", flavor: ["워시드"] },
-  { test: /니카라과|nicaragua/i, roast: "중배전", taste: "캐러멜, 사과, 견과", flavor: ["워시드"] },
-  { test: /페루|peru/i, roast: "중배전", taste: "견과, 초콜릿, 산미", flavor: ["워시드"] },
-  { test: /코스타리카|costa\s*rica/i, roast: "중배전", taste: "꿀, 시트러스, 견과", flavor: ["워시드"] },
-  { test: /엘살바도르|el\s*salvador/i, roast: "중배전", taste: "캐러멜, 견과, 오렌지", flavor: ["워시드"] },
-  { test: /에콰도르|ecuador/i, roast: "중약배전", taste: "꽃향, 복숭아, 시트러스", flavor: ["워시드"] },
-  { test: /볼리비아|bolivia/i, roast: "중배전", taste: "캐러멜, 사과, 견과", flavor: ["워시드"] },
-  { test: /라오스|laos/i, roast: "중배전", taste: "견과, 초콜릿, 단맛", flavor: ["워시드"] },
+  { test: /에티오피아.*(워시드|washed)/i, roast: "약배전", taste: "꽃향, 시트러스, 자스민", flavor: ["워시드"] },
   { test: /인도.*로부스타|india.*robusta/i, roast: "강배전", taste: "초콜릿, 견과, 바디", flavor: [] },
-  { test: /자메이카|jamaica/i, roast: "중배전", taste: "견과, 초콜릿, 단맛", flavor: ["워시드"] },
-  { test: /콜롬비아|colombia/i, roast: "중배전", taste: "캐러멜, 견과, 산미", flavor: ["워시드"] },
 ];
 
 function findCommonCoffeeInfo(key) {
@@ -688,7 +732,6 @@ function coffeeKey(title) {
     .replace(/\[[^\]]+\]/g, " ")
     .replace(/\d+(\.\d+)?\s*(kg|g)/gi, " ")
     .replace(/\d+\s*개/g, " ")
-    .replace(/g\s*[1-5]/gi, " ")
     .replace(/\bnew\s*crop\b|커피\s*생두|커피\s*원두|생두|원두|홀빈|로스팅\s*원두|스페셜티|싱글\s*오리진|뉴크롭|프리미엄|할인|판매가|필더컵|외\s*\d+종/gi, " ")
     .replace(/\b\d{4}\s*\/\s*\d{4}\b|\b\d{4}\b/g, " ")
     .replace(/\d[\d,]*원/g, " ")
@@ -799,7 +842,7 @@ function canonicalOfferUrl(url) {
     if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
-    if (host === "gsc.coffee" && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
+    if (/^(gsc\.coffee|clubespresso\.co\.kr|1kgcoffee\.co\.kr|wbeans\.com)$/.test(host) && parsed.searchParams.has("goodsNo")) return `${origin}${parsed.pathname}?goodsNo=${parsed.searchParams.get("goodsNo")}`;
     if (host === "almacielo.com" && parsed.searchParams.has("pno")) return `${origin}${parsed.pathname}?pno=${parsed.searchParams.get("pno")}`;
     if (/(rehmcoffee|momos|coffeesys)\.co\.kr$/.test(host) || /(sopexkorea|coffeecg|kapkawa)\.com$/.test(host)) {
       const productPath = parsed.pathname.match(/^(\/product\/.+?\/\d+)(?:\/|$)/)?.[1];
@@ -813,7 +856,10 @@ function canonicalOfferUrl(url) {
 
 async function saveJson(name, data) {
   await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(`${DATA_DIR}/${name}`, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  const target = `${DATA_DIR}/${name}`;
+  const temporary = `${target}.tmp`;
+  await writeFile(temporary, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  await rename(temporary, target);
 }
 
 async function readJson(name, fallback) {
@@ -831,29 +877,58 @@ async function main() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
 
-  const naverOffers = await crawlNaver(page, query);
-  const shopResult = await crawlSpecialtySites(page, browser, productKind);
-  const shopOffers = shopResult.offers;
-  const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
-  const coffeeInfo = await enrichCoffeeInfo(rawOffers, page);
-  const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
-  const result = {
-    fetchedAt,
-    query,
-    sources: [
-      { source: "naver", count: naverOffers.length, error: "" },
-      { source: "shop", count: shopOffers.length, error: shopResult.errors.join("; ") },
-    ],
-    offers,
-  };
+  try {
+    const naverOffers = await crawlNaver(page, query);
+    const shopResult = await crawlSpecialtySites(page, browser, productKind);
+    const shopOffers = shopResult.offers;
+    const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
+    const coffeeInfo = await enrichCoffeeInfo(rawOffers, page);
+    const offers = applyCoffeeInfo(rawOffers, coffeeInfo);
+    const sellerCounts = Object.fromEntries(Object.entries(Object.groupBy(offers, (offer) => offer.seller)).map(([seller, items]) => [seller, items.length]));
+    const result = {
+      fetchedAt,
+      query,
+      sources: [
+        { source: "naver", count: naverOffers.length, error: "" },
+        { source: "shop", count: shopOffers.length, error: shopResult.errors.join("; ") },
+      ],
+      sellerCounts,
+      offers,
+    };
 
-  await browser.close();
-  await saveJson(productKind === "whole" ? "latest-offers-whole.json" : "latest-offers.json", result);
-  await saveJson("coffee-info.json", coffeeInfo);
-  process.stdout.write(JSON.stringify(result, null, 2));
+    const isDefaultQuery = isDefaultCrawlQuery(rawQuery);
+    const snapshotName = productKind === "whole" ? "latest-offers-whole.json" : "latest-offers.json";
+    const previousSnapshot = await readJson(snapshotName, { offers: [] });
+    assertCrawlQuality(rawQuery, productKind, offers.length, previousSnapshot.offers?.length ?? 0);
+    if (isDefaultQuery) {
+      await saveJson(snapshotName, result);
+    }
+    await saveJson("coffee-info.json", coffeeInfo);
+    process.stdout.write(JSON.stringify(result, null, 2));
+  } finally {
+    await browser.close();
+  }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+export {
+  assertCrawlQuality,
+  canonicalOfferUrl,
+  coffeeKey,
+  collectDirectShopOffers,
+  directShopPriceFromLines,
+  dedupeOffers,
+  findCommonCoffeeInfo,
+  inferShopShippingFee,
+  isBuyableOffer,
+  isDefaultCrawlQuery,
+  parseDirectShopOffer,
+  parseOfferFromLines,
+  productKindFromQuery,
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

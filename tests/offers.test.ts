@@ -23,6 +23,7 @@ import {
   toGreenBeanQuery,
   toProductQuery,
 } from "../src/lib/sources/insane-search";
+import { matchesStaticQuery } from "../components/OfferSearch";
 
 test("stripHtml removes markup and collapses whitespace", () => {
   assert.equal(stripHtml("<b>예가체프</b>   생두 2kg"), "예가체프 생두 2kg");
@@ -282,6 +283,24 @@ test("toGreenBeanQuery appends green bean intent when missing", () => {
   assert.equal(toGreenBeanQuery("커피 생두"), "커피 생두");
   assert.equal(toProductQuery("예가체프", "whole"), "예가체프 원두");
   assert.equal(toProductQuery("커피 원두", "whole"), "커피 원두");
+});
+
+test("static snapshots are filtered by the submitted search text", () => {
+  const offer = normalizeOffer({
+    id: "static-1",
+    name: "에티오피아 예가체프 G1 워시드 생두 1kg",
+    seller: "테스트몰",
+    source: "shop",
+    sourceUrl: "https://example.com/static-1",
+    price: 18000,
+    shippingFee: 3000,
+    tasteNote: "꽃향, 시트러스",
+    fetchedAt: "2026-07-10T00:00:00.000Z",
+  });
+
+  assert.equal(matchesStaticQuery(offer, "예가체프 워시드", "green"), true);
+  assert.equal(matchesStaticQuery(offer, "브라질", "green"), false);
+  assert.equal(matchesStaticQuery(offer, "생두", "green"), true);
 });
 
 test("mapCrawledOffers keeps only priced crawled offers", () => {

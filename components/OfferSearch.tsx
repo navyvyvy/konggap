@@ -202,7 +202,7 @@ export function OfferSearch() {
     if (refreshNonce > 0) params.set("refresh", "1");
 
     const request = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
-      ? fetchStaticSnapshot(activeProduct)
+      ? fetchStaticSnapshot(activeProduct, submittedQuery)
       : fetch(`/api/offers?${params.toString()}`).then(async (response) => {
           const data = (await response.json()) as ApiResult;
           if (!response.ok) throw new Error(data.error || "조회 실패");
@@ -307,6 +307,7 @@ export function OfferSearch() {
   const switchProduct = (product: ProductKind) => {
     if (product === activeProduct) return;
     const nextQuery = PRODUCT_LABELS[product].query;
+    setRefreshNonce(0);
     setActiveProduct(product);
     setQuery(nextQuery);
     setSubmittedQuery(nextQuery);
@@ -343,7 +344,7 @@ export function OfferSearch() {
         {status === "empty" ? (
           <div className="state">
             <strong>결과 없음</strong>
-            <span>현재 조건에 맞는 구매 가능 생두가 없습니다.</span>
+            <span>현재 조건에 맞는 구매 가능 {PRODUCT_LABELS[activeProduct].label}가 없습니다.</span>
             <UiButton onClick={submitCurrentQuery}>다시 조회</UiButton>
           </div>
         ) : null}
@@ -512,7 +513,7 @@ export function OfferSearch() {
   );
 }
 
-async function fetchStaticSnapshot(productKind: ProductKind) {
+async function fetchStaticSnapshot(productKind: ProductKind, query: string) {
   const fileName = productKind === "whole" ? "latest-offers-whole.json" : "latest-offers.json";
   const response = await fetch(`data/${fileName}`, { cache: "no-store" });
   if (!response.ok) throw new Error("정적 가격 목록을 불러오지 못했습니다.");
@@ -530,7 +531,17 @@ async function fetchStaticSnapshot(productKind: ProductKind) {
     tasteNote: item.tasteNote,
     rawDescription: item.rawDescription,
     fetchedAt: data.fetchedAt,
-  } satisfies RawOffer)));
+  } satisfies RawOffer))).filter((offer) => matchesStaticQuery(offer, query, productKind));
 
   return { fetchedAt: data.fetchedAt, offers };
+}
+
+export function matchesStaticQuery(offer: Offer, query: string, productKind: ProductKind) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized || normalized === PRODUCT_LABELS[productKind].query) return true;
+  const text = [offer.name, offer.seller, offer.rawDescription, offer.tasteNote, ...offer.flavorTags, ...offer.roastTags]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return normalized.split(/\s+/).every((token) => text.includes(token));
 }

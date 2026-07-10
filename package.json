@@ -3,7 +3,8 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "node --import tsx --test tests/*.test.ts"
+    "test": "node --import tsx --test tests/*.test.ts tests/*.test.mjs",
+    "test:ui": "node tests/ui-smoke.mjs"
   },
   "dependencies": {
     "next": "^16.2.9",
