@@ -82,6 +82,14 @@ function FilterIcon() {
   );
 }
 
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
+    </svg>
+  );
+}
+
 function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
   const step = LOADING_STEPS[Math.floor(elapsedSeconds / 6) % LOADING_STEPS.length];
 
@@ -154,6 +162,7 @@ export function OfferSearch() {
   const [flavorFilter, setFlavorFilter] = useState("");
   const [roastFilter, setRoastFilter] = useState("");
   const [tasteFilter, setTasteFilter] = useState("");
+  const [listQuery, setListQuery] = useState("");
   const [favorites, setFavorites] = useState<Offer[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
@@ -245,7 +254,7 @@ export function OfferSearch() {
     flavorTag: flavorFilter,
     roastTag: roastFilter,
     tasteNote: tasteFilter,
-  }), [offers, minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter]);
+  }).filter((offer) => matchesListQuery(offer, listQuery)), [offers, minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter, listQuery]);
   const sortedOffers = useMemo(() => sortOffersByFinalPrice(filteredOffers, sortOrder), [filteredOffers, sortOrder]);
   const visibleOffers = useMemo(() => sortedOffers.slice(0, visibleCount), [sortedOffers, visibleCount]);
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
@@ -269,7 +278,7 @@ export function OfferSearch() {
   }, [filteredOffers]);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter, sortOrder]);
+  }, [minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter, listQuery, sortOrder]);
   useEffect(() => {
     const list = listRef.current;
     const sentinel = sentinelRef.current;
@@ -330,9 +339,7 @@ export function OfferSearch() {
           }}
         >
           <span className="searchIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8 7.5 7.5 0 0 1-5.3 12.8Zm5.2-2.3 3.8 3.8" />
-            </svg>
+            <SearchIcon />
           </span>
           <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
           <UiButton type="submit" variant="primary">콩값 체크</UiButton>
@@ -420,6 +427,25 @@ export function OfferSearch() {
                   ><span><span className="fullLabel">찜한 콩</span><span className="compactLabel">찜</span> <strong className="fullValue">{favorites.length.toLocaleString("ko-KR")}개</strong><strong className="compactValue">{favorites.length.toLocaleString("ko-KR")}</strong></span></UiButton>
                 </div>
                 <div className="sectionTools">
+                  <div className="listFilterSearch">
+                    <span className="listFilterSearchIcon"><SearchIcon /></span>
+                    <input
+                      value={listQuery}
+                      onChange={(event) => setListQuery(event.target.value)}
+                      placeholder="목록에서 찾기"
+                      aria-label="현재 목록 검색"
+                    />
+                    {listQuery ? (
+                      <UiButton
+                        className="listFilterClear"
+                        variant="plain"
+                        onClick={() => setListQuery("")}
+                        aria-label="목록 검색어 지우기"
+                      >
+                        <CloseIcon />
+                      </UiButton>
+                    ) : null}
+                  </div>
                   <select
                     value={sortOrder}
                     onChange={(event) => {
@@ -494,6 +520,11 @@ export function OfferSearch() {
                       offer={offer}
                       favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
                       onToggleFavorite={handleToggleFavorite}
+                      onBadgeClick={(filter, value) => {
+                        if (filter === "search") setListQuery(value);
+                        if (filter === "flavor") setFlavorFilter(value);
+                        if (filter === "roast") setRoastFilter(value);
+                      }}
                     />
                   ))}
                   <div ref={sentinelRef} className="sentinel" />
@@ -539,9 +570,20 @@ async function fetchStaticSnapshot(productKind: ProductKind, query: string) {
 export function matchesStaticQuery(offer: Offer, query: string, productKind: ProductKind) {
   const normalized = query.trim().toLowerCase();
   if (!normalized || normalized === PRODUCT_LABELS[productKind].query) return true;
-  const text = [offer.name, offer.seller, offer.rawDescription, offer.tasteNote, ...offer.flavorTags, ...offer.roastTags]
+  const text = [offer.name, offer.seller, offer.tasteNote, ...offer.flavorTags, ...offer.roastTags]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
   return normalized.split(/\s+/).every((token) => text.includes(token));
+}
+
+export function matchesListQuery(offer: Offer, query: string) {
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!tokens.length) return true;
+  const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
+  const text = [offer.name, offer.seller, sourceLabel, offer.tasteNote, ...offer.flavorTags, ...offer.roastTags]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return tokens.every((token) => text.includes(token));
 }

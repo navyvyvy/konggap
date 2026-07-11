@@ -51,23 +51,26 @@ function topBadgeTone(index: number) {
 type TopBadge = {
   key: string;
   label: string;
+  filter: "search" | "flavor" | "roast";
 };
 
 export function OfferRow({
   offer,
   favorite,
   onToggleFavorite,
+  onBadgeClick,
 }: {
   offer: Offer;
   favorite?: boolean;
   onToggleFavorite?: (offer: Offer) => void;
+  onBadgeClick?: (filter: TopBadge["filter"], value: string) => void;
 }) {
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
   const topBadges: TopBadge[] = [
-    { key: "seller", label: offer.seller },
-    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel }] : []),
-    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag })),
-    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag })),
+    { key: "seller", label: offer.seller, filter: "search" },
+    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel, filter: "search" as const }] : []),
+    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag, filter: "flavor" as const })),
+    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag, filter: "roast" as const })),
   ];
 
   return (
@@ -97,12 +100,17 @@ export function OfferRow({
             </UiButton>
           ) : null}
           {topBadges.map((badge, index) => (
-            <span
+            <button
+              type="button"
               className={`offerMetaBadge ${topBadgeTone(index)}`}
               key={`${badge.key}-${index}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onBadgeClick?.(badge.filter, badge.label);
+              }}
             >
               {badge.label}
-            </span>
+            </button>
           ))}
         </div>
         <a

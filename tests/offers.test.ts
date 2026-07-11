@@ -23,7 +23,7 @@ import {
   toGreenBeanQuery,
   toProductQuery,
 } from "../src/lib/sources/insane-search";
-import { matchesStaticQuery } from "../components/OfferSearch";
+import { matchesListQuery, matchesStaticQuery } from "../components/OfferSearch";
 
 test("stripHtml removes markup and collapses whitespace", () => {
   assert.equal(stripHtml("<b>예가체프</b>   생두 2kg"), "예가체프 생두 2kg");
@@ -301,6 +301,27 @@ test("static snapshots are filtered by the submitted search text", () => {
   assert.equal(matchesStaticQuery(offer, "예가체프 워시드", "green"), true);
   assert.equal(matchesStaticQuery(offer, "브라질", "green"), false);
   assert.equal(matchesStaticQuery(offer, "생두", "green"), true);
+});
+
+test("list search finds names, sellers, and coffee notes", () => {
+  const offer = normalizeOffer({
+    id: "list-1",
+    name: "파나마 게이샤 워시드 생두 1kg",
+    seller: "커피리브레",
+    source: "shop",
+    sourceUrl: "https://example.com/list-1",
+    price: 42000,
+    shippingFee: 0,
+    tasteNote: "자스민, 복숭아",
+    rawDescription: "게이샤 품종의 화사한 향미, 복숭아",
+    fetchedAt: "2026-07-11T00:00:00.000Z",
+  });
+
+  assert.equal(matchesListQuery(offer, "게이샤"), true);
+  assert.equal(matchesListQuery(offer, "커피리브레 복숭아"), true);
+  assert.equal(matchesListQuery({ ...offer, source: "naver" }, "네이버"), true);
+  assert.equal(matchesListQuery({ ...offer, name: "파나마 워시드 생두 1kg", rawDescription: "게이샤 품종" }, "게이샤"), false);
+  assert.equal(matchesListQuery(offer, "로부스타"), false);
 });
 
 test("mapCrawledOffers keeps only priced crawled offers", () => {
