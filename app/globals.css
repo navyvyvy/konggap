@@ -451,7 +451,7 @@ button, select {
   border: 2px solid var(--edge);
   border-radius: 4px;
   box-shadow: 3px 3px 0 var(--edge);
-  background: var(--surface);
+  background: #9de5ae;
   color: var(--edge);
   padding: 2px 8px;
   font-size: 13px;
