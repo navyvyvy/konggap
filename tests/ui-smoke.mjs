@@ -46,6 +46,8 @@ try {
       await page.goto(baseUrl);
       await page.getByText(payload.offers[0].name).waitFor();
       assert.equal(await page.locator(".offerRow").count(), 1);
+      assert.equal(await page.locator(".snapshotFacts").count(), 1);
+      assert.equal(await page.getByText("최근 반영").isVisible(), true);
       assert.equal(await page.locator(".offerTitle").getAttribute("href"), payload.offers[0].sourceUrl);
       await page.getByLabel("현재 목록 검색").fill("예가체프");
       assert.equal(await page.locator(".offerRow").count(), 1);
@@ -53,6 +55,9 @@ try {
       assert.equal(await page.getByLabel("현재 목록 검색").inputValue(), "");
       await page.getByRole("button", { name: "테스트몰" }).click();
       assert.equal(await page.getByLabel("현재 목록 검색").inputValue(), "테스트몰");
+      await page.getByRole("button", { name: "워시드" }).click();
+      assert.equal(await page.locator(".filterBar").count(), 1);
+      assert.equal(await page.locator(".filterBar select").nth(1).inputValue(), "워시드");
       const box = await page.locator(".offerRow").boundingBox();
       assert.ok(box && box.x >= 0 && box.x + box.width <= viewport.width + 1);
       await page.close();

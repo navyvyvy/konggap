@@ -52,10 +52,6 @@ function formatWon(value: number) {
   return `${value.toLocaleString("ko-KR")}원`;
 }
 
-function formatNumber(value: number) {
-  return value.toLocaleString("ko-KR");
-}
-
 function CloseIcon() {
   return (
     <svg className="buttonIcon" viewBox="0 0 24 24" aria-hidden="true">
@@ -149,9 +145,7 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
 
 export function OfferSearch() {
   const [activeProduct, setActiveProduct] = useState<ProductKind>("green");
-  const [query, setQuery] = useState(PRODUCT_LABELS.green.query);
-  const [submittedQuery, setSubmittedQuery] = useState(PRODUCT_LABELS.green.query);
-  const [refreshNonce, setRefreshNonce] = useState(0);
+  const [reloadNonce, setReloadNonce] = useState(0);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [fetchedAt, setFetchedAt] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -177,8 +171,6 @@ export function OfferSearch() {
     const savedProduct = localStorage.getItem(PRODUCT_TAB_STORAGE_KEY);
     if (savedProduct === "whole") {
       setActiveProduct("whole");
-      setQuery(PRODUCT_LABELS.whole.query);
-      setSubmittedQuery(PRODUCT_LABELS.whole.query);
     }
     const saved = localStorage.getItem(FAVORITES_STORAGE_KEY);
     if (!saved) return;
@@ -207,11 +199,12 @@ export function OfferSearch() {
       setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
     }, 1000);
 
-    const params = new URLSearchParams({ q: submittedQuery, product: activeProduct });
-    if (refreshNonce > 0) params.set("refresh", "1");
+    const productQuery = PRODUCT_LABELS[activeProduct].query;
+    const params = new URLSearchParams({ q: productQuery, product: activeProduct });
+    if (reloadNonce > 0) params.set("refresh", "1");
 
     const request = process.env.NEXT_PUBLIC_STATIC_EXPORT === "1"
-      ? fetchStaticSnapshot(activeProduct, submittedQuery)
+      ? fetchStaticSnapshot(activeProduct, productQuery)
       : fetch(`/api/offers?${params.toString()}`).then(async (response) => {
           const data = (await response.json()) as ApiResult;
           if (!response.ok) throw new Error(data.error || "조회 실패");
@@ -239,7 +232,7 @@ export function OfferSearch() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [submittedQuery, activeProduct, refreshNonce]);
+  }, [activeProduct, reloadNonce]);
 
   const tagOptions = useMemo(() => ({
     origins: [...new Set(offers.flatMap((offer) => getOriginTags(offer)))].sort(),
@@ -260,9 +253,6 @@ export function OfferSearch() {
   const favoriteUrls = useMemo(() => new Set(favorites.map((offer) => canonicalOfferUrl(offer.sourceUrl))), [favorites]);
   const hasVisibleTable = offers.length > 0;
   const isRefreshing = status === "loading" && hasVisibleTable;
-  const fetchedAtLabel = fetchedAt
-    ? new Date(fetchedAt).toLocaleString("ko-KR", { year: "2-digit", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
-    : "";
   const fetchedAtCompactLabel = fetchedAt
     ? (() => {
         const date = new Date(fetchedAt);
@@ -270,12 +260,12 @@ export function OfferSearch() {
       })()
     : "";
   const summary = useMemo(() => {
-    const cheapest = sortOffersByFinalPrice(filteredOffers)[0];
+    const cheapest = sortOffersByFinalPrice(offers)[0];
 
     return {
       lowestFinalPrice: cheapest?.finalPrice ?? 0,
     };
-  }, [filteredOffers]);
+  }, [offers]);
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [minPrice, maxPrice, originFilter, flavorFilter, roastFilter, tasteFilter, listQuery, sortOrder]);
@@ -293,11 +283,7 @@ export function OfferSearch() {
 
     return () => observer.disconnect();
   }, [filteredOffers.length]);
-  const submitCurrentQuery = () => {
-    const nextQuery = query.trim() || PRODUCT_LABELS[activeProduct].query;
-    setRefreshNonce((count) => count + 1);
-    setSubmittedQuery(nextQuery);
-  };
+  const retryCurrentProduct = () => setReloadNonce((count) => count + 1);
   const clearFilters = () => {
     setMinPrice("");
     setMaxPrice("");
@@ -315,11 +301,8 @@ export function OfferSearch() {
   };
   const switchProduct = (product: ProductKind) => {
     if (product === activeProduct) return;
-    const nextQuery = PRODUCT_LABELS[product].query;
-    setRefreshNonce(0);
+    setReloadNonce(0);
     setActiveProduct(product);
-    setQuery(nextQuery);
-    setSubmittedQuery(nextQuery);
     clearFilters();
     setVisibleCount(PAGE_SIZE);
   };
@@ -331,19 +314,16 @@ export function OfferSearch() {
           <h1>콩값장부</h1>
           <p>커피콩 최종가 모음</p>
         </div>
-        <form
-          className="searchBar listSearchBar desktopSearch"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitCurrentQuery();
-          }}
-        >
-          <span className="searchIcon" aria-hidden="true">
-            <SearchIcon />
-          </span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="검색어" />
-          <UiButton type="submit" variant="primary">콩값 체크</UiButton>
-        </form>
+        <div className="snapshotFacts" aria-label="현재 가격 요약">
+          <span className="snapshotFact snapshotFactFresh"><small>최근 반영</small><strong>{fetchedAtCompactLabel || "-"}</strong></span>
+          <span className="snapshotFact snapshotFactLowest"><small>{PRODUCT_LABELS[activeProduct].label} 최저가</small><strong>{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong></span>
+          <UiButton
+            className="snapshotFavorite"
+            variant="plain"
+            onClick={() => setShowFavorites((value) => !value)}
+            aria-expanded={showFavorites}
+          ><span><small>찜한 콩</small><strong>{favorites.length.toLocaleString("ko-KR")}개</strong></span></UiButton>
+        </div>
       </header>
 
       <section className="toolPanel">
@@ -352,14 +332,14 @@ export function OfferSearch() {
           <div className="state">
             <strong>결과 없음</strong>
             <span>현재 조건에 맞는 구매 가능 {PRODUCT_LABELS[activeProduct].label}가 없습니다.</span>
-            <UiButton onClick={submitCurrentQuery}>다시 조회</UiButton>
+            <UiButton onClick={retryCurrentProduct}>다시 조회</UiButton>
           </div>
         ) : null}
         {status === "error" ? (
           <div className="state">
             <strong>조회 실패</strong>
             <span>{error}</span>
-            <UiButton onClick={submitCurrentQuery}>다시 조회</UiButton>
+            <UiButton onClick={retryCurrentProduct}>다시 조회</UiButton>
           </div>
         ) : null}
 
@@ -411,22 +391,12 @@ export function OfferSearch() {
                       </button>
                     ))}
                   </div>
-                  <span className="countPill">
-                    <span className="fullLabel">찾은 콩</span> {filteredOffers.length.toLocaleString("ko-KR")}개
-                  </span>
                   {isRefreshing ? <span className="refreshPill" aria-live="polite">불러오는 중</span> : null}
                 </div>
-                <div className="inlineFacts" aria-label="현재 조회 상태">
-                  <span><span className="fullLabel">기준</span><span className="compactLabel">기준</span> <strong className="fullValue">{fetchedAtLabel || "-"}</strong><strong className="compactValue">{fetchedAtCompactLabel || "-"}</strong></span>
-                  <span><span className="fullLabel">최저가</span><span className="compactLabel">최저</span> <strong className="fullValue">{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong><strong className="compactValue">{summary.lowestFinalPrice ? formatNumber(summary.lowestFinalPrice) : "-"}</strong></span>
-                  <UiButton
-                    className="inlineFactButton"
-                    variant="plain"
-                    onClick={() => setShowFavorites((value) => !value)}
-                    aria-expanded={showFavorites}
-                  ><span><span className="fullLabel">찜한 콩</span><span className="compactLabel">찜</span> <strong className="fullValue">{favorites.length.toLocaleString("ko-KR")}개</strong><strong className="compactValue">{favorites.length.toLocaleString("ko-KR")}</strong></span></UiButton>
-                </div>
                 <div className="sectionTools">
+                  <span className="countPill">
+                    <span className="fullLabel">찾은 콩</span><span className="compactLabel">찾은</span> {filteredOffers.length.toLocaleString("ko-KR")}개
+                  </span>
                   <div className="listFilterSearch">
                     <span className="listFilterSearchIcon"><SearchIcon /></span>
                     <input
@@ -521,7 +491,11 @@ export function OfferSearch() {
                       favorite={favoriteUrls.has(canonicalOfferUrl(offer.sourceUrl))}
                       onToggleFavorite={handleToggleFavorite}
                       onBadgeClick={(filter, value) => {
-                        if (filter === "search") setListQuery(value);
+                        if (filter === "search") {
+                          setListQuery(value);
+                          return;
+                        }
+                        setShowFilters(true);
                         if (filter === "flavor") setFlavorFilter(value);
                         if (filter === "roast") setRoastFilter(value);
                       }}

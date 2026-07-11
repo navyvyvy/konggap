@@ -84,54 +84,54 @@ button, select {
   font-weight: 750;
   text-wrap: pretty;
 }
-.searchBar {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
-  gap: 6px;
+.snapshotFacts {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.snapshotFact,
+.snapshotFavorite {
   border: 3px solid var(--edge);
   border-radius: 4px;
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--surface);
-  padding: 5px 7px;
-  align-items: center;
-  justify-self: end;
-  width: min(100%, 400px);
-}
-.listSearchBar {
-  width: min(100%, 300px);
-  padding: 3px 7px;
-  box-shadow: 4px 4px 0 var(--edge);
-}
-.searchIcon {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
+  box-shadow: 3px 3px 0 var(--edge);
+  min-width: 104px;
+  min-height: 48px;
+  padding: 6px 9px;
   color: var(--edge);
 }
-.searchIcon svg {
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
+.snapshotFact,
+.snapshotFavorite span {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
 }
-.searchBar input {
-  min-width: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 6px 4px;
-  color: var(--ink);
-  font-size: 16px;
+.snapshotFact small,
+.snapshotFavorite small {
+  font-size: 10px;
   font-weight: 850;
+  line-height: 1.1;
 }
-.searchBar input:focus-visible {
-  outline: 0;
+.snapshotFact strong,
+.snapshotFavorite strong {
+  font-size: 15px;
+  font-weight: 950;
+  line-height: 1.1;
+  white-space: nowrap;
 }
-.searchBar input:focus-visible,
+.snapshotFactFresh { background: #66c5ef; }
+.snapshotFactLowest { background: #ffb36b; }
+.snapshotFavorite.uiButton {
+  --button-bg: #d9c6ff;
+  --button-hover-bg: #eadcff;
+  display: flex;
+  text-align: left;
+}
+.snapshotFavorite:hover { color: var(--edge); }
+.snapshotFavorite span { width: 100%; }
+.sectionTools select:focus-visible,
 .sectionTools select:focus-visible,
 .toolButton:focus-visible,
 .filterBar input:focus-visible,
@@ -165,13 +165,6 @@ button, select {
   --button-bg: var(--surface);
   --button-border: var(--edge);
   --button-hover-bg: var(--surface-strong);
-}
-.searchBar .uiButton {
-  padding: 6px 11px;
-  box-shadow: none;
-}
-.listSearchBar .uiButton {
-  padding: 4px 9px;
 }
 .filterBar .uiButton {
   padding: 5px 9px;
@@ -302,6 +295,7 @@ button, select {
   margin-left: auto;
   padding: 6px 10px;
   font-size: 13px;
+  box-shadow: none;
 }
 .loadingStatus {
   display: flex;
@@ -401,7 +395,7 @@ button, select {
 }
 .sectionTitle {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 7px;
   min-width: 0;
@@ -412,6 +406,7 @@ button, select {
   gap: 4px;
 }
 .productTab {
+  height: 34px;
   border: 2px solid var(--edge);
   border-radius: 4px;
   background: var(--surface);
@@ -452,14 +447,14 @@ button, select {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 25px;
+  height: 34px;
   border: 2px solid var(--edge);
   border-radius: 4px;
   box-shadow: 3px 3px 0 var(--edge);
-  background: #9de5ae;
+  background: var(--surface);
   color: var(--edge);
   padding: 2px 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -467,6 +462,9 @@ button, select {
   color: inherit;
   font-size: inherit;
   font-weight: inherit;
+}
+.countPill .compactLabel {
+  display: none;
 }
 .sectionTools {
   display: flex;
@@ -480,10 +478,10 @@ button, select {
   display: inline-flex;
   align-items: center;
   width: 154px;
-  height: 32px;
+  height: 34px;
   border: 2px solid var(--edge);
   border-radius: 4px;
-  box-shadow: 4px 4px 0 var(--edge);
+  box-shadow: 3px 3px 0 var(--edge);
   background: var(--surface);
   padding: 0 8px;
 }
@@ -544,70 +542,12 @@ button, select {
   width: 13px;
   height: 13px;
 }
-.inlineFacts {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-  min-width: 0;
-  margin-left: auto;
-}
-.inlineFacts > span,
-.inlineFactButton {
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  background: var(--fact-bg, var(--amber-soft));
-  color: var(--edge);
-  padding: 6px 10px;
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.2;
-  box-shadow: 4px 4px 0 var(--edge);
-  --button-hover-bg: var(--fact-hover-bg, #fff4a8);
-}
-.inlineFacts > :nth-child(1) {
-  --fact-bg: #ffb36b;
-  --fact-hover-bg: #ffc58b;
-}
-.inlineFacts > :nth-child(2) {
-  --fact-bg: #66c5ef;
-  --fact-hover-bg: #8dd8f2;
-}
-.inlineFacts > :nth-child(3) {
-  --fact-bg: #d9c6ff;
-  --fact-hover-bg: #eadcff;
-}
-.inlineFacts strong {
-  margin-left: 3px;
-  color: var(--edge);
-  font-weight: 950;
-}
-.inlineFacts .fullLabel,
-.inlineFacts .compactLabel,
-.inlineFactButton span {
-  color: var(--edge);
-  font-size: inherit;
-  font-weight: inherit;
-}
-.compactValue {
-  display: none;
-}
-.compactLabel {
-  display: none;
-}
-.inlineFactButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  white-space: nowrap;
-  background: var(--fact-bg, var(--amber-soft));
-  cursor: pointer;
-}
 .sectionTools select,
 .toolButton {
+  height: 34px;
   border: 2px solid var(--button-border, var(--edge));
   border-radius: 4px;
-  box-shadow: 4px 4px 0 var(--edge);
+  box-shadow: 3px 3px 0 var(--edge);
   padding: 6px 28px 6px 10px;
   color: var(--button-color, var(--ink));
   font-size: 13px;
@@ -912,10 +852,10 @@ button, select {
   color: #10130f;
 }
 .costLine {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(2, 88px);
   justify-content: flex-end;
-  gap: 4px 8px;
+  gap: 8px;
   margin-top: 0;
   font-size: 13px;
   color: #4d5549;
@@ -925,6 +865,7 @@ button, select {
 .shippingFee {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   border: 2px solid var(--edge);
   border-radius: 4px;
@@ -976,16 +917,27 @@ button, select {
     line-height: 1.32;
     white-space: normal;
   }
-  .searchBar {
+  .snapshotFacts {
     width: 100%;
-    gap: 6px;
-    padding: 0;
-  }
-  .listSearchBar {
-    width: 100%;
-    min-width: 0;
     margin-top: 7px;
-    padding: 3px 7px;
+    gap: 4px;
+  }
+  .snapshotFact,
+  .snapshotFavorite {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
+    padding: 5px 6px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--edge);
+  }
+  .snapshotFact small,
+  .snapshotFavorite small {
+    font-size: 9px;
+  }
+  .snapshotFact strong,
+  .snapshotFavorite strong {
+    font-size: 12px;
   }
   .sectionTools select {
     width: 84px;
@@ -1002,17 +954,6 @@ button, select {
     height: 24px;
     padding: 2px 3px;
     font-size: 10px;
-  }
-  .listSearchBar input {
-    padding: 4px 3px;
-    font-size: 14px;
-  }
-  .listSearchBar .uiButton {
-    padding: 4px 7px;
-    font-size: 12px;
-  }
-  .searchBar input {
-    font-size: 17px;
   }
   .toolPanel {
     padding: 8px;
@@ -1069,43 +1010,10 @@ button, select {
     height: 16px;
     margin-left: 1px;
   }
-  .inlineFacts {
-    order: 2;
-    flex: 0 1 auto;
-    width: auto;
-    max-width: none;
-    margin-left: 0;
-    flex-wrap: nowrap;
-    overflow: visible;
-    gap: 2px;
-    justify-content: flex-start;
-    text-align: left;
-  }
-  .inlineFacts > span,
-  .inlineFactButton {
-    flex: 0 0 auto;
-    height: 24px;
-    min-height: 24px;
-    padding: 2px 3px;
-    font-size: 10px;
-    box-shadow: 2px 2px 0 var(--edge);
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-  }
-  .inlineFacts strong {
-    margin-left: 2px;
-  }
   .fullLabel {
     display: none;
   }
-  .compactLabel {
-    display: inline;
-  }
-  .fullValue {
-    display: none;
-  }
-  .compactValue {
+  .countPill .compactLabel {
     display: inline;
   }
   .sectionTitle {
@@ -1114,6 +1022,7 @@ button, select {
     gap: 3px;
   }
   .productTab {
+    height: 24px;
     padding: 3px 7px;
     font-size: 12px;
     box-shadow: 2px 2px 0 var(--edge);
@@ -1125,9 +1034,10 @@ button, select {
     font-size: 11px;
   }
   .sectionHeader .countPill {
+    height: 24px;
     min-height: 22px;
     padding: 1px 6px;
-    font-size: 11px;
+    font-size: 10px;
     box-shadow: 2px 2px 0 var(--edge);
   }
   .sectionHeader .refreshPill {
@@ -1263,16 +1173,8 @@ button, select {
   .sectionHeader {
     gap: 2px;
   }
-  .inlineFacts {
-    gap: 1px;
-  }
   .sectionTools {
     gap: 2px;
-  }
-  .inlineFacts > span,
-  .inlineFactButton {
-    padding: 2px;
-    font-size: 9px;
   }
   .sectionTools select {
     width: 78px;
