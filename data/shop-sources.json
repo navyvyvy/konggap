@@ -1,0 +1,467 @@
+{
+  "version": 1,
+  "lastDiscoveryAt": "",
+  "sources": [
+    {
+      "id": "coffeesys",
+      "url": "https://www.coffeesys.co.kr/product/list.html?cate_no=24",
+      "seller": "커피시스",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "needsWeight": true,
+      "origin": "manual"
+    },
+    {
+      "id": "gsc",
+      "url": "https://www.gsc.coffee/goods/goods_list.php?cateCd=014",
+      "seller": "GSC",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "kapkawa-green",
+      "url": "https://kapkawa.com/category/%EC%83%9D%EB%91%90/25/",
+      "seller": "캅카와",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "kapkawa-whole",
+      "url": "https://kapkawa.com/category/%EC%9B%90%EB%91%90/24/",
+      "seller": "캅카와",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "rehmcoffee",
+      "url": "https://rehmcoffee.co.kr",
+      "seller": "레햄코리아",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "almacielo",
+      "url": "https://www.almacielo.com/shop/big_section.php?cno1=1070",
+      "seller": "알마씨엘로",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "sopexkorea",
+      "url": "https://m.sopexkorea.com",
+      "seller": "소펙스코리아",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "coffeeplant",
+      "url": "https://coffeeplant.co.kr/",
+      "seller": "생두몰",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "momos",
+      "url": "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/",
+      "seller": "모모스커피",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "coffeelibre-green",
+      "url": "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/",
+      "seller": "커피리브레",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "desktop": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-58coffee",
+      "url": "https://smartstore.naver.com/58coffee",
+      "seller": "58커피",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-rick",
+      "url": "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1",
+      "seller": "릭커피",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-marisan",
+      "url": "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1",
+      "seller": "마리산",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffeejg",
+      "url": "https://smartstore.naver.com/coffeejg/category/ef23814651e5453aba8c5dde825a7700?cp=1",
+      "seller": "커피JG",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-closecoffee",
+      "url": "https://smartstore.naver.com/closecoffee/category/6480ceb6ab784e389d574235b7a7dc09?cp=2",
+      "seller": "클로즈커피",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-whichcoffee",
+      "url": "https://smartstore.naver.com/whichcoffee",
+      "seller": "위치커피",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-hyangcho",
+      "url": "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40",
+      "seller": "향초커피",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-gadelo",
+      "url": "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40",
+      "seller": "가델로",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-dotscoffee",
+      "url": "https://smartstore.naver.com/dotscoffee_kr/category/31LQarAuGzWsnfTDAaEvK_ALL_PRODUCT?cp=1",
+      "seller": "도츠커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "coffee-roasters",
+      "url": "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021",
+      "seller": "콩볶는사람들",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "coffeecg",
+      "url": "https://www.coffeecg.com/category/%EC%9B%90%EB%91%90/80/",
+      "seller": "커피창고",
+      "kinds": [
+        "whole",
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "coffeelibre-whole",
+      "url": "https://coffeelibre.kr/product/list.html?cate_no=53&sort_method=2",
+      "seller": "커피리브레",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "desktop": true,
+      "origin": "manual"
+    },
+    {
+      "id": "gustocoffee",
+      "url": "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none",
+      "seller": "구스토커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "editiondenmark",
+      "url": "https://editiondenmark.com/coffee",
+      "seller": "에디션덴마크",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "unspecialty",
+      "url": "https://unspecialty.com/",
+      "seller": "언스페셜티",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "commandcoffee",
+      "url": "https://commandcoffee.co.kr/",
+      "seller": "커맨드커피",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "clubespresso",
+      "url": "https://clubespresso.co.kr/",
+      "seller": "클럽에스프레소",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "wbeans",
+      "url": "https://www.wbeans.com/",
+      "seller": "더블유빈",
+      "kinds": [
+        "green"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "1kgcoffee",
+      "url": "https://www.1kgcoffee.co.kr/goods/goods_list.php?cateCd=034001",
+      "seller": "1킬로커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "titleSuffix": "100g부터",
+      "origin": "manual"
+    },
+    {
+      "id": "micoffee-co-kr",
+      "url": "https://micoffee.co.kr/",
+      "seller": "micoffee",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:54.144Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "myungga-com",
+      "url": "https://myungga.com/",
+      "seller": "myungga",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:54.145Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "smartstore-naver-com-inflow",
+      "url": "https://smartstore.naver.com/inflow",
+      "seller": "inflow",
+      "kinds": [
+        "green",
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:54.146Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "coffeekk-com",
+      "url": "https://coffeekk.com/",
+      "seller": "coffeekk",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:56.299Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "beautifulcoffee-com",
+      "url": "https://beautifulcoffee.com/",
+      "seller": "beautifulcoffee",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:56.300Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "beanyard-kr",
+      "url": "https://beanyard.kr/",
+      "seller": "beanyard",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:58.383Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "anacafe-co-kr",
+      "url": "https://anacafe.co.kr/",
+      "seller": "anacafe",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:07:58.383Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "soobean-com",
+      "url": "https://soobean.com/",
+      "seller": "soobean",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:00.104Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "reflect-coffee-co-kr",
+      "url": "https://reflect-coffee.co.kr/",
+      "seller": "reflect-coffee",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:00.104Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "maroscoffee-com",
+      "url": "https://maroscoffee.com/",
+      "seller": "maroscoffee",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:00.104Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "bamboocoffee-kr",
+      "url": "https://bamboocoffee.kr/",
+      "seller": "bamboocoffee",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:00.105Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "coffeemunhwa-co-kr",
+      "url": "https://coffeemunhwa.co.kr/",
+      "seller": "coffeemunhwa",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:00.105Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "b-pla-com",
+      "url": "https://b-pla.com/",
+      "seller": "b-pla",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "discovered",
+      "discoveredAt": "2026-07-13T09:08:03.674Z",
+      "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    }
+  ]
+}

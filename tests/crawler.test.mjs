@@ -7,6 +7,7 @@ import {
   directShopPriceFromLines,
   findCommonCoffeeInfo,
   isDefaultCrawlQuery,
+  mergeCoffeeInfo,
   parseOfferFromLines,
   parseDirectShopOffer,
 } from "../scripts/crawl-green-beans.mjs";
@@ -44,6 +45,11 @@ test("production crawler does not invent metadata from country alone", () => {
   assert.deepEqual(info.flavorTags, []);
   assert.deepEqual(info.roastTags, []);
   assert.equal(info.tasteNote, "");
+});
+
+test("coffee info merge accepts the first partial metadata result", () => {
+  const info = { flavorTags: ["워시드"], roastTags: [], tasteNote: "시트러스", rawDescription: "워시드 시트러스" };
+  assert.deepEqual(mergeCoffeeInfo("테스트", info, null), info);
 });
 
 test("direct shop parser rejects navigation links with nearby prices", () => {

@@ -4,116 +4,13 @@ import { chromium } from "playwright";
 
 const MAX_OFFERS = 400;
 const MAX_REASONABLE_PRICE = 1_000_000;
+const MAX_INFO_SEARCHES_PER_RUN = Number(process.env.COFFEE_INFO_SEARCH_LIMIT) || 30;
 const MIN_DEFAULT_OFFERS = { green: 50, whole: 20 };
 const DATA_DIR = "data";
+const SHOP_SOURCE_FILE = "shop-sources.json";
+const MAX_SITE_SEARCH_SOURCES = 48;
 const MOBILE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
-const SPECIALTY_SITE_QUERIES = [
-  "site:coffeecg.com 생두 1kg",
-  "site:coffeesys.co.kr 생두 1kg",
-  "site:gsc.coffee 생두 1kg",
-  "site:coffeecg.com 브라질 생두 1kg",
-  "site:coffeecg.com 콜롬비아 생두 1kg",
-  "site:coffeecg.com 에티오피아 생두 1kg",
-  "site:coffeecg.com 케냐 생두 1kg",
-  "site:coffeecg.com 과테말라 생두 1kg",
-  "site:coffeesys.co.kr 브라질 생두 1kg",
-  "site:coffeesys.co.kr 콜롬비아 생두 1kg",
-  "site:coffeesys.co.kr 에티오피아 생두 1kg",
-  "site:coffeesys.co.kr 케냐 생두 1kg",
-  "site:coffeesys.co.kr 과테말라 생두 1kg",
-  "site:gsc.coffee 브라질 생두 1kg",
-  "site:gsc.coffee 콜롬비아 생두 1kg",
-  "site:gsc.coffee 에티오피아 생두 1kg",
-  "site:gsc.coffee 케냐 생두 1kg",
-  "site:gsc.coffee 과테말라 생두 1kg",
-  "site:coffeelibre.kr 1kg 소분",
-  "site:coffeelibre.kr 소분",
-  "site:kapkawa.com 생두 1kg",
-  "site:coffeeplant.co.kr 생두",
-  "site:momos.co.kr 생두",
-  "site:smartstore.naver.com/58coffee 생두 1kg",
-  "site:smartstore.naver.com/rick 생두 1kg",
-  "site:smartstore.naver.com/marisan_store 생두 1kg",
-  "site:smartstore.naver.com/coffeejg 생두 1kg",
-  "site:smartstore.naver.com/closecoffee 생두 1kg",
-  "site:smartstore.naver.com/whichcoffee 생두 1kg",
-  "site:smartstore.naver.com/hyangcho 생두 1kg",
-  "site:smartstore.naver.com/gadelo 생두 1kg",
-  "site:gustocoffee.co.kr 생두 1kg",
-  "site:editiondenmark.com coffee",
-  "site:unspecialty.com 생두",
-  "site:rehmcoffee.co.kr 생두 1kg",
-  "site:m.almacielo.com 생두 1kg",
-  "site:m.sopexkorea.com 생두 1kg",
-  "site:commandcoffee.co.kr 생두 1kg",
-  "site:clubespresso.co.kr 생두 1kg",
-  "site:wbeans.com 생두 1kg",
-];
-const WHOLE_BEAN_SITE_QUERIES = [
-  "site:smartstore.naver.com/58coffee 원두",
-  "site:smartstore.naver.com/rick 원두",
-  "site:smartstore.naver.com/marisan_store 원두",
-  "site:smartstore.naver.com/coffeejg 원두",
-  "site:smartstore.naver.com/closecoffee 원두",
-  "site:smartstore.naver.com/whichcoffee 원두",
-  "site:smartstore.naver.com/hyangcho 원두",
-  "site:smartstore.naver.com/gadelo 원두",
-  "site:smartstore.naver.com/dotscoffee_kr 원두",
-  "site:smartstore.naver.com/58coffee 홀빈 1kg",
-  "site:smartstore.naver.com/rick 홀빈 1kg",
-  "site:smartstore.naver.com/marisan_store 홀빈 1kg",
-  "site:smartstore.naver.com/coffeejg 홀빈 1kg",
-  "site:smartstore.naver.com/closecoffee 홀빈 1kg",
-  "site:smartstore.naver.com/whichcoffee 홀빈 1kg",
-  "site:smartstore.naver.com/hyangcho 홀빈 1kg",
-  "site:smartstore.naver.com/gadelo 홀빈 1kg",
-  "site:smartstore.naver.com/dotscoffee_kr 홀빈 1kg",
-  "site:kapkawa.com 원두",
-  "site:kapkawa.com 홀빈 1kg",
-  "site:coffeecg.com 원두 1kg",
-  "site:coffeecg.com 원두 200g",
-  "site:coffeelibre.kr 원두",
-  "site:coffeelibre.kr 홀빈",
-  "site:momos.co.kr 원두",
-  "site:gustocoffee.co.kr 원두",
-  "site:gustocoffee.co.kr 홀빈 1kg",
-  "site:editiondenmark.com coffee",
-  "site:unspecialty.com 원두",
-  "site:unspecialty.com 홀빈 1kg",
-  "site:1kgcoffee.co.kr 1kg 싱글 원두",
-];
-const DIRECT_SHOP_PAGES = [
-  { url: "https://www.coffeesys.co.kr/product/list.html?cate_no=24", seller: "커피시스", needsWeight: true, kind: "green" },
-  { url: "https://www.gsc.coffee/goods/goods_list.php?cateCd=014", seller: "GSC", kind: "green" },
-  { url: "https://kapkawa.com/category/%EC%83%9D%EB%91%90/25/", seller: "캅카와", kind: "green" },
-  { url: "https://kapkawa.com/category/%EC%9B%90%EB%91%90/24/", seller: "캅카와", kind: "whole" },
-  { url: "https://rehmcoffee.co.kr", seller: "레햄코리아", kind: "green" },
-  { url: "https://www.almacielo.com/shop/big_section.php?cno1=1070", seller: "알마씨엘로", kind: "green" },
-  { url: "https://m.sopexkorea.com", seller: "소펙스코리아", kind: "green" },
-  { url: "https://coffeeplant.co.kr/", seller: "생두몰", kind: "green" },
-  { url: "https://momos.co.kr/category/%EC%83%9D%EB%91%90/64/", seller: "모모스커피", kind: "green" },
-  { url: "https://coffeelibre.kr/category/%EC%83%9D%EB%91%90%EC%86%8C%EB%B6%84/57/", seller: "커피리브레", kind: "green", desktop: true },
-  { url: "https://smartstore.naver.com/58coffee", seller: "58커피" },
-  { url: "https://smartstore.naver.com/rick/category/8ff3d5252396460ea5db63b3c943dc7c?cp=1", seller: "릭커피" },
-  { url: "https://smartstore.naver.com/marisan_store/category/dec08ea66c5e4107b3fb7e651998b268?cp=1", seller: "마리산" },
-  { url: "https://smartstore.naver.com/coffeejg/category/ef23814651e5453aba8c5dde825a7700?cp=1", seller: "커피JG" },
-  { url: "https://smartstore.naver.com/closecoffee/category/6480ceb6ab784e389d574235b7a7dc09?cp=2", seller: "클로즈커피" },
-  { url: "https://smartstore.naver.com/whichcoffee", seller: "위치커피" },
-  { url: "https://smartstore.naver.com/hyangcho/category/7c7db7190b9d4a989ed60630d4031ae1?st=POPULAR&dt=GALLERY&page=1&size=40", seller: "향초커피" },
-  { url: "https://smartstore.naver.com/gadelo/category/049f9118e652429888d115e0dd6a669b?st=TOTALSALE&dt=GALLERY&page=1&size=40", seller: "가델로" },
-  { url: "https://smartstore.naver.com/dotscoffee_kr/category/31LQarAuGzWsnfTDAaEvK_ALL_PRODUCT?cp=1", seller: "도츠커피", kind: "whole" },
-  { url: "https://www.xn--sh1bx7bj4cm6h09ezw0a.com/goods/goods_list.php?cateCd=021", seller: "콩볶는사람들", kind: "whole" },
-  { url: "https://www.coffeecg.com/category/%EC%9B%90%EB%91%90/80/", seller: "커피창고", kind: "whole" },
-  { url: "https://coffeelibre.kr/product/list.html?cate_no=53&sort_method=2", seller: "커피리브레", kind: "whole", desktop: true },
-  { url: "https://gustocoffee.co.kr/category/%EC%9B%90%EB%91%90/24/#none", seller: "구스토커피", kind: "whole" },
-  { url: "https://editiondenmark.com/coffee", seller: "에디션덴마크", kind: "whole" },
-  { url: "https://unspecialty.com/", seller: "언스페셜티", kind: "whole" },
-  { url: "https://commandcoffee.co.kr/", seller: "커맨드커피", kind: "green" },
-  { url: "https://clubespresso.co.kr/", seller: "클럽에스프레소", kind: "green" },
-  { url: "https://www.wbeans.com/", seller: "더블유빈", kind: "green" },
-  { url: "https://www.1kgcoffee.co.kr/goods/goods_list.php?cateCd=034001", seller: "1킬로커피", kind: "whole", titleSuffix: "100g부터" },
-];
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
   { test: /momos\.co\.kr|모모스커피/, fee: 2500, freeOver: 40_000 },
@@ -153,6 +50,40 @@ function productQuery(query, productKind) {
 
 function queryVariants(query) {
   return [...new Set([query, `${query} 1kg`, query.includes("커피") ? query : `커피${query}`])];
+}
+
+function sourceSupportsKind(source, productKind) {
+  return Array.isArray(source.kinds) && source.kinds.includes(productKind);
+}
+
+function sourceSearchScope(source) {
+  try {
+    const parsed = new URL(source.url);
+    if (parsed.hostname === "smartstore.naver.com") {
+      const store = parsed.pathname.split("/").filter(Boolean)[0];
+      return store ? `smartstore.naver.com/${store}` : "";
+    }
+    return parsed.hostname.replace(/^(m|www)\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function searchQueriesForSources(sources, productKind) {
+  const terms = productKind === "green" ? ["생두 1kg"] : ["원두", "홀빈 1kg"];
+  return sources
+    .filter((source) => sourceSupportsKind(source, productKind))
+    .sort((left, right) => Number(Boolean(right.direct)) - Number(Boolean(left.direct)) || (right.lastSeenAt ?? "").localeCompare(left.lastSeenAt ?? ""))
+    .slice(0, MAX_SITE_SEARCH_SOURCES)
+    .flatMap((source) => {
+      const scope = sourceSearchScope(source);
+      return scope ? terms.map((term) => `site:${scope} ${term}`) : [];
+    });
+}
+
+function findShopSource(url, sources) {
+  const scope = sourceSearchScope({ url });
+  return sources.find((source) => sourceSearchScope(source) === scope) ?? null;
 }
 
 function moneyLineToNumber(line) {
@@ -289,30 +220,30 @@ async function collectNaverPageOffers(page) {
   return items.map((item) => parseOfferFromLines(item.lines, item.link)).filter(Boolean);
 }
 
-async function crawlSpecialtySites(page, browser, productKind) {
+async function crawlSpecialtySites(page, browser, productKind, shopSources) {
   const offers = [];
   const errors = [];
 
-  for (const query of productKind === "whole" ? WHOLE_BEAN_SITE_QUERIES : SPECIALTY_SITE_QUERIES) {
+  for (const query of searchQueriesForSources(shopSources, productKind)) {
     await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, {
       waitUntil: "domcontentloaded",
       timeout: 30_000,
     });
     await page.waitForTimeout(1200);
-    offers.push(...(await collectSpecialtyPageOffers(page, productKind)));
+    offers.push(...(await collectSpecialtyPageOffers(page, productKind, shopSources)));
   }
 
-  const direct = await crawlDirectShopPages(browser, productKind);
+  const direct = await crawlDirectShopPages(browser, productKind, shopSources);
   errors.push(...direct.errors);
   return { offers: dedupeOffers([...direct.offers, ...offers]), errors };
 }
 
-async function crawlDirectShopPages(browser, productKind) {
+async function crawlDirectShopPages(browser, productKind, shopSources) {
   const offers = [];
   const errors = [];
 
-  for (const shop of DIRECT_SHOP_PAGES) {
-    if (shop.kind && shop.kind !== productKind) continue;
+  for (const shop of shopSources) {
+    if (!shop.direct || !sourceSupportsKind(shop, productKind)) continue;
     const shopPage = await browser.newPage(shop.desktop ? { locale: "ko-KR" } : { locale: "ko-KR", userAgent: MOBILE_UA });
     let navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
       .then(() => "")
@@ -448,8 +379,9 @@ function isCoffeeProductName(title) {
   return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|허니|게이샤|게샤|블렌드|에스프레소|디카페인|파나마|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey|Geisha|Gesha|Blend|Espresso|Decaf|Panama)/i.test(title);
 }
 
-async function collectSpecialtyPageOffers(page, productKind) {
-  const items = await page.evaluate(() => [...document.querySelectorAll("a[href]")]
+async function collectSpecialtyPageOffers(page, productKind, shopSources) {
+  const scopes = shopSources.filter((source) => sourceSupportsKind(source, productKind)).map(sourceSearchScope).filter(Boolean);
+  const items = await page.evaluate((allowedScopes) => [...document.querySelectorAll("a[href]")]
     .map((anchor) => {
       let container = anchor;
       for (let index = 0; index < 4 && container.parentElement; index += 1) {
@@ -463,15 +395,21 @@ async function collectSpecialtyPageOffers(page, productKind) {
         lines: (container.innerText || container.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean),
       };
     })
-    .filter((item) =>
-      /coffeecg|coffeesys|gsc\.coffee|rehmcoffee|almacielo|sopexkorea|coffeelibre|kapkawa|coffeeplant|momos|unspecialty|commandcoffee|clubespresso|wbeans|1kgcoffee|smartstore\.naver\.com|gustocoffee|editiondenmark|xn--sh1bx7bj4cm6h09ezw0a/.test(item.link) &&
-      /\d+\s*(kg|g)/i.test(item.title),
-    ));
+    .filter((item) => {
+      try {
+        const parsed = new URL(item.link);
+        const host = parsed.hostname.replace(/^(m|www)\./, "");
+        const scope = host === "smartstore.naver.com" ? `${host}/${parsed.pathname.split("/").filter(Boolean)[0] ?? ""}` : host;
+        return allowedScopes.includes(scope) && /\d+\s*(kg|g)/i.test(item.title);
+      } catch {
+        return false;
+      }
+    }), scopes);
 
-  return items.map((item) => parseSpecialtyOffer(item, productKind)).filter(Boolean);
+  return items.map((item) => parseSpecialtyOffer(item, productKind, shopSources)).filter(Boolean);
 }
 
-function parseSpecialtyOffer(item, productKind) {
+function parseSpecialtyOffer(item, productKind, shopSources) {
   const title = cleanTitle(item.title);
   if (!isBuyableOffer(title, "shop", productKind)) return null;
   if (/식품의 유형|배송비|판매가|www\.|›/.test(title)) return null;
@@ -479,7 +417,7 @@ function parseSpecialtyOffer(item, productKind) {
   const priceLine = item.lines.find((line) => /판매가\s*[:：]/.test(line)) ?? item.lines.find((line) => /^\d[\d,]*원/.test(line));
   const price = moneyLineToNumber((priceLine ?? "").replace(/^.*판매가\s*[:：]\s*/, "").split(/[·;]/)[0].trim());
   if (!price) return null;
-  const seller = sellerFromUrl(item.link);
+  const seller = sellerFromUrl(item.link, shopSources);
   const shippingLine = item.lines.find((line) => /배송비/.test(line)) ?? "";
   const parsedShippingFee = moneyLineToNumber(shippingLine.replace(/^.*배송비\s*[:：]\s*/, "").split(/[()·;]/)[0].trim());
   const shippingFee = parsedShippingFee || (/무료/.test(shippingLine) ? 0 : inferShopShippingFee({ seller, link: item.link, price }));
@@ -494,34 +432,9 @@ function inferShopShippingFee(item) {
   return rule.freeOver && item.price >= rule.freeOver ? 0 : rule.fee;
 }
 
-function sellerFromUrl(url) {
-  if (/coffeecg/.test(url)) return "커피창고";
-  if (/coffeesys/.test(url)) return "커피시스";
-  if (/gsc\.coffee/.test(url)) return "GSC";
-  if (/rehmcoffee/.test(url)) return "레햄코리아";
-  if (/almacielo/.test(url)) return "알마씨엘로";
-  if (/sopexkorea/.test(url)) return "소펙스코리아";
-  if (/coffeelibre/.test(url)) return "커피리브레";
-  if (/kapkawa/.test(url)) return "캅카와";
-  if (/coffeeplant/.test(url)) return "생두몰";
-  if (/momos/.test(url)) return "모모스커피";
-  if (/smartstore\.naver\.com\/58coffee/.test(url)) return "58커피";
-  if (/smartstore\.naver\.com\/rick/.test(url)) return "릭커피";
-  if (/smartstore\.naver\.com\/marisan_store/.test(url)) return "마리산";
-  if (/smartstore\.naver\.com\/coffeejg/.test(url)) return "커피JG";
-  if (/smartstore\.naver\.com\/closecoffee/.test(url)) return "클로즈커피";
-  if (/smartstore\.naver\.com\/whichcoffee/.test(url)) return "위치커피";
-  if (/smartstore\.naver\.com\/hyangcho/.test(url)) return "향초커피";
-  if (/smartstore\.naver\.com\/gadelo/.test(url)) return "가델로";
-  if (/smartstore\.naver\.com\/dotscoffee_kr/.test(url)) return "도츠커피";
-  if (/xn--sh1bx7bj4cm6h09ezw0a\.com/.test(url)) return "콩볶는사람들";
-  if (/gustocoffee/.test(url)) return "구스토커피";
-  if (/editiondenmark/.test(url)) return "에디션덴마크";
-  if (/unspecialty/.test(url)) return "언스페셜티";
-  if (/commandcoffee/.test(url)) return "커맨드커피";
-  if (/clubespresso/.test(url)) return "클럽에스프레소";
-  if (/wbeans/.test(url)) return "더블유빈";
-  if (/1kgcoffee/.test(url)) return "1킬로커피";
+function sellerFromUrl(url, shopSources = []) {
+  const source = findShopSource(url, shopSources);
+  if (source?.seller) return source.seller;
   return "전문몰";
 }
 
@@ -534,23 +447,14 @@ async function enrichCoffeeInfo(offers, page) {
 
   for (const key of keys) {
     const manualInfo = findManualCoffeeInfo(key, manualPresets);
-    if (hasCompleteCoffeeInfo(manualInfo)) {
-      info[key] = manualInfo;
-      continue;
-    }
-    if (hasCompleteCoffeeInfo(savedInfo[key])) {
-      info[key] = savedInfo[key];
-      continue;
-    }
     const mungsteryInfo = findMungsteryCoffeeInfo(key, mungsteryBeans);
-    if (hasCompleteCoffeeInfo(mungsteryInfo)) {
-      info[key] = mungsteryInfo;
-      continue;
-    }
-    info[key] = null;
+    info[key] = [savedInfo[key], manualInfo, mungsteryInfo]
+      .filter(Boolean)
+      .reduce((merged, candidate) => mergeCoffeeInfo(key, candidate, merged), null);
   }
 
   await fillDetailCoffeeInfo(page, offers, info);
+  await fillSearchCoffeeInfo(page, info);
 
   for (const key of keys) {
     if (!hasCompleteCoffeeInfo(info[key])) info[key] = mergeCoffeeInfo(key, info[key], findCommonCoffeeInfo(key));
@@ -586,6 +490,7 @@ function hasCompleteCoffeeInfo(info) {
 
 function mergeCoffeeInfo(key, primary, fallback) {
   if (!primary) return fallback;
+  if (!fallback) return primary;
   return {
     key,
     rawDescription: primary.rawDescription || fallback.rawDescription,
@@ -612,12 +517,44 @@ async function fillDetailCoffeeInfo(page, offers, info) {
   }
 }
 
+async function fillSearchCoffeeInfo(page, info) {
+  const missing = Object.keys(info).filter((key) => !hasCompleteCoffeeInfo(info[key]));
+
+  // ponytail: 30 short lookups keep one crawl bounded; unresolved keys are retried by the next scheduled crawl.
+  for (const key of missing.slice(0, MAX_INFO_SEARCHES_PER_RUN)) {
+    const detail = await fetchCoffeeSearchText(page, key);
+    if (!detail) continue;
+    const metadata = buildCoffeeInfo(key, detail);
+    if (metadata.tasteNote || metadata.roastTags.length || metadata.flavorTags.length) {
+      info[key] = mergeCoffeeInfo(key, metadata, info[key]);
+    }
+  }
+}
+
 async function fetchCoffeeDetailText(page, link) {
   const navigationError = await page.goto(link, { waitUntil: "domcontentloaded", timeout: 20_000 })
     .then(() => "")
     .catch((error) => error.message);
   if (navigationError) return "";
   await page.waitForTimeout(700);
+  return page.evaluate(() => {
+    const keywords = /(컵\s*노트|컵노트|향미|flavor|note|roast|배전|로스팅\s*포인트|가공|process|품종|variety|농장|farm|지역|region|산미|단맛|바디|꽃향|베리|시트러스|자스민|복숭아|초콜릿|견과|캐러멜|카라멜|와인|허니|내추럴|워시드|디카페인|무산소)/i;
+    return (document.body?.innerText ?? "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 1 && line.length < 180 && keywords.test(line))
+      .slice(0, 80)
+      .join("\n");
+  }).catch(() => "");
+}
+
+async function fetchCoffeeSearchText(page, key) {
+  const query = `${key} 커피 향미 배전`;
+  const navigationError = await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, { waitUntil: "domcontentloaded", timeout: 4_000 })
+    .then(() => "")
+    .catch((error) => error.message);
+  if (navigationError) return "";
+  await page.waitForTimeout(300);
   return page.evaluate(() => {
     const keywords = /(컵\s*노트|컵노트|향미|flavor|note|roast|배전|로스팅\s*포인트|가공|process|품종|variety|농장|farm|지역|region|산미|단맛|바디|꽃향|베리|시트러스|자스민|복숭아|초콜릿|견과|캐러멜|카라멜|와인|허니|내추럴|워시드|디카페인|무산소)/i;
     return (document.body?.innerText ?? "")
@@ -868,18 +805,24 @@ async function readJson(name, fallback) {
     .catch(() => fallback);
 }
 
+async function readShopSources() {
+  const registry = await readJson(SHOP_SOURCE_FILE, { sources: [] });
+  return Array.isArray(registry.sources) ? registry.sources.filter((source) => source?.url && source?.seller && Array.isArray(source.kinds)) : [];
+}
+
 async function main() {
   const rawQuery = process.argv.slice(2).join(" ");
   const productKind = productKindFromQuery(rawQuery);
   currentProductKind = productKind;
   const query = productQuery(rawQuery, productKind);
   const fetchedAt = new Date().toISOString();
+  const shopSources = await readShopSources();
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ locale: "ko-KR", userAgent: MOBILE_UA });
 
   try {
     const naverOffers = await crawlNaver(page, query);
-    const shopResult = await crawlSpecialtySites(page, browser, productKind);
+    const shopResult = await crawlSpecialtySites(page, browser, productKind, shopSources);
     const shopOffers = shopResult.offers;
     const rawOffers = dedupeOffers([...naverOffers, ...shopOffers]);
     const coffeeInfo = await enrichCoffeeInfo(rawOffers, page);
@@ -921,9 +864,11 @@ export {
   inferShopShippingFee,
   isBuyableOffer,
   isDefaultCrawlQuery,
+  mergeCoffeeInfo,
   parseDirectShopOffer,
   parseOfferFromLines,
   productKindFromQuery,
+  searchQueriesForSources,
 };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
