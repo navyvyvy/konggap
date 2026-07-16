@@ -33,25 +33,11 @@ function BookmarkIcon() {
   );
 }
 
-const topBadgeTones = [
-  "topBadgeTone0",
-  "topBadgeTone1",
-  "topBadgeTone2",
-  "topBadgeTone3",
-  "topBadgeTone4",
-  "topBadgeTone5",
-  "topBadgeTone6",
-  "topBadgeTone7",
-];
-
-function topBadgeTone(index: number) {
-  return topBadgeTones[index % topBadgeTones.length];
-}
-
 type TopBadge = {
   key: string;
   label: string;
   filter: "search" | "flavor" | "roast";
+  tone: string;
 };
 
 export function OfferRow({
@@ -67,10 +53,10 @@ export function OfferRow({
 }) {
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
   const topBadges: TopBadge[] = [
-    { key: "seller", label: offer.seller, filter: "search" },
-    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel, filter: "search" as const }] : []),
-    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag, filter: "flavor" as const })),
-    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag, filter: "roast" as const })),
+    { key: "seller", label: offer.seller, filter: "search", tone: "topBadgeTone0" },
+    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel, filter: "search" as const, tone: "topBadgeTone1" }] : []),
+    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag, filter: "flavor" as const, tone: "topBadgeTone4" })),
+    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag, filter: "roast" as const, tone: "topBadgeTone3" })),
   ];
 
   return (
@@ -102,7 +88,7 @@ export function OfferRow({
           {topBadges.map((badge, index) => (
             <button
               type="button"
-              className={`offerMetaBadge ${topBadgeTone(index)}`}
+              className={`offerMetaBadge ${badge.tone}`}
               key={`${badge.key}-${index}`}
               onClick={(event) => {
                 event.stopPropagation();

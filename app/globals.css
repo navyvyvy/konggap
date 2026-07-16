@@ -49,7 +49,7 @@ button, select {
   margin-bottom: 8px;
   border: 3px solid var(--edge);
   border-radius: 4px;
-  box-shadow: 6px 6px 0 var(--edge);
+  box-shadow: 5px 5px 0 var(--edge);
   background: var(--surface);
   padding: 9px 14px 10px;
   color: var(--ink);
@@ -77,7 +77,7 @@ button, select {
 .heroCopy p {
   max-width: 620px;
   margin: 0;
-  padding-bottom: 3px;
+  padding-bottom: 4px;
   color: var(--ink);
   font-size: 15px;
   line-height: 1.4;
@@ -87,7 +87,7 @@ button, select {
 .snapshotFacts {
   display: flex;
   align-items: stretch;
-  gap: 5px;
+  gap: 6px;
   flex: 0 0 auto;
   margin-left: auto;
 }
@@ -96,7 +96,7 @@ button, select {
   border: 3px solid var(--edge);
   border-radius: 4px;
   box-shadow: 3px 3px 0 var(--edge);
-  min-width: 104px;
+  min-width: 108px;
   min-height: 48px;
   padding: 6px 9px;
   color: var(--edge);
@@ -187,9 +187,9 @@ button, select {
 .toolPanel {
   border: 3px solid var(--edge);
   border-radius: 4px;
-  box-shadow: 7px 7px 0 var(--edge);
-  background: rgba(255, 253, 243, .96);
-  padding: 10px;
+  box-shadow: 5px 5px 0 var(--edge);
+  background: rgba(255, 253, 243, .98);
+  padding: 9px;
 }
 .workspaceGrid {
   display: grid;
@@ -250,7 +250,7 @@ button, select {
   align-items: center;
   gap: 5px;
   min-width: 112px;
-  border: 3px solid var(--edge);
+  border: 2px solid var(--edge);
   border-radius: 4px;
   background: var(--surface);
   padding: 4px 7px;
@@ -295,7 +295,7 @@ button, select {
   margin-left: auto;
   padding: 6px 10px;
   font-size: 13px;
-  box-shadow: none;
+  box-shadow: 3px 3px 0 var(--edge);
 }
 .loadingStatus {
   display: flex;
@@ -618,7 +618,7 @@ button, select {
   overflow: hidden;
 }
 .scrollList {
-  max-height: min(690px, calc(100vh - 176px));
+  max-height: min(820px, calc(100dvh - 150px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
@@ -711,7 +711,8 @@ button, select {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 212px;
   gap: 8px;
-  padding: 10px 12px 10px 14px;
+  min-height: 82px;
+  padding: 9px 12px 9px 14px;
   border-bottom: 2px solid var(--edge);
   background: var(--surface);
   cursor: pointer;
@@ -738,7 +739,7 @@ button, select {
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 .offerMetaBadge {
   white-space: nowrap;
@@ -797,7 +798,7 @@ button, select {
   cursor: pointer;
 }
 .tasteNote {
-  margin-top: 4px;
+  margin-top: 5px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.35;
@@ -805,15 +806,16 @@ button, select {
 .pricePanel {
   position: relative;
   border-left: 2px solid var(--edge);
-  margin: -10px -12px -10px 0;
-  padding: 9px 12px;
+  min-height: 82px;
+  margin: -9px -12px -9px 0;
+  padding: 8px 12px;
   background: #fff0a3;
   text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
 }
 .favoriteButton {
   border: 2px solid var(--edge);
@@ -853,7 +855,7 @@ button, select {
 }
 .costLine {
   display: grid;
-  grid-template-columns: repeat(2, 88px);
+  grid-template-columns: repeat(2, 90px);
   justify-content: flex-end;
   gap: 8px;
   margin-top: 0;
@@ -956,8 +958,8 @@ button, select {
     font-size: 10px;
   }
   .toolPanel {
-    padding: 8px;
-    border: 3px solid var(--edge);
+    padding: 8px 0;
+    border: 0;
     background: rgba(255, 253, 243, .96);
     box-shadow: none;
   }
@@ -1067,7 +1069,7 @@ button, select {
     background: transparent;
     border: 0;
     border-radius: 0;
-    max-height: calc(100vh - 170px);
+    max-height: calc(100dvh - 164px);
     overflow-y: auto;
     padding: 0;
   }
@@ -1108,7 +1110,7 @@ button, select {
     border: 2px solid var(--edge);
     border-radius: 4px;
     background: var(--surface);
-    padding: 11px 10px;
+    padding: 12px 10px 11px;
   }
   .offerRow:nth-child(even) {
     background: var(--surface);
@@ -1132,17 +1134,21 @@ button, select {
     font-size: 11px;
   }
   .tasteNote {
-    margin-top: 4px;
+    margin-top: 6px;
+    line-height: 1.4;
   }
   .pricePanel {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     column-gap: 10px;
-    align-items: end;
+    row-gap: 6px;
+    align-items: center;
     border-left: 0;
     border-top: 2px solid var(--edge);
-    margin: 6px -10px -11px;
-    padding: 7px 9px;
+    min-height: 0;
+    margin: 7px -10px -11px;
+    padding: 8px 9px;
     background: #fff0a3;
     border-radius: 0 0 2px 2px;
     text-align: right;
@@ -1157,13 +1163,13 @@ button, select {
   }
   .finalPrice {
     grid-column: 2;
+    grid-row: 1;
     font-size: 34px;
   }
   .costLine {
-    grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-column: 1 / -1;
+    grid-row: 2;
     justify-content: flex-start;
-    align-content: end;
     margin-top: 0;
     text-align: left;
   }

@@ -14,6 +14,16 @@
       "origin": "manual"
     },
     {
+      "id": "smartstore-coffeesys",
+      "url": "https://smartstore.naver.com/coffeesys/category/d45b9d7b93324546b51cc3dab0ee6bb9?cp=1",
+      "seller": "커피시스",
+      "kinds": [
+        "green"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
       "id": "gsc",
       "url": "https://www.gsc.coffee/goods/goods_list.php?cateCd=014",
       "seller": "GSC",
