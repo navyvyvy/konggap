@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "next dev",
+    "refresh:local": "node scripts/crawl-green-beans.mjs 생두 && node scripts/crawl-green-beans.mjs 원두",
     "build": "next build",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts tests/*.test.mjs",

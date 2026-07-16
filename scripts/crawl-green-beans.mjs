@@ -71,10 +71,14 @@ function sourceSearchScope(source) {
 
 function searchQueriesForSources(sources, productKind) {
   const terms = productKind === "green" ? ["생두 1kg"] : ["원두", "홀빈 1kg"];
-  return sources
+  const sortSources = (items) => items
     .filter((source) => sourceSupportsKind(source, productKind))
     .sort((left, right) => Number(Boolean(right.direct)) - Number(Boolean(left.direct)) || (right.lastSeenAt ?? "").localeCompare(left.lastSeenAt ?? ""))
-    .slice(0, MAX_SITE_SEARCH_SOURCES)
+  const manual = sortSources(sources.filter((source) => source.origin !== "discovered"));
+  const discovered = sortSources(sources.filter((source) => source.origin === "discovered"))
+    .slice(0, Math.max(0, MAX_SITE_SEARCH_SOURCES - manual.length));
+
+  return [...manual, ...discovered]
     .flatMap((source) => {
       const scope = sourceSearchScope(source);
       return scope ? terms.map((term) => `site:${scope} ${term}`) : [];

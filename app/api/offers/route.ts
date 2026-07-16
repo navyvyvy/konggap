@@ -19,6 +19,11 @@ export async function GET(request: Request) {
   const refresh = searchParams.get("refresh") === "1";
 
   try {
+    if (!refresh && process.env.NODE_ENV === "development") {
+      const snapshot = await readLatestSnapshot(query, productKind);
+      if (snapshot) return NextResponse.json(snapshot);
+    }
+
     const payload = await getCachedValue(offerCache, cacheKey(`${productKind}:${query}`), async () => {
       if (!refresh) {
         const snapshot = await readLatestSnapshot(query, productKind);

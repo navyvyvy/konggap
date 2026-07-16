@@ -36,9 +36,9 @@ jobs:
           curl -fsSL https://navyvyvy.github.io/konggap/data/latest-offers.json -o data/latest-offers.json || true
           curl -fsSL https://navyvyvy.github.io/konggap/data/latest-offers-whole.json -o data/latest-offers-whole.json || true
           curl -fsSL https://navyvyvy.github.io/konggap/data/coffee-info.json -o data/coffee-info.json || true
-          curl -fsSL https://navyvyvy.github.io/konggap/data/shop-sources.json -o data/shop-sources.json || true
+          curl -fsSL https://navyvyvy.github.io/konggap/data/shop-sources.json -o data/previous-shop-sources.json || true
       - run: node scripts/crawl-mungstery-beans.mjs
-      - run: node scripts/discover-shop-sources.mjs
+      - run: node scripts/discover-shop-sources.mjs --restore=previous-shop-sources.json
       - run: node scripts/crawl-green-beans.mjs "생두"
       - run: node scripts/crawl-green-beans.mjs "원두"
       - run: |

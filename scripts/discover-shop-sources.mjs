@@ -85,13 +85,32 @@ export function mergeDiscoveredSources(registry, candidates, now = new Date().to
   return { version: 1, lastDiscoveryAt: now, sources: [...manual, ...discovered] };
 }
 
+export function restoreDiscoveredSources(registry, previousRegistry) {
+  const manual = (registry.sources ?? []).filter((source) => source.origin !== "discovered");
+  const manualUrls = new Set(manual.map((source) => canonicalSourceUrl(source.url)));
+  const discovered = new Map();
+
+  for (const source of [...(registry.sources ?? []), ...(previousRegistry?.sources ?? [])]) {
+    const url = canonicalSourceUrl(source.url);
+    if (source.origin !== "discovered" || !url || manualUrls.has(url) || !isAllowedSourceUrl(url)) continue;
+    const current = discovered.get(url);
+    if (!current || (source.lastSeenAt ?? "") > (current.lastSeenAt ?? "")) discovered.set(url, source);
+  }
+
+  return {
+    version: 1,
+    lastDiscoveryAt: [registry.lastDiscoveryAt, previousRegistry?.lastDiscoveryAt].filter(Boolean).sort().at(-1) ?? "",
+    sources: [...manual, ...discovered.values()],
+  };
+}
+
 function shouldDiscover(registry, force) {
   if (force || !registry.lastDiscoveryAt) return true;
   return Date.now() - new Date(registry.lastDiscoveryAt).getTime() >= DISCOVERY_INTERVAL_MS;
 }
 
-async function readRegistry() {
-  return readFile(`${DATA_DIR}/${SOURCE_FILE}`, "utf8")
+async function readRegistry(fileName = SOURCE_FILE) {
+  return readFile(`${DATA_DIR}/${fileName}`, "utf8")
     .then((text) => JSON.parse(text))
     .catch(() => ({ version: 1, lastDiscoveryAt: "", sources: [] }));
 }
@@ -126,9 +145,13 @@ async function discoverCandidates(page) {
 }
 
 async function main() {
-  const registry = await readRegistry();
+  const restoreFile = process.argv.find((arg) => arg.startsWith("--restore="))?.slice("--restore=".length);
+  const registry = restoreFile
+    ? restoreDiscoveredSources(await readRegistry(), await readRegistry(restoreFile))
+    : await readRegistry();
   const force = process.argv.includes("--force");
   if (!shouldDiscover(registry, force)) {
+    await saveRegistry(registry);
     process.stdout.write("shop source discovery skipped: recent registry\n");
     return;
   }
