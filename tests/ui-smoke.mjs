@@ -49,6 +49,7 @@ try {
       assert.equal(await page.locator(".snapshotFacts").count(), 1);
       assert.equal(await page.getByText("최근 반영").isVisible(), true);
       assert.equal(await page.locator(".offerTitle").getAttribute("href"), payload.offers[0].sourceUrl);
+      const panelBeforeFilters = await page.locator(".toolPanel").boundingBox();
       await page.getByLabel("현재 목록 검색").fill("예가체프");
       assert.equal(await page.locator(".offerRow").count(), 1);
       await page.getByLabel("목록 검색어 지우기").click();
@@ -58,8 +59,36 @@ try {
       await page.getByRole("button", { name: "워시드" }).click();
       assert.equal(await page.locator(".filterBar").count(), 1);
       assert.equal(await page.locator(".filterBar select").nth(1).inputValue(), "워시드");
+      const panelAfterFilters = await page.locator(".toolPanel").boundingBox();
+      assert.ok(panelBeforeFilters && panelAfterFilters && Math.abs(panelBeforeFilters.height - panelAfterFilters.height) <= 1);
       const box = await page.locator(".offerRow").boundingBox();
       assert.ok(box && box.x >= 0 && box.x + box.width <= viewport.width + 1);
+      await page.close();
+    }
+
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      await page.goto(baseUrl);
+      await page.locator("#guide").scrollIntoViewIfNeeded();
+      const atlasBox = await page.locator(".originAtlas").boundingBox();
+      assert.ok(atlasBox && Math.abs(atlasBox.height - 793) <= 1);
+      assert.equal(await page.locator(".siteFooter a").count(), 0);
+      assert.equal(await page.getByRole("heading", { name: "산지별 커피 도감" }).isVisible(), true);
+      assert.equal(await page.locator(".originTab").count() > 10, true);
+      const firstImage = await page.locator(".originVisual > div").getAttribute("style");
+      await page.getByRole("button", { name: "콜롬비아", exact: true }).click();
+      assert.equal(await page.getByRole("heading", { name: "콜롬비아", exact: true }).isVisible(), true);
+      assert.notEqual(await page.locator(".originVisual > div").getAttribute("style"), firstImage);
+      await page.getByRole("button", { name: "잠비아", exact: true }).click();
+      assert.equal(await page.getByRole("heading", { name: "잠비아", exact: true }).isVisible(), true);
+      assert.equal(await page.getByRole("button", { name: "다음 산지 보기" }).isVisible(), true);
+      assert.equal(await page.locator(".footerInfoGrid section").count(), 6);
+      assert.equal(await page.locator(".footerClosing details").count(), 0);
+      assert.equal(await page.getByRole("heading", { name: "브라우저 저장" }).isVisible(), true);
+      await page.evaluate(() => window.scrollTo(0, document.querySelector("#guide").offsetTop));
+      await page.mouse.wheel(0, 550);
+      await page.waitForTimeout(900);
+      assert.ok(Math.abs(await page.locator(".footerClosing").evaluate((element) => element.getBoundingClientRect().top)) <= 1);
       await page.close();
     }
   } finally {
