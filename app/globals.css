@@ -1433,7 +1433,8 @@ button, select {
   box-shadow: 9px 9px 0 #80e4a5;
 }
 .originVisual {
-  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 36px;
   min-width: 0;
   min-height: 0;
   margin: 0;
@@ -1441,16 +1442,38 @@ button, select {
   border-right: 2px solid rgba(238, 242, 221, .72);
   background: #0d2116;
 }
-.originVisual > div {
-  position: absolute;
-  inset: 0;
+.originImage {
+  display: block;
   width: 100%;
   height: 100%;
-  min-height: 430px;
-  background-repeat: no-repeat;
-  background-size: 300% 300%;
+  min-height: 0;
+  object-fit: cover;
   animation: originImageIn .42s cubic-bezier(.16, 1, .3, 1) both;
 }
+.originPhotoControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-top: 1px solid rgba(238, 242, 221, .45);
+  background: #10281b;
+}
+.originPhotoControls button {
+  min-width: 34px;
+  height: 23px;
+  padding: 0 6px;
+  border: 1px solid #80e4a5;
+  border-radius: 3px;
+  background: transparent;
+  color: #80e4a5;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.originPhotoControls button:hover:not(:disabled) { background: #80e4a5; color: #10281b; }
+.originPhotoControls button:disabled { opacity: .3; cursor: default; }
+.originPhotoControls span { color: #d4dcc7; font-size: 9px; font-weight: 850; }
 .originProfile {
   display: flex;
   flex-direction: column;
@@ -1577,80 +1600,164 @@ button, select {
 .footerClosing {
   width: 100%;
   min-height: 100dvh;
-  border-top: 7px solid #80e4a5;
-  background: #17412c;
+  border-top: 7px solid #111b32;
+  background: #cbdcff;
+  color: #111b32;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 .footerClosingInner {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 24px;
+  gap: 12px;
   width: min(1240px, 100%);
   min-height: calc(100dvh - 7px);
   margin: 0 auto;
-  padding: clamp(32px, 5vw, 58px) 24px 24px;
+  padding: 24px 24px 12px;
 }
 .footerClosingHeader {
   display: grid;
-  grid-template-columns: minmax(300px, .8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr);
   align-items: end;
-  gap: 48px;
+  gap: 42px;
+  padding-bottom: 10px;
+  border-bottom: 5px solid #111b32;
 }
 .footerClosingHeader span {
-  color: #ffe560;
+  color: #1d4ed8;
   font-size: 12px;
   font-weight: 900;
 }
 .footerClosingHeader h2 {
-  margin: 7px 0 0;
-  color: #fffef8;
-  font-size: clamp(34px, 4vw, 52px);
+  margin: 4px 0 0;
+  color: #111b32;
+  font-size: clamp(34px, 3.5vw, 44px);
   font-weight: 900;
-  line-height: 1.05;
+  line-height: 1;
 }
 .footerClosingHeader p {
-  max-width: 52ch;
-  margin: 0 0 4px;
-  color: #d4dcc7;
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.6;
+  max-width: 58ch;
+  margin: 0 0 2px;
+  color: #24314e;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.55;
   word-break: keep-all;
 }
+.footerGuideBrowser {
+  display: grid;
+  min-height: 0;
+}
+.footerTopicTabs { display: none; }
 .footerInfoGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
   align-self: stretch;
-  gap: 10px;
+  min-height: 0;
+  background: #111b32;
+  border-bottom: 2px solid #111b32;
+}
+.footerGuidePanel { display: contents; }
+.footerGuideColumn {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  min-height: 0;
+  gap: 2px;
 }
 .footerInfoGrid section {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
   min-width: 0;
-  padding: 22px 20px;
-  border: 1px solid rgba(238, 242, 221, .34);
-  border-top: 4px solid #ffe560;
-  background: rgba(8, 29, 18, .28);
+  min-height: 0;
+  padding: 10px 18px 9px;
+  background: transparent;
 }
-.footerInfoGrid section:nth-child(even) {
-  border-top-color: #80e4a5;
-}
+.footerGuidePanel:nth-child(1) section:first-child { background: #dce7ff; }
+.footerGuidePanel:nth-child(1) section:last-child { background: #c2d3f5; }
+.footerGuidePanel:nth-child(2) section:first-child { background: #cbdcff; }
+.footerGuidePanel:nth-child(2) section:last-child { background: #e3ebff; }
+.footerGuidePanel:nth-child(3) section:first-child { background: #e8efff; }
+.footerGuidePanel:nth-child(3) section:last-child { background: #c9dafb; }
 .footerInfoGrid h3 {
   margin: 0;
-  color: #fffef8;
-  font-size: 18px;
+  color: #111b32;
+  font-size: 22px;
   font-weight: 900;
-}
-.footerInfoGrid p {
-  margin: 12px 0 0;
-  color: #d4dcc7;
-  font-size: 12px;
-  font-weight: 650;
-  line-height: 1.65;
   word-break: keep-all;
 }
-.footerClosing .siteFooterMeta {
-  padding-top: 16px;
+.footerInfoGrid p {
+  margin: 8px 0 0;
+  color: #24314e;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: keep-all;
 }
+.footerSectionContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: 0;
+  gap: 8px;
+}
+.footerSectionContent > p,
+.footerSectionContent > ul,
+.footerSectionContent > dl { margin-top: 0; }
+.footerInfoGrid strong { color: #1d4ed8; font-weight: 900; }
+.footerInfoGrid ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 9px;
+  gap: 3px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.footerInfoGrid li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  color: #24314e;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+.footerInfoGrid li::before { content: "+"; margin-right: 6px; color: #1d4ed8; font-weight: 950; }
+.priceEquation,
+.flavorIndex {
+  display: grid;
+  margin: 10px 0 0;
+  border-top: 1px solid #111b32;
+  border-bottom: 1px solid #111b32;
+  background: #eaf0ff;
+}
+.priceEquation { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.priceEquation div + div { border-left: 1px solid #111b32; }
+.priceEquation div,
+.flavorIndex div { padding: 6px 7px; }
+.priceEquation dt,
+.flavorIndex dt { color: #1d4ed8; font-size: 11.5px; font-weight: 950; }
+.priceEquation dd,
+.flavorIndex dd { margin: 2px 0 0; color: #111b32; font-size: 11.5px; font-weight: 800; }
+.priceEquation dt,
+.priceEquation dd,
+.flavorIndex dt,
+.flavorIndex dd { word-break: keep-all; }
+.flavorIndex { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.flavorIndex div + div { border-left: 1px solid #111b32; }
+.footerPolicyNote { padding-left: 9px; border-left: 3px solid #1d4ed8; }
+.footerClosing .siteFooterMeta {
+  color: #111b32;
+  padding-top: 0;
+  border-top: 0;
+}
+.footerClosing .siteFooterMeta > span,
+.footerClosing .siteFooterMeta small { color: #24314e; }
 
 @keyframes originImageIn {
   from { opacity: .35; transform: scale(1.05); }
@@ -1688,7 +1795,7 @@ button, select {
     box-shadow: 6px 6px 0 #80e4a5;
   }
   .originVisual { border-right: 0; border-bottom: 2px solid rgba(238, 242, 221, .72); }
-  .originVisual > div { min-height: 150px; }
+  .originPhotoControls { gap: 9px; }
   .originProfile { padding: 14px; }
   .originProfileHeading { padding-bottom: 9px; border-bottom-width: 3px; }
   .originProfileHeading h3 { font-size: 30px; }
@@ -1705,20 +1812,63 @@ button, select {
   .originControls button { min-width: 48px; min-height: 27px; font-size: 9px; }
   .originControls span { min-width: 38px; font-size: 9px; }
   .footerClosingInner {
-    gap: 12px;
-    padding: 22px 14px 12px;
+    gap: 10px;
+    padding: 15px 14px 9px;
   }
   .footerClosingHeader {
     grid-template-columns: 1fr;
-    gap: 7px;
+    gap: 4px;
+    padding-bottom: 8px;
+    border-bottom-width: 4px;
   }
-  .footerClosingHeader span { font-size: 9px; }
-  .footerClosingHeader h2 { margin-top: 3px; font-size: 29px; }
-  .footerClosingHeader h2 br { display: none; }
-  .footerClosingHeader p { max-width: none; font-size: 10px; line-height: 1.4; }
-  .footerInfoGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-  .footerInfoGrid section { padding: 11px 10px; border-top-width: 3px; }
-  .footerInfoGrid h3 { font-size: 13px; }
-  .footerInfoGrid p { margin-top: 6px; font-size: 9px; line-height: 1.45; }
-  .footerClosing .siteFooterMeta { padding-top: 8px; }
+  .footerClosingHeader span { font-size: 8px; }
+  .footerClosingHeader h2 { margin-top: 1px; font-size: 25px; }
+  .footerClosingHeader p { max-width: none; font-size: 9px; line-height: 1.35; }
+  .footerGuideBrowser { grid-template-rows: auto minmax(0, 1fr); gap: 7px; }
+  .footerTopicTabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .footerTopicTabs button {
+    min-height: 31px;
+    border: 2px solid #111b32;
+    border-radius: 3px;
+    background: transparent;
+    color: #111b32;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .footerTopicTabs button:hover { background: rgba(255, 255, 255, .35); }
+  .footerTopicTabs button[aria-selected="true"] { background: #111b32; color: #cbdcff; }
+  .footerInfoGrid { display: block; min-height: 0; border-bottom: 0; }
+  .footerGuidePanel { display: none; height: 100%; }
+  .footerGuidePanel[data-active="true"] { display: block; }
+  .footerGuideColumn {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    height: 100%;
+    border-bottom: 1px solid #111b32;
+  }
+  .footerGuidePanel + .footerGuidePanel .footerGuideColumn { border-left: 0; }
+  .footerInfoGrid section { padding: 14px 13px 12px; }
+  .footerGuideColumn section + section { border-top: 1px solid #111b32; }
+  .footerInfoGrid h3 { font-size: 18px; }
+  .footerSectionContent { gap: 7px; }
+  .footerInfoGrid p { margin-top: 6px; font-size: 11.5px; line-height: 1.45; }
+  .footerInfoGrid ul { gap: 2px; margin-top: 6px; }
+  .footerInfoGrid ul { grid-template-columns: 1fr; }
+  .footerInfoGrid li { font-size: 10.5px; line-height: 1.35; }
+  .priceEquation, .flavorIndex { margin-top: 7px; border-width: 1px; }
+  .flavorIndex { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flavorIndex div:nth-child(3) { border-left: 0; }
+  .flavorIndex div:nth-child(n + 3) { border-top: 1px solid #111b32; }
+  .priceEquation div, .flavorIndex div { padding: 5px 6px; }
+  .priceEquation dt, .flavorIndex dt, .priceEquation dd, .flavorIndex dd { font-size: 9.5px; }
+  .footerPolicyNote { padding-left: 5px; border-left-width: 2px; }
+  .footerClosing .siteFooterMeta { justify-content: center; font-size: 9px; }
+  .footerClosing .siteFooterMeta > span { display: none; }
+  .footerClosing .siteFooterMeta small { font-size: 8px; white-space: nowrap; }
 }

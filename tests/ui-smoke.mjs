@@ -75,20 +75,29 @@ try {
       assert.equal(await page.locator(".siteFooter a").count(), 0);
       assert.equal(await page.getByRole("heading", { name: "산지별 커피 도감" }).isVisible(), true);
       assert.equal(await page.locator(".originTab").count() > 10, true);
-      const firstImage = await page.locator(".originVisual > div").getAttribute("style");
+      const firstImage = await page.locator(".originImage").getAttribute("src");
+      assert.equal(await page.getByText("사진 1 / 3").isVisible(), true);
+      await page.getByRole("button", { name: "다음 사진" }).click();
+      assert.equal(await page.getByText("사진 2 / 3").isVisible(), true);
+      assert.notEqual(await page.locator(".originImage").getAttribute("src"), firstImage);
       await page.getByRole("button", { name: "콜롬비아", exact: true }).click();
       assert.equal(await page.getByRole("heading", { name: "콜롬비아", exact: true }).isVisible(), true);
-      assert.notEqual(await page.locator(".originVisual > div").getAttribute("style"), firstImage);
+      assert.notEqual(await page.locator(".originImage").getAttribute("src"), firstImage);
       await page.getByRole("button", { name: "잠비아", exact: true }).click();
       assert.equal(await page.getByRole("heading", { name: "잠비아", exact: true }).isVisible(), true);
       assert.equal(await page.getByRole("button", { name: "다음 산지 보기" }).isVisible(), true);
       assert.equal(await page.locator(".footerInfoGrid section").count(), 6);
       assert.equal(await page.locator(".footerClosing details").count(), 0);
-      assert.equal(await page.getByRole("heading", { name: "브라우저 저장" }).isVisible(), true);
       await page.evaluate(() => window.scrollTo(0, document.querySelector("#guide").offsetTop));
       await page.mouse.wheel(0, 550);
       await page.waitForTimeout(900);
       assert.ok(Math.abs(await page.locator(".footerClosing").evaluate((element) => element.getBoundingClientRect().top)) <= 1);
+      assert.equal(await page.getByRole("heading", { name: "커피 정보 읽는 법" }).isVisible(), true);
+      assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
+      await page.setViewportSize({ width: 390, height: 844 });
+      assert.equal(await page.locator(".footerInfoGrid section:visible").count(), 2);
+      await page.getByRole("tab", { name: "향미·평가" }).click();
+      assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
       await page.close();
     }
   } finally {

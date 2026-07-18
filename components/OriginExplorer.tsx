@@ -12,17 +12,22 @@ export type OriginGuide = {
   acidity: string;
   body: string;
   brew: string;
-  image: number;
+  images: number[];
 };
 
-export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; imageSrcs: [string, string] }) {
+export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; imageSrcs: string[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [photoIndex, setPhotoIndex] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = guides[activeIndex];
-  const selectRelative = (step: number) => setActiveIndex((activeIndex + step + guides.length) % guides.length);
-  const sheet = active.image < 9 ? 3 : 4;
-  const imageIndex = active.image < 9 ? active.image : active.image - 9;
-  const imagePosition = `${(imageIndex % sheet) * 100 / (sheet - 1)}% ${Math.floor(imageIndex / sheet) * 100 / (sheet - 1)}%`;
+  const activeImages = active.images;
+  const currentImage = imageSrcs[activeImages[photoIndex]];
+  const selectOrigin = (index: number) => {
+    setActiveIndex(index);
+    setPhotoIndex(0);
+  };
+  const selectRelative = (step: number) => selectOrigin((activeIndex + step + guides.length) % guides.length);
+  const selectPhotoRelative = (step: number) => setPhotoIndex((photoIndex + step + activeImages.length) % activeImages.length);
 
   useEffect(() => {
     tabRefs.current[activeIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
@@ -46,7 +51,7 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
               aria-pressed={index === activeIndex}
               className="originTab"
               key={guide.origin}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => selectOrigin(index)}
               ref={(element) => { tabRefs.current[index] = element; }}
               type="button"
             >
@@ -58,16 +63,23 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
       </div>
 
       <div className="originStage">
-        <figure className="originVisual" key={`image-${active.origin}`}>
-          <div
-            aria-label={`${active.origin} 커피 산지 이미지`}
-            role="img"
-            style={{
-              backgroundImage: `url('${active.image < 9 ? imageSrcs[0] : imageSrcs[1]}')`,
-              backgroundPosition: imagePosition,
-              backgroundSize: `${sheet * 100}% ${sheet * 100}%`,
-            }}
+        <figure className="originVisual" key={`image-${active.origin}-${photoIndex}`}>
+          <img
+            alt={`${active.origin} 커피 산지와 생산 과정`}
+            className="originImage"
+            height="418"
+            src={currentImage}
+            width="418"
           />
+          <div className="originPhotoControls">
+            <button aria-label="이전 사진" disabled={activeImages.length === 1} onClick={() => selectPhotoRelative(-1)} type="button">
+              이전
+            </button>
+            <span>사진 {photoIndex + 1} / {activeImages.length}</span>
+            <button aria-label="다음 사진" disabled={activeImages.length === 1} onClick={() => selectPhotoRelative(1)} type="button">
+              다음
+            </button>
+          </div>
         </figure>
 
         <article className="originProfile" key={active.origin} aria-live="polite">
