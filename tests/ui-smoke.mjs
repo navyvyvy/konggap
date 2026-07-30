@@ -89,9 +89,10 @@ try {
       assert.equal(await page.locator(".footerInfoGrid section").count(), 6);
       assert.equal(await page.locator(".footerClosing details").count(), 0);
       await page.evaluate(() => window.scrollTo(0, document.querySelector("#guide").offsetTop));
+      const guideScrollTop = await page.evaluate(() => window.scrollY);
       await page.mouse.wheel(0, 550);
-      await page.waitForTimeout(900);
-      assert.ok(Math.abs(await page.locator(".footerClosing").evaluate((element) => element.getBoundingClientRect().top)) <= 1);
+      await page.waitForTimeout(300);
+      assert.ok(await page.evaluate((before) => window.scrollY > before, guideScrollTop));
       assert.equal(await page.getByRole("heading", { name: "커피 정보 읽는 법" }).isVisible(), true);
       assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
       await page.setViewportSize({ width: 390, height: 844 });

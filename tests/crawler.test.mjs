@@ -10,6 +10,7 @@ import {
   mergeCoffeeInfo,
   parseOfferFromLines,
   parseDirectShopOffer,
+  prioritizeMissingCoffeeInfo,
 } from "../scripts/crawl-green-beans.mjs";
 
 test("production crawler keeps coffee grade in metadata keys", () => {
@@ -32,6 +33,19 @@ test("production crawler recognizes free Naver shipping", () => {
   assert.equal(offer?.shippingFee, 0);
 });
 
+test("production crawler accepts Naver prices split from the won label", () => {
+  const offer = parseOfferFromLines([
+    "에티오피아 예가체프 원두 1kg",
+    "18,000",
+    "원",
+    "배송비",
+    "3,000원",
+  ], "https://shopping.naver.com/v2/bridge/searchGate?nv_mid=2", "whole");
+
+  assert.equal(offer?.price, 18_000);
+  assert.equal(offer?.shippingFee, 3_000);
+});
+
 test("production crawler canonicalizes new GD5 shop links", () => {
   assert.equal(
     canonicalOfferUrl("https://www.1kgcoffee.co.kr/goods/goods_view.php?goodsNo=1000000729&utm_source=test"),
@@ -50,6 +64,17 @@ test("production crawler does not invent metadata from country alone", () => {
 test("coffee info merge accepts the first partial metadata result", () => {
   const info = { flavorTags: ["워시드"], roastTags: [], tasteNote: "시트러스", rawDescription: "워시드 시트러스" };
   assert.deepEqual(mergeCoffeeInfo("테스트", info, null), info);
+});
+
+test("coffee info searches rotate unresolved entries", () => {
+  const keys = prioritizeMissingCoffeeInfo({
+    recent: { lastSearchAt: "2026-07-30T12:00:00.000Z", flavorTags: [], roastTags: [], tasteNote: "" },
+    untried: null,
+    older: { lastSearchAt: "2026-07-29T12:00:00.000Z", flavorTags: [], roastTags: [], tasteNote: "" },
+    complete: { flavorTags: ["워시드"], roastTags: ["약배전"], tasteNote: "꽃향" },
+  });
+
+  assert.deepEqual(keys, ["untried", "older", "recent"]);
 });
 
 test("direct shop parser rejects navigation links with nearby prices", () => {

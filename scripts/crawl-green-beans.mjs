@@ -9,6 +9,7 @@ const MIN_DEFAULT_OFFERS = { green: 50, whole: 20 };
 const DATA_DIR = "data";
 const SHOP_SOURCE_FILE = "shop-sources.json";
 const MAX_SITE_SEARCH_SOURCES = 48;
+const DIRECT_SHOP_CONCURRENCY = 4;
 const MOBILE_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 const SHOP_SHIPPING_RULES = [
@@ -56,21 +57,8 @@ function sourceSupportsKind(source, productKind) {
   return Array.isArray(source.kinds) && source.kinds.includes(productKind);
 }
 
-function sourceSearchScope(source) {
-  try {
-    const parsed = new URL(source.url);
-    if (parsed.hostname === "smartstore.naver.com") {
-      const store = parsed.pathname.split("/").filter(Boolean)[0];
-      return store ? `smartstore.naver.com/${store}` : "";
-    }
-    return parsed.hostname.replace(/^(m|www)\./, "");
-  } catch {
-    return "";
-  }
-}
-
 function searchQueriesForSources(sources, productKind) {
-  const terms = productKind === "green" ? ["생두 1kg"] : ["원두", "홀빈 1kg"];
+  const terms = productKind === "green" ? ["생두 1kg"] : ["원두"];
   const sortSources = (items) => items
     .filter((source) => sourceSupportsKind(source, productKind))
     .sort((left, right) => Number(Boolean(right.direct)) - Number(Boolean(left.direct)) || (right.lastSeenAt ?? "").localeCompare(left.lastSeenAt ?? ""))
@@ -79,15 +67,7 @@ function searchQueriesForSources(sources, productKind) {
     .slice(0, Math.max(0, MAX_SITE_SEARCH_SOURCES - manual.length));
 
   return [...manual, ...discovered]
-    .flatMap((source) => {
-      const scope = sourceSearchScope(source);
-      return scope ? terms.map((term) => `site:${scope} ${term}`) : [];
-    });
-}
-
-function findShopSource(url, sources) {
-  const scope = sourceSearchScope({ url });
-  return sources.find((source) => sourceSearchScope(source) === scope) ?? null;
+    .flatMap((source) => terms.map((term) => `${source.seller} ${term}`));
 }
 
 function moneyLineToNumber(line) {
@@ -131,10 +111,6 @@ function cleanTitle(line) {
     .trim();
 }
 
-function isProductTitle(line) {
-  return isBuyableOffer(line, "naver", currentProductKind);
-}
-
 let currentProductKind = "green";
 
 function isBuyableOffer(title, source = "naver", productKind = "green") {
@@ -157,12 +133,13 @@ function isBlockedShoppingTitle(title, productKind) {
   return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
 }
 
-function parseOfferFromLines(lines, link) {
-  for (let index = 0; index < lines.length; index += 1) {
-    const title = cleanTitle(lines[index]);
-    if (!isProductTitle(title)) continue;
+function parseOfferFromLines(lines, link, productKind = currentProductKind) {
+  const normalizedLines = lines.map((line, index) => lines[index + 1] === "원" ? `${line}원` : line);
+  for (let index = 0; index < normalizedLines.length; index += 1) {
+    const title = cleanTitle(normalizedLines[index]);
+    if (!isBuyableOffer(title, "naver", productKind)) continue;
 
-    const next = lines.slice(index + 1, index + 12);
+    const next = normalizedLines.slice(index + 1, index + 12);
     const shippingIndex = next.findIndex((line) => line === "배송비");
     const priceScope = shippingIndex >= 0 ? next.slice(0, shippingIndex) : next;
     const price = priceScope.map(moneyLineToNumber).filter(Boolean).at(-1) ?? 0;
@@ -206,7 +183,7 @@ async function crawlNaver(page, query) {
   return dedupeOffers(offers);
 }
 
-async function collectNaverPageOffers(page) {
+async function collectNaverPageOffers(page, shop = null, productKind = currentProductKind) {
   const items = await page.evaluate(() => [...document.querySelectorAll("li")]
     .map((item) => {
       const lines = item.innerText.split("\n").map((line) => line.trim()).filter(Boolean);
@@ -221,23 +198,38 @@ async function collectNaverPageOffers(page) {
     })
     .filter((item) => item.link && item.titleCount === 1 && item.lines.some((line) => /원$/.test(line))));
 
-  return items.map((item) => parseOfferFromLines(item.lines, item.link)).filter(Boolean);
+  const sellerKey = shop ? normalizedSellerName(shop.seller) : "";
+  return items
+    .filter((item) => !sellerKey || normalizedSellerName(item.lines.filter((line) => !/\d+\s*(kg|g)/i.test(line)).join(" ")).includes(sellerKey))
+    .map((item) => parseOfferFromLines(item.lines, item.link, productKind))
+    .filter(Boolean)
+    .map((offer) => shop ? { ...offer, seller: shop.seller, source: "shop" } : offer);
+}
+
+function normalizedSellerName(value) {
+  const compact = value.toLowerCase().replace(/[^a-z0-9가-힣]/g, "");
+  const stripped = compact.replace(/커피|로스터리|로스터스|로스팅|팩토리|컴퍼니|공식|스토어/g, "");
+  return stripped.length >= 2 ? stripped : compact;
 }
 
 async function crawlSpecialtySites(page, browser, productKind, shopSources) {
   const offers = [];
   const errors = [];
+  const direct = await crawlDirectShopPages(browser, productKind, shopSources);
+  const directSellers = new Set(direct.offers.map((offer) => offer.seller));
+  const fallbackSources = shopSources.filter((source) => !source.direct || !directSellers.has(source.seller));
 
-  for (const query of searchQueriesForSources(shopSources, productKind)) {
-    await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, {
-      waitUntil: "domcontentloaded",
-      timeout: 30_000,
-    });
-    await page.waitForTimeout(1200);
-    offers.push(...(await collectSpecialtyPageOffers(page, productKind, shopSources)));
+  for (const source of fallbackSources) {
+    for (const query of searchQueriesForSources([source], productKind)) {
+      await page.goto(`https://m.search.naver.com/search.naver?query=${encodeURIComponent(query)}`, {
+        waitUntil: "domcontentloaded",
+        timeout: 30_000,
+      });
+      await page.waitForTimeout(1200);
+      offers.push(...(await collectNaverPageOffers(page, source, productKind)));
+    }
   }
 
-  const direct = await crawlDirectShopPages(browser, productKind, shopSources);
   errors.push(...direct.errors);
   return { offers: dedupeOffers([...direct.offers, ...offers]), errors };
 }
@@ -245,29 +237,34 @@ async function crawlSpecialtySites(page, browser, productKind, shopSources) {
 async function crawlDirectShopPages(browser, productKind, shopSources) {
   const offers = [];
   const errors = [];
+  const shops = shopSources.filter((shop) => shop.direct && sourceSupportsKind(shop, productKind));
 
-  for (const shop of shopSources) {
-    if (!shop.direct || !sourceSupportsKind(shop, productKind)) continue;
-    const shopPage = await browser.newPage(shop.desktop ? { locale: "ko-KR" } : { locale: "ko-KR", userAgent: MOBILE_UA });
-    let navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
-      .then(() => "")
-      .catch((error) => error.message);
-    if (navigationError) {
-      await shopPage.waitForTimeout(500);
-      navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+  for (let index = 0; index < shops.length; index += DIRECT_SHOP_CONCURRENCY) {
+    const results = await Promise.all(shops.slice(index, index + DIRECT_SHOP_CONCURRENCY).map(async (shop) => {
+      const shopPage = await browser.newPage(shop.desktop ? { locale: "ko-KR" } : { locale: "ko-KR", userAgent: MOBILE_UA });
+      let navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
         .then(() => "")
         .catch((error) => error.message);
-    }
-    if (navigationError) {
-      errors.push(`${shop.seller}: ${navigationError}`);
+      if (navigationError) {
+        await shopPage.waitForTimeout(500);
+        navigationError = await shopPage.goto(shop.url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+          .then(() => "")
+          .catch((error) => error.message);
+      }
+      if (navigationError) {
+        await shopPage.close();
+        return { offers: [], error: `${shop.seller}: ${navigationError}` };
+      }
+      await shopPage.waitForTimeout(1500);
+      const result = await collectDirectShopOffers(shopPage, shop, productKind);
       await shopPage.close();
-      continue;
+      return result;
+    }));
+
+    for (const result of results) {
+      offers.push(...result.offers);
+      if (result.error) errors.push(result.error);
     }
-    await shopPage.waitForTimeout(1500);
-    const result = await collectDirectShopOffers(shopPage, shop, productKind);
-    await shopPage.close();
-    offers.push(...result.offers);
-    if (result.error) errors.push(result.error);
   }
 
   return { offers, errors };
@@ -383,63 +380,11 @@ function isCoffeeProductName(title) {
   return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|허니|게이샤|게샤|블렌드|에스프레소|디카페인|파나마|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey|Geisha|Gesha|Blend|Espresso|Decaf|Panama)/i.test(title);
 }
 
-async function collectSpecialtyPageOffers(page, productKind, shopSources) {
-  const scopes = shopSources.filter((source) => sourceSupportsKind(source, productKind)).map(sourceSearchScope).filter(Boolean);
-  const items = await page.evaluate((allowedScopes) => [...document.querySelectorAll("a[href]")]
-    .map((anchor) => {
-      let container = anchor;
-      for (let index = 0; index < 4 && container.parentElement; index += 1) {
-        if (/(판매가|배송비|원)/.test(container.innerText || container.textContent || "")) break;
-        container = container.parentElement;
-      }
-
-      return {
-        title: (anchor.innerText || anchor.textContent || "").replace(/\s+/g, " ").trim(),
-        link: anchor.href,
-        lines: (container.innerText || container.textContent || "").split("\n").map((line) => line.trim()).filter(Boolean),
-      };
-    })
-    .filter((item) => {
-      try {
-        const parsed = new URL(item.link);
-        const host = parsed.hostname.replace(/^(m|www)\./, "");
-        const scope = host === "smartstore.naver.com" ? `${host}/${parsed.pathname.split("/").filter(Boolean)[0] ?? ""}` : host;
-        return allowedScopes.includes(scope) && /\d+\s*(kg|g)/i.test(item.title);
-      } catch {
-        return false;
-      }
-    }), scopes);
-
-  return items.map((item) => parseSpecialtyOffer(item, productKind, shopSources)).filter(Boolean);
-}
-
-function parseSpecialtyOffer(item, productKind, shopSources) {
-  const title = cleanTitle(item.title);
-  if (!isBuyableOffer(title, "shop", productKind)) return null;
-  if (/식품의 유형|배송비|판매가|www\.|›/.test(title)) return null;
-
-  const priceLine = item.lines.find((line) => /판매가\s*[:：]/.test(line)) ?? item.lines.find((line) => /^\d[\d,]*원/.test(line));
-  const price = moneyLineToNumber((priceLine ?? "").replace(/^.*판매가\s*[:：]\s*/, "").split(/[·;]/)[0].trim());
-  if (!price) return null;
-  const seller = sellerFromUrl(item.link, shopSources);
-  const shippingLine = item.lines.find((line) => /배송비/.test(line)) ?? "";
-  const parsedShippingFee = moneyLineToNumber(shippingLine.replace(/^.*배송비\s*[:：]\s*/, "").split(/[()·;]/)[0].trim());
-  const shippingFee = parsedShippingFee || (/무료/.test(shippingLine) ? 0 : inferShopShippingFee({ seller, link: item.link, price }));
-
-  return { title, link: item.link, price, shippingFee, seller, source: "shop" };
-}
-
 function inferShopShippingFee(item) {
   const target = `${item.seller ?? ""} ${item.link ?? ""}`;
   const rule = SHOP_SHIPPING_RULES.find((candidate) => candidate.test.test(target));
   if (!rule) return null;
   return rule.freeOver && item.price >= rule.freeOver ? 0 : rule.fee;
-}
-
-function sellerFromUrl(url, shopSources = []) {
-  const source = findShopSource(url, shopSources);
-  if (source?.seller) return source.seller;
-  return "전문몰";
 }
 
 async function enrichCoffeeInfo(offers, page) {
@@ -497,6 +442,7 @@ function mergeCoffeeInfo(key, primary, fallback) {
   if (!fallback) return primary;
   return {
     key,
+    lastSearchAt: primary.lastSearchAt || fallback.lastSearchAt,
     rawDescription: primary.rawDescription || fallback.rawDescription,
     flavorTags: [...new Set([...(primary.flavorTags ?? []), ...(fallback.flavorTags ?? [])])],
     roastTags: primary.roastTags?.length ? primary.roastTags : fallback.roastTags,
@@ -517,22 +463,32 @@ async function fillDetailCoffeeInfo(page, offers, info) {
     const detail = await fetchCoffeeDetailText(page, offer.link);
     if (!detail) continue;
     const metadata = buildCoffeeInfo(key, detail);
-    if (metadata.tasteNote || metadata.roastTags.length || metadata.flavorTags.length) info[key] = metadata;
-  }
-}
-
-async function fillSearchCoffeeInfo(page, info) {
-  const missing = Object.keys(info).filter((key) => !hasCompleteCoffeeInfo(info[key]));
-
-  // ponytail: 30 short lookups keep one crawl bounded; unresolved keys are retried by the next scheduled crawl.
-  for (const key of missing.slice(0, MAX_INFO_SEARCHES_PER_RUN)) {
-    const detail = await fetchCoffeeSearchText(page, key);
-    if (!detail) continue;
-    const metadata = buildCoffeeInfo(key, detail);
     if (metadata.tasteNote || metadata.roastTags.length || metadata.flavorTags.length) {
       info[key] = mergeCoffeeInfo(key, metadata, info[key]);
     }
   }
+}
+
+async function fillSearchCoffeeInfo(page, info) {
+  const missing = prioritizeMissingCoffeeInfo(info);
+
+  // ponytail: 30 short lookups keep one crawl bounded; oldest attempts rotate to the front on later runs.
+  for (const key of missing.slice(0, MAX_INFO_SEARCHES_PER_RUN)) {
+    const detail = await fetchCoffeeSearchText(page, key);
+    if (detail) {
+      const metadata = buildCoffeeInfo(key, detail);
+      if (metadata.tasteNote || metadata.roastTags.length || metadata.flavorTags.length) {
+        info[key] = mergeCoffeeInfo(key, metadata, info[key]);
+      }
+    }
+    info[key] = { key, rawDescription: "", flavorTags: [], roastTags: [], tasteNote: "", ...info[key], lastSearchAt: new Date().toISOString() };
+  }
+}
+
+function prioritizeMissingCoffeeInfo(info) {
+  return Object.keys(info)
+    .filter((key) => !hasCompleteCoffeeInfo(info[key]))
+    .sort((left, right) => (info[left]?.lastSearchAt ?? "").localeCompare(info[right]?.lastSearchAt ?? ""));
 }
 
 async function fetchCoffeeDetailText(page, link) {
@@ -779,7 +735,7 @@ function canonicalOfferUrl(url) {
     const parsed = new URL(url);
     const host = parsed.hostname.replace(/^(m|www)\./, "");
     const origin = `${parsed.protocol}//${host}`;
-    if (host === "smartstore.naver.com" && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
+    if (/^(smartstore|brand)\.naver\.com$/.test(host) && parsed.pathname.includes("/products/")) return `${origin}${parsed.pathname}`;
     if (host.endsWith("shopping.naver.com") && parsed.searchParams.has("nv_mid")) return `naver:nv_mid:${parsed.searchParams.get("nv_mid")}`;
     if (host === "coffeeplant.co.kr" && parsed.searchParams.has("idx")) return `${origin}/?idx=${parsed.searchParams.get("idx")}`;
     if ((host === "coffeelibre.kr" || host === "coffeecg.com") && parsed.searchParams.has("product_no")) return `${origin}${parsed.pathname}?product_no=${parsed.searchParams.get("product_no")}`;
@@ -862,6 +818,7 @@ export {
   canonicalOfferUrl,
   coffeeKey,
   collectDirectShopOffers,
+  collectNaverPageOffers,
   directShopPriceFromLines,
   dedupeOffers,
   findCommonCoffeeInfo,
@@ -871,6 +828,7 @@ export {
   mergeCoffeeInfo,
   parseDirectShopOffer,
   parseOfferFromLines,
+  prioritizeMissingCoffeeInfo,
   productKindFromQuery,
   searchQueriesForSources,
 };

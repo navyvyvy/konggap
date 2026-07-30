@@ -47,7 +47,17 @@ test("source registry generates site searches for the selected product kind", ()
     { url: "https://example.com/", seller: "생두몰", kinds: ["green"], direct: true },
   ], "whole");
 
-  assert.deepEqual(queries, ["site:smartstore.naver.com/new_roaster 원두", "site:smartstore.naver.com/new_roaster 홀빈 1kg"]);
+  assert.deepEqual(queries, ["새 로스터 원두"]);
+});
+
+test("shop fallback searches use the registered seller name", () => {
+  const queries = searchQueriesForSources([
+    { url: "https://brand.naver.com/momoscoffee", seller: "모모스", kinds: ["whole"], direct: true },
+    { url: "https://brand.naver.com/fritz", seller: "프릳츠", kinds: ["whole"], direct: true },
+  ], "whole");
+
+  assert.ok(queries.includes("모모스 원두"));
+  assert.ok(queries.includes("프릳츠 원두"));
 });
 
 test("source registry does not drop manual stores behind discovered stores", () => {
@@ -59,5 +69,5 @@ test("source registry does not drop manual stores behind discovered stores", () 
     { url: "https://manual.example.com/", seller: "수동 판매처", kinds: ["whole"], direct: false, origin: "manual" },
   ], "whole");
 
-  assert.ok(queries.includes("site:manual.example.com 원두"));
+  assert.ok(queries.includes("수동 판매처 원두"));
 });

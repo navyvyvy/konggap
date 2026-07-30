@@ -472,6 +472,736 @@
       "origin": "discovered",
       "discoveredAt": "2026-07-13T09:08:03.674Z",
       "lastSeenAt": "2026-07-13T09:09:49.635Z"
+    },
+    {
+      "id": "brand-momos",
+      "url": "https://brand.naver.com/momoscoffee",
+      "seller": "모모스커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-fritz",
+      "url": "https://brand.naver.com/fritz",
+      "seller": "프릳츠",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-terarosa",
+      "url": "https://brand.naver.com/terarosa",
+      "seller": "테라로사",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-namusairo",
+      "url": "https://smartstore.naver.com/namusairocoffee",
+      "seller": "나무사이로",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-rubia",
+      "url": "https://smartstore.naver.com/rubiacoffee",
+      "seller": "루비아",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "caffemuseo",
+      "url": "https://www.caffemuseo.co.kr/",
+      "seller": "카페뮤제오",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "bluebottle",
+      "url": "https://kr.bluebottlecoffee.com/",
+      "seller": "블루보틀",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "bonanza",
+      "url": "https://bonanzacoffee.kr/",
+      "seller": "보난자커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-sounds",
+      "url": "https://smartstore.naver.com/soundscoffee",
+      "seller": "사운즈커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-ruber",
+      "url": "https://smartstore.naver.com/ruberroastery",
+      "seller": "루베르로스터리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-undercrema",
+      "url": "https://smartstore.naver.com/undercrema",
+      "seller": "말릭커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-identity",
+      "url": "https://smartstore.naver.com/identity_coffeelab",
+      "seller": "아이덴티티커피랩",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-toch",
+      "url": "https://smartstore.naver.com/toch",
+      "seller": "토치커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-aery",
+      "url": "https://smartstore.naver.com/aerycoffee",
+      "seller": "에어리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "cospir",
+      "url": "https://www.cospir.com/",
+      "seller": "코스피어",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-centercoffee",
+      "url": "https://smartstore.naver.com/centercoffee",
+      "seller": "센터커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-clarimento",
+      "url": "https://smartstore.naver.com/clarimento",
+      "seller": "클라리멘토",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "deepbluelake",
+      "url": "https://www.deepbluelakecoffee.com/index.html",
+      "seller": "딥블루레이크",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffeehwa",
+      "url": "https://smartstore.naver.com/coffeehwa",
+      "seller": "커피화",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-hebe",
+      "url": "https://brand.naver.com/hebecoffee",
+      "seller": "헤베커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-signature",
+      "url": "https://smartstore.naver.com/signatureroasters",
+      "seller": "시그니처로스터스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffea",
+      "url": "https://smartstore.naver.com/coffeacoffee",
+      "seller": "코페아",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-haewol",
+      "url": "https://smartstore.naver.com/haewolcoffee",
+      "seller": "해월커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-connects",
+      "url": "https://smartstore.naver.com/connectscoffee",
+      "seller": "커넥츠커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-hyangmisa",
+      "url": "https://smartstore.naver.com/hyangmisa",
+      "seller": "향미사",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-trekkers",
+      "url": "https://smartstore.naver.com/trekkersbean",
+      "seller": "트레커스빈",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "alwaysaugust",
+      "url": "https://alwaysau8ust.co.kr/",
+      "seller": "올웨이즈어거스트",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-doan",
+      "url": "https://smartstore.naver.com/doanselectshop",
+      "seller": "도안",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-muusu",
+      "url": "https://smartstore.naver.com/muusu_coffee_roasters",
+      "seller": "무우수",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "homebaristashop",
+      "url": "https://www.homebaristashop.com/",
+      "seller": "홈바리스타클럽",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-hocuspocus",
+      "url": "https://smartstore.naver.com/hocuspocus_roasters",
+      "seller": "호커스포커스로스터리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-lowkey",
+      "url": "https://smartstore.naver.com/lowkeycoffee",
+      "seller": "로우키",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-hytte",
+      "url": "https://smartstore.naver.com/hytteroastery",
+      "seller": "히떼로스터리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-pilgrim",
+      "url": "https://smartstore.naver.com/pilgrimcoffeefactory",
+      "seller": "필그림커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-beanbrothers",
+      "url": "https://brand.naver.com/beanbrothers",
+      "seller": "빈브라더스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-alegria",
+      "url": "https://smartstore.naver.com/alegriacoffee",
+      "seller": "ACR 알레그리아",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffeeplace",
+      "url": "https://smartstore.naver.com/coffeeplace",
+      "seller": "커피플레이스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "blackroad",
+      "url": "https://www.blackroad.kr/shop",
+      "seller": "블랙로드",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-nodoubt",
+      "url": "https://smartstore.naver.com/nodoubt_coffee",
+      "seller": "노다웃커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-pastel",
+      "url": "https://smartstore.naver.com/pastelcoffee",
+      "seller": "파스텔커피웍스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-dpoint",
+      "url": "https://smartstore.naver.com/dpointcoffee",
+      "seller": "디포인트커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-felt",
+      "url": "https://smartstore.naver.com/feltcoffee",
+      "seller": "펠트커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "hellcafe",
+      "url": "https://hellcafe.co.kr/",
+      "seller": "헬카페",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-bohemian",
+      "url": "https://smartstore.naver.com/bohemiancoffee_official",
+      "seller": "강릉보헤미안",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-kook",
+      "url": "https://smartstore.naver.com/kookcoffeeroasters",
+      "seller": "쿡커피로스터즈",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-singlebatch",
+      "url": "https://smartstore.naver.com/singlebatch",
+      "seller": "싱글배치로스터스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-goutte",
+      "url": "https://smartstore.naver.com/gouttecoffee",
+      "seller": "구뜨커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-pasopaso",
+      "url": "https://smartstore.naver.com/pasopasocoffee",
+      "seller": "파소파소",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-stubbs",
+      "url": "https://smartstore.naver.com/stubbs_coffee",
+      "seller": "스텁스커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "abraham",
+      "url": "https://abrahamcoffee.com/",
+      "seller": "아브라함커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-roastology",
+      "url": "https://smartstore.naver.com/roastology",
+      "seller": "로스톨로지",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-bringout",
+      "url": "https://smartstore.naver.com/bringoutcoffee",
+      "seller": "브링아웃커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-undercoffee",
+      "url": "https://smartstore.naver.com/undercoffee",
+      "seller": "언더커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "spreadcoffee",
+      "url": "https://spredcoffee.imweb.me/",
+      "seller": "스프레드커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "lightcoffee",
+      "url": "https://www.light-coffee.co.kr/33",
+      "seller": "라이트커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-steamers",
+      "url": "https://smartstore.naver.com/steamers",
+      "seller": "스티머스커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-leshy",
+      "url": "https://smartstore.naver.com/leshycoffee",
+      "seller": "레쉬커피로스터스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-1pro",
+      "url": "https://brand.naver.com/1procoffee",
+      "seller": "일프로커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-dozo",
+      "url": "https://smartstore.naver.com/dozocoffee",
+      "seller": "도조커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-ogu",
+      "url": "https://smartstore.naver.com/ogu_roastery",
+      "seller": "오구커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffeecounty",
+      "url": "https://smartstore.naver.com/coffeecounty",
+      "seller": "커피카운티",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-linchpin",
+      "url": "https://smartstore.naver.com/linchpincoffeecompany",
+      "seller": "린치핀커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-lookemi",
+      "url": "https://smartstore.naver.com/lookemi",
+      "seller": "룩케미로스터스",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-jmd",
+      "url": "https://smartstore.naver.com/jmdcoffee",
+      "seller": "JMD커피팩토리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "brand-essentia",
+      "url": "https://brand.naver.com/essentia",
+      "seller": "에센티아",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "wondoobj",
+      "url": "https://wondoobj.com/",
+      "seller": "원두반점",
+      "kinds": [
+        "whole"
+      ],
+      "direct": true,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-tov",
+      "url": "https://smartstore.naver.com/tovstudio",
+      "seller": "토브공작소",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-smartcoffee",
+      "url": "https://smartstore.naver.com/smartcoffeefactory",
+      "seller": "스마트커피팩토리",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coffeevillain",
+      "url": "https://smartstore.naver.com/coffeevillain",
+      "seller": "커피빌런",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-coboccoffee",
+      "url": "https://smartstore.naver.com/coboccoffee",
+      "seller": "커피볶는집",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-doha",
+      "url": "https://smartstore.naver.com/doha_coffee_bean_",
+      "seller": "도하커피",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-waveon",
+      "url": "https://smartstore.naver.com/waveoncoffee",
+      "seller": "웨이브온",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
+    },
+    {
+      "id": "smartstore-goodies",
+      "url": "https://smartstore.naver.com/goodies7good",
+      "seller": "구디스로스팅",
+      "kinds": [
+        "whole"
+      ],
+      "direct": false,
+      "origin": "manual"
     }
   ]
 }

@@ -37,7 +37,6 @@ type TopBadge = {
   key: string;
   label: string;
   filter: "search" | "flavor" | "roast";
-  tone: string;
 };
 
 export function OfferRow({
@@ -53,10 +52,10 @@ export function OfferRow({
 }) {
   const sourceLabel = offer.source === "naver" ? "네이버" : "전문몰";
   const topBadges: TopBadge[] = [
-    { key: "seller", label: offer.seller, filter: "search", tone: "topBadgeTone0" },
-    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel, filter: "search" as const, tone: "topBadgeTone1" }] : []),
-    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag, filter: "flavor" as const, tone: "topBadgeTone4" })),
-    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag, filter: "roast" as const, tone: "topBadgeTone3" })),
+    { key: "seller", label: offer.seller, filter: "search" },
+    ...(sourceLabel !== offer.seller ? [{ key: "source", label: sourceLabel, filter: "search" as const }] : []),
+    ...offer.flavorTags.map((tag) => ({ key: `flavor-${tag}`, label: tag, filter: "flavor" as const })),
+    ...offer.roastTags.map((tag) => ({ key: `roast-${tag}`, label: tag, filter: "roast" as const })),
   ];
 
   return (
@@ -88,7 +87,7 @@ export function OfferRow({
           {topBadges.map((badge, index) => (
             <button
               type="button"
-              className={`offerMetaBadge ${badge.tone}`}
+              className={`offerMetaBadge topBadgeTone${index % 8}`}
               key={`${badge.key}-${index}`}
               onClick={(event) => {
                 event.stopPropagation();
