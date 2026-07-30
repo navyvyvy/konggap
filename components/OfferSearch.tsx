@@ -308,11 +308,12 @@ export function OfferSearch() {
   };
 
   return (
-    <main className="page">
+    <main className="page" id="prices">
       <header className="heroPanel">
         <div className="heroCopy">
           <h1>콩값장부</h1>
           <p>커피콩 최종가 모음</p>
+          <a className="heroTipsLink" href="#coffee-tips">커피 팁</a>
         </div>
         <div className="snapshotFacts" aria-label="현재 가격 요약">
           <span className="snapshotFact snapshotFactFresh"><small>최근 반영</small><strong>{fetchedAtCompactLabel || "-"}</strong></span>

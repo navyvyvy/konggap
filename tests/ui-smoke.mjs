@@ -47,6 +47,8 @@ try {
       await page.getByText(payload.offers[0].name).waitFor();
       assert.equal(await page.locator(".offerRow").count(), 1);
       assert.equal(await page.locator(".snapshotFacts").count(), 1);
+      assert.equal(await page.locator(".heroTipsLink").getAttribute("href"), "#coffee-tips");
+      assert.equal(await page.locator("#coffee-tips .brewTipsTabs button").count(), 5);
       assert.equal(await page.getByText("최근 반영").isVisible(), true);
       assert.equal(await page.locator(".offerTitle").getAttribute("href"), payload.offers[0].sourceUrl);
       const panelBeforeFilters = await page.locator(".toolPanel").boundingBox();
@@ -63,6 +65,32 @@ try {
       assert.ok(panelBeforeFilters && panelAfterFilters && Math.abs(panelBeforeFilters.height - panelAfterFilters.height) <= 1);
       const box = await page.locator(".offerRow").boundingBox();
       assert.ok(box && box.x >= 0 && box.x + box.width <= viewport.width + 1);
+      await page.close();
+    }
+
+    for (const viewport of [{ width: 320, height: 700 }, { width: 390, height: 844 }, { width: 768, height: 820 }]) {
+      const page = await browser.newPage({ viewport });
+      await page.route("**/api/offers?**", (route) => route.fulfill({ json: payload }));
+      await page.goto(`${baseUrl}/#coffee-tips`);
+      await page.getByText(payload.offers[0].name).waitFor();
+      await page.locator(".brewTips").scrollIntoViewIfNeeded();
+      for (const tab of ["원두·장비", "사전 세팅", "핫 레시피", "아이스", "맛 조절"]) {
+        await page.getByRole("tab", { name: tab, exact: true }).click();
+        const deckBox = await page.locator(".brewTips").boundingBox();
+        assert.ok(deckBox && Math.abs(deckBox.y) <= 2, `${viewport.width}px ${tab} 화면 정렬 (${deckBox?.y}px)`);
+        const layout = await page.locator(".brewSlideCopy").evaluate((element) => ({
+          horizontal: element.scrollWidth - element.clientWidth,
+          vertical: element.scrollHeight - element.clientHeight,
+        }));
+        assert.ok(layout.horizontal <= 1, `${viewport.width}px ${tab} 가로 넘침`);
+        assert.ok(layout.vertical <= 1, `${viewport.width}px ${tab} 세로 넘침`);
+        await page.locator(".brewSlideVisual img").evaluate((image) => image.complete ? undefined : new Promise((resolve, reject) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", reject, { once: true });
+        }));
+        assert.equal(await page.locator(".brewSlideVisual img").evaluate((image) => image.complete && image.naturalWidth > 0), true);
+      }
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), viewport.width);
       await page.close();
     }
 
@@ -99,6 +127,17 @@ try {
       assert.equal(await page.locator(".footerInfoGrid section:visible").count(), 2);
       await page.getByRole("tab", { name: "향미·평가" }).click();
       assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
+      for (const width of [320, 280]) {
+        await page.setViewportSize({ width, height: 700 });
+        for (const topic of ["등급·생두", "품종·이력", "향미·평가"]) {
+          await page.getByRole("tab", { name: topic }).click();
+          assert.equal(await page.locator(".footerGuidePanel[data-active=true] section").evaluateAll((sections) => sections.some((section) => section.scrollHeight > section.clientHeight + 1)), false);
+          assert.equal(await page.locator(".footerGuidePanel[data-active=true] dl").evaluateAll((tables) => tables.some((table) => table.scrollWidth > table.clientWidth + 1)), false);
+          assert.equal(await page.locator(".footerGuidePanel[data-active=true] dl > div").evaluateAll((rows) => rows.some((row) => getComputedStyle(row).gridTemplateColumns.split(" ").length > 1)), false);
+          assert.equal(await page.locator(".footerGuidePanel[data-active=true] dt, .footerGuidePanel[data-active=true] dd").evaluateAll((cells) => cells.some((cell) => cell.scrollWidth > cell.clientWidth + 1)), false);
+        }
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width);
+      }
       await page.close();
     }
   } finally {
