@@ -49,7 +49,7 @@ try {
       assert.equal(await page.locator(".offerRow").count(), 1);
       assert.equal(await page.locator(".snapshotFacts").count(), 1);
       assert.equal(await page.locator(".heroTipsLink").count(), 0);
-      assert.equal(await page.locator("#coffee-tips .brewTipsTabs button").count(), 5);
+      assert.equal(await page.locator("#coffee-tips .brewTipsTabs button").count(), 10);
       assert.equal(await page.getByText("최근 반영").isVisible(), true);
       assert.equal(await page.locator(".offerTitle").getAttribute("href"), payload.offers[0].sourceUrl);
       const panelBeforeFilters = await page.locator(".toolPanel").boundingBox();
@@ -75,7 +75,7 @@ try {
       await page.goto(`${baseUrl}/#coffee-tips`);
       await page.getByText(payload.offers[0].name).waitFor();
       await page.locator(".brewTips").scrollIntoViewIfNeeded();
-      for (const tab of ["원두·장비", "사전 세팅", "핫 레시피", "아이스", "맛 조절"]) {
+      for (const tab of ["원두 입문", "시기·보관", "저울·분쇄", "포트·드리퍼", "필터·잔", "추출 준비", "린싱", "핫", "아이스", "맛 조절"]) {
         await page.getByRole("tab", { name: tab, exact: true }).click();
         const deckBox = await page.locator(".brewTips").boundingBox();
         assert.ok(deckBox && Math.abs(deckBox.y) <= 2, `${viewport.width}px ${tab} 화면 정렬 (${deckBox?.y}px)`);
@@ -115,7 +115,7 @@ try {
       await page.getByRole("button", { name: "잠비아", exact: true }).click();
       assert.equal(await page.getByRole("heading", { name: "잠비아", exact: true }).isVisible(), true);
       assert.equal(await page.getByRole("button", { name: "다음 산지 보기" }).isVisible(), true);
-      assert.equal(await page.locator(".footerInfoGrid section").count(), 6);
+      assert.equal(await page.locator(".footerInfoGrid section").count(), 1);
       assert.equal(await page.locator(".footerClosing details").count(), 0);
       await page.evaluate(() => window.scrollTo(0, document.querySelector("#guide").offsetTop));
       const guideScrollTop = await page.evaluate(() => window.scrollY);
@@ -123,15 +123,23 @@ try {
       await page.waitForTimeout(300);
       assert.ok(await page.evaluate((before) => window.scrollY > before, guideScrollTop));
       assert.equal(await page.getByRole("heading", { name: "커피 정보 읽는 법" }).isVisible(), true);
+      await page.getByRole("button", { name: "다음 커피 정보" }).click();
+      assert.equal(await page.getByRole("heading", { name: "스크린·수분·결점" }).isVisible(), true);
+      await page.getByRole("tab", { name: "향미" }).click();
       assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
       await page.setViewportSize({ width: 390, height: 844 });
-      assert.equal(await page.locator(".footerInfoGrid section:visible").count(), 2);
-      await page.getByRole("tab", { name: "향미·평가" }).click();
+      assert.equal(await page.locator(".footerInfoGrid section").count(), 1);
+      await page.getByRole("tab", { name: "향미" }).click();
       assert.equal(await page.getByRole("heading", { name: "향미와 컵 평가" }).isVisible(), true);
       for (const width of [320, 280]) {
         await page.setViewportSize({ width, height: 700 });
-        for (const topic of ["등급·생두", "품종·이력", "향미·평가"]) {
-          await page.getByRole("tab", { name: topic }).click();
+        for (const topic of ["등급", "생두", "품종", "가공", "이력", "향미"]) {
+          await page.locator(".footerTopicTabs").getByRole("tab", { name: topic, exact: true }).click();
+          await page.locator(".footerGuideVisual img").evaluate((image) => image.complete ? undefined : new Promise((resolve, reject) => {
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", reject, { once: true });
+          }));
+          assert.equal(await page.locator(".footerGuideVisual img").evaluate((image) => image.complete && image.naturalWidth > 0), true);
           assert.equal(await page.locator(".footerGuidePanel[data-active=true] section").evaluateAll((sections) => sections.some((section) => section.scrollHeight > section.clientHeight + 1)), false);
           assert.equal(await page.locator(".footerGuidePanel[data-active=true] dl").evaluateAll((tables) => tables.some((table) => table.scrollWidth > table.clientWidth + 1)), false);
           assert.equal(await page.locator(".footerGuidePanel[data-active=true] dl > div").evaluateAll((rows) => rows.some((row) => getComputedStyle(row).gridTemplateColumns.split(" ").length > 1)), false);

@@ -18,6 +18,8 @@ export type OriginGuide = {
 export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; imageSrcs: string[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = guides[activeIndex];
@@ -37,8 +39,16 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
     tabs.scrollTo({ left: tab.offsetLeft - (tabs.clientWidth - tab.clientWidth) / 2, behavior: "smooth" });
   }, [activeIndex]);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.12 });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="originAtlas" aria-labelledby="origin-atlas-title">
+    <section className={`originAtlas${visible ? " isVisible" : ""}`} aria-labelledby="origin-atlas-title" ref={sectionRef}>
       <header className="originAtlasHeader">
         <div>
           <span>791개 원두 기록으로 정리한</span>
