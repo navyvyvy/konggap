@@ -18,6 +18,7 @@ export type OriginGuide = {
 export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; imageSrcs: string[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const tabsRef = useRef<HTMLElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const active = guides[activeIndex];
   const activeImages = active.images;
@@ -30,7 +31,10 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
   const selectPhotoRelative = (step: number) => setPhotoIndex((photoIndex + step + activeImages.length) % activeImages.length);
 
   useEffect(() => {
-    tabRefs.current[activeIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    const tabs = tabsRef.current;
+    const tab = tabRefs.current[activeIndex];
+    if (!tabs || !tab) return;
+    tabs.scrollTo({ left: tab.offsetLeft - (tabs.clientWidth - tab.clientWidth) / 2, behavior: "smooth" });
   }, [activeIndex]);
 
   return (
@@ -45,7 +49,7 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
 
       <div className="originTabBar">
         <button className="originTabStep" aria-label="이전 산지 보기" onClick={() => selectRelative(-1)} type="button">이전</button>
-        <nav className="originTabs" aria-label="커피 산지 선택">
+        <nav className="originTabs" aria-label="커피 산지 선택" ref={tabsRef}>
           {guides.map((guide, index) => (
             <button
               aria-pressed={index === activeIndex}

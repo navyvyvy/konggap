@@ -45,9 +45,10 @@ try {
       await page.route("**/api/offers?**", (route) => route.fulfill({ json: payload }));
       await page.goto(baseUrl);
       await page.getByText(payload.offers[0].name).waitFor();
+      assert.equal(await page.evaluate(() => window.scrollY), 0);
       assert.equal(await page.locator(".offerRow").count(), 1);
       assert.equal(await page.locator(".snapshotFacts").count(), 1);
-      assert.equal(await page.locator(".heroTipsLink").getAttribute("href"), "#coffee-tips");
+      assert.equal(await page.locator(".heroTipsLink").count(), 0);
       assert.equal(await page.locator("#coffee-tips .brewTipsTabs button").count(), 5);
       assert.equal(await page.getByText("최근 반영").isVisible(), true);
       assert.equal(await page.locator(".offerTitle").getAttribute("href"), payload.offers[0].sourceUrl);
@@ -138,6 +139,14 @@ try {
         }
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), width);
       }
+      await page.setViewportSize({ width: 320, height: 700 });
+      await page.getByRole("button", { name: "에티오피아", exact: true }).click();
+      const originLayout = await page.locator(".originProfile").evaluate((profile) => ({
+        horizontal: profile.scrollWidth - profile.clientWidth,
+        vertical: profile.scrollHeight - profile.clientHeight,
+      }));
+      assert.ok(originLayout.horizontal <= 1, "320px 산지 정보 가로 넘침");
+      assert.ok(originLayout.vertical <= 1, "320px 산지 정보 세로 넘침");
       await page.close();
     }
   } finally {

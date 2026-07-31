@@ -23,8 +23,9 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: Arial, "Malgun Gothic", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   font-size: 14px;
+  text-rendering: optimizeLegibility;
 }
 a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; }
@@ -33,7 +34,11 @@ button, select {
 }
 
 .page {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
   max-width: 1240px;
+  height: 100dvh;
   min-height: 100dvh;
   margin: 0 auto;
   padding: 12px 18px 18px;
@@ -83,7 +88,7 @@ button, select {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
   border: 3px solid var(--edge);
   border-radius: 4px;
   box-shadow: 5px 5px 0 var(--edge);
@@ -128,19 +133,6 @@ button, select {
   font-weight: 750;
   text-wrap: pretty;
 }
-.heroTipsLink {
-  align-self: center;
-  margin-left: 2px;
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 2px 2px 0 var(--edge);
-  background: #ffe560;
-  padding: 4px 8px;
-  color: var(--edge);
-  font-size: 12px;
-  font-weight: 900;
-}
-.heroTipsLink:hover { background: #fff0a3; }
 .snapshotFacts {
   display: flex;
   align-items: stretch;
@@ -248,7 +240,7 @@ button, select {
   box-shadow: 2px 2px 0 var(--edge);
 }
 .toolPanel {
-  height: calc(100dvh - 118px);
+  min-height: 0;
   border: 3px solid var(--edge);
   border-radius: 4px;
   box-shadow: 5px 5px 0 var(--edge);
@@ -1031,7 +1023,7 @@ button, select {
   }
   .snapshotFact small,
   .snapshotFavorite small {
-    font-size: 9px;
+    font-size: 10px;
   }
   .snapshotFact strong,
   .snapshotFavorite strong {
@@ -1054,7 +1046,8 @@ button, select {
     font-size: 10px;
   }
   .toolPanel {
-    height: calc(100dvh - 129px);
+    height: auto;
+    min-height: 0;
     padding: 8px 0;
     border: 0;
     background: var(--surface);
@@ -1070,7 +1063,7 @@ button, select {
     padding-top: 10px;
   }
   .siteFooterMeta small {
-    font-size: 9px;
+    font-size: 10px;
     text-align: right;
   }
   .workspaceGrid {
@@ -1295,14 +1288,14 @@ button, select {
   .sectionTools select {
     width: 78px;
     padding-right: 10px;
-    font-size: 9px;
+    font-size: 10px;
     background-position:
       calc(100% - 7px) 50%,
       calc(100% - 3px) 50%;
   }
   .toolButton {
     padding: 2px 3px;
-    font-size: 9px;
+    font-size: 10px;
   }
   .toolButton .buttonIcon {
     display: none;
@@ -1765,28 +1758,31 @@ button, select {
 
 @media (max-width: 720px) {
   .originAtlas {
+    grid-template-rows: auto auto auto;
     gap: 9px;
+    height: auto;
+    min-height: calc(100dvh - 5px);
     padding: 14px;
   }
   .originAtlasHeader {
     align-items: start;
     gap: 10px;
   }
-  .originAtlasHeader span { font-size: 9px; }
+  .originAtlasHeader span { font-size: 10px; }
   .originAtlasHeader h2 { font-size: 28px; }
   .originAtlasHeader p {
     max-width: 18ch;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.35;
     text-align: right;
   }
   .originTabs { gap: 4px; padding-bottom: 5px; }
   .originTabBar { gap: 4px; }
-  .originTabStep { min-width: 38px; min-height: 27px; font-size: 8px; }
-  .originTab { min-height: 27px; padding: 3px 8px; font-size: 10px; }
+  .originTabStep { min-width: 42px; min-height: 30px; font-size: 10px; }
+  .originTab { min-height: 30px; padding: 4px 9px; font-size: 11px; }
   .originStage {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(180px, 34dvh) minmax(0, 1fr);
+    grid-template-rows: minmax(170px, 28dvh) auto;
     box-shadow: 6px 6px 0 #80e4a5;
   }
   .originVisual { border-right: 0; border-bottom: 2px solid rgba(238, 242, 221, .72); }
@@ -1794,18 +1790,24 @@ button, select {
   .originProfile { padding: 14px; }
   .originProfileHeading { padding-bottom: 9px; border-bottom-width: 3px; }
   .originProfileHeading h3 { font-size: 30px; }
-  .originProfileHeading > strong { max-width: 15ch; font-size: 9px; }
+  .originProfileHeading > strong { max-width: 18ch; font-size: 11px; }
   .originDescription { margin-top: 10px; font-size: 13px; line-height: 1.45; }
   .originTraits { margin-top: 11px; padding-inline: 8px; }
   .originTraits > div { padding: 7px 6px 7px 0; }
   .originTraits > div + div { padding-left: 6px; }
-  .originTraits dt, .originProfileMeta span { font-size: 8px; }
-  .originTraits dd { font-size: 10px; }
+  .originTraits dt, .originProfileMeta span { font-size: 10px; }
+  .originTraits dd { font-size: 12px; }
   .originProfileMeta { gap: 8px; margin-top: 9px; }
-  .originProfileMeta strong { margin-top: 2px; font-size: 9px; }
+  .originProfileMeta strong {
+    margin-top: 2px;
+    font-size: 11px;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
   .originControls { gap: 6px; padding-top: 9px; }
-  .originControls button { min-width: 48px; min-height: 27px; font-size: 9px; }
-  .originControls span { min-width: 38px; font-size: 9px; }
+  .originControls button { min-width: 52px; min-height: 30px; font-size: 10px; }
+  .originControls span { min-width: 42px; font-size: 10px; }
   .footerClosingInner {
     grid-template-rows: auto auto auto;
     gap: 10px;
@@ -2250,7 +2252,6 @@ button, select {
 .adjustNote a:hover { background: #a7f0c1; }
 
 @media (max-width: 760px) {
-  .heroTipsLink { padding: 3px 6px; font-size: 10px; }
   .tipsPage { padding: 10px 14px 24px; }
   .tipsHero, .tipsSection { box-shadow: 4px 4px 0 var(--edge); }
   .tipsHeroGrid { grid-template-columns: 1fr; min-height: 0; }
