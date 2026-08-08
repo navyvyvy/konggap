@@ -37,13 +37,18 @@ jobs:
           curl -fsSL https://navyvyvy.github.io/konggap/data/latest-offers-whole.json -o data/latest-offers-whole.json || true
           curl -fsSL https://navyvyvy.github.io/konggap/data/coffee-info.json -o data/coffee-info.json || true
           curl -fsSL https://navyvyvy.github.io/konggap/data/shop-sources.json -o data/previous-shop-sources.json || true
-      - run: node scripts/crawl-mungstery-beans.mjs
+          if curl -fsSL https://navyvyvy.github.io/konggap/data/mungmung-beans.json -o data/mungmung-beans.remote.json; then
+            mv data/mungmung-beans.remote.json data/mungmung-beans.json
+          else
+            rm -f data/mungmung-beans.remote.json
+          fi
+      - run: node scripts/crawl-mungmung-beans.mjs
       - run: node scripts/discover-shop-sources.mjs --restore=previous-shop-sources.json
       - run: node scripts/crawl-green-beans.mjs "생두"
       - run: node scripts/crawl-green-beans.mjs "원두"
       - run: |
           mkdir -p public/data
-          cp data/latest-offers.json data/latest-offers-whole.json data/coffee-info.json data/mungstery-beans.json data/shop-sources.json public/data/
+          cp data/latest-offers.json data/latest-offers-whole.json data/coffee-info.json data/mungmung-beans.json data/shop-sources.json public/data/
       - run: rm -rf app/api
 
       - name: Deploy to Vercel

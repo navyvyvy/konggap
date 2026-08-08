@@ -389,15 +389,15 @@ function inferShopShippingFee(item) {
 
 async function enrichCoffeeInfo(offers, page) {
   const manualPresets = await readManualCoffeePresets();
-  const mungsteryBeans = await readMungsteryBeans();
+  const mungmungBeans = await readMungmungBeans();
   const savedInfo = await readJson("coffee-info.json", {});
   const info = {};
   const keys = [...new Set(offers.map((offer) => coffeeKey(offer.title)).filter(Boolean))];
 
   for (const key of keys) {
     const manualInfo = findManualCoffeeInfo(key, manualPresets);
-    const mungsteryInfo = findMungsteryCoffeeInfo(key, mungsteryBeans);
-    info[key] = [savedInfo[key], manualInfo, mungsteryInfo]
+    const mungmungInfo = findMungmungCoffeeInfo(key, mungmungBeans);
+    info[key] = [savedInfo[key], manualInfo, mungmungInfo]
       .filter(Boolean)
       .reduce((merged, candidate) => mergeCoffeeInfo(key, candidate, merged), null);
   }
@@ -416,8 +416,8 @@ async function readManualCoffeePresets() {
   return readJson("coffee-manual-presets.json", {});
 }
 
-async function readMungsteryBeans() {
-  const data = await readJson("mungstery-beans.json", { beans: [] });
+async function readMungmungBeans() {
+  const data = await readJson("mungmung-beans.json", { beans: [] });
   return Array.isArray(data.beans) ? data.beans : [];
 }
 
@@ -526,14 +526,14 @@ async function fetchCoffeeSearchText(page, key) {
   }).catch(() => "");
 }
 
-function findMungsteryCoffeeInfo(key, beans) {
+function findMungmungCoffeeInfo(key, beans) {
   const keyTokens = coffeeTokens(key);
   if (keyTokens.length < 2) return null;
 
   const match = beans
     .map((bean) => ({ bean, tokens: coffeeTokens(bean.name) }))
     .map((item) => ({ ...item, shared: keyTokens.filter((token) => item.tokens.includes(token)) }))
-    .filter((item) => isMungsteryMatch(item.shared))
+    .filter((item) => isMungmungMatch(item.shared))
     .sort((left, right) => right.shared.length - left.shared.length || left.tokens.length - right.tokens.length)[0];
 
   if (!match) return null;
@@ -591,7 +591,7 @@ function findCommonCoffeeInfo(key) {
   };
 }
 
-function isMungsteryMatch(sharedTokens) {
+function isMungmungMatch(sharedTokens) {
   const namedTokens = sharedTokens.filter((token) => !isCountryToken(token) && !isProcessToken(token) && !isGenericCoffeeToken(token));
   return sharedTokens.length >= 3 && (sharedTokens.some(isCountryToken) || sharedTokens.some(isProcessToken)) && namedTokens.length > 0;
 }

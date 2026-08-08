@@ -10,6 +10,6 @@ preview-server*.log
 next-dev*.log
 ui-*.png
 data/*.json
-!data/mungstery-beans.json
+!data/mungmung-beans.json
 !data/coffee-manual-presets.json
 brainstorm-*.html

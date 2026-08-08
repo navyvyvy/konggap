@@ -1,4 +1,4 @@
-import coffeeData from "../data/mungstery-beans.json";
+import coffeeData from "../data/mungmung-beans.json";
 import { GuideOverview } from "./GuideOverview";
 import { OriginExplorer, type OriginGuide } from "./OriginExplorer";
 import { originImages } from "./originImages";
@@ -66,7 +66,7 @@ function buildOriginGuides(): OriginGuide[] {
 export function SiteFooter() {
   return (
     <footer className="siteFooter" id="guide">
-      <OriginExplorer guides={buildOriginGuides()} imageSrcs={originImages} />
+      <OriginExplorer guides={buildOriginGuides()} imageSrcs={originImages} recordCount={coffeeData.count} />
       <div className="footerClosing" id="data">
         <div className="footerClosingInner">
           <header className="footerClosingHeader">

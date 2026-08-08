@@ -15,7 +15,7 @@ export type OriginGuide = {
   images: number[];
 };
 
-export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; imageSrcs: string[] }) {
+export function OriginExplorer({ guides, imageSrcs, recordCount }: { guides: OriginGuide[]; imageSrcs: string[]; recordCount: number }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -51,7 +51,7 @@ export function OriginExplorer({ guides, imageSrcs }: { guides: OriginGuide[]; i
     <section className={`originAtlas${visible ? " isVisible" : ""}`} aria-labelledby="origin-atlas-title" ref={sectionRef}>
       <header className="originAtlasHeader">
         <div>
-          <span>791개 원두 기록으로 정리한</span>
+          <span>{recordCount}개 원두 기록으로 정리한</span>
           <h2 id="origin-atlas-title">산지별 커피 도감</h2>
         </div>
         <p>산지를 골라 맛의 성격과 어울리는 추출법을 확인하세요.</p>
