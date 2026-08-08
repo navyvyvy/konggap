@@ -54,13 +54,27 @@ jobs:
       - name: Deploy to Vercel
         run: |
           npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
-          npx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          npm run build
+          rm -rf .vercel/output
+          mkdir -p .vercel/output/static
+          cp -R out/. .vercel/output/static/
+          printf '%s\n' '{"version":3,"routes":[{"src":"^/$","dest":"/index.html"},{"handle":"filesystem"}]}' > .vercel/output/config.json
           npx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           NEXT_PUBLIC_STATIC_EXPORT: "1"
+
+      - name: Verify Vercel deployment
+        run: |
+          for attempt in {1..10}; do
+            if curl -fsSL https://konggap.vercel.app/ > /dev/null && curl -fsSL https://konggap.vercel.app/data/mungmung-beans.json > /dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
 
       - run: npm run build
         env:
