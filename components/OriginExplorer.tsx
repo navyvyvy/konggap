@@ -12,6 +12,8 @@ export type OriginGuide = {
   acidity: string;
   body: string;
   brew: string;
+  process: string;
+  keywords: string[];
   images: number[];
 };
 
@@ -114,6 +116,11 @@ export function OriginExplorer({ guides, imageSrcs, recordCount }: { guides: Ori
             <p><span>기록상 주요 배전</span><strong>{active.roast}</strong></p>
             <p><span>원두 예시</span><strong>{active.example}</strong></p>
           </div>
+          <dl className="originSignals">
+            <div><dt>대표 가공</dt><dd>{active.process}</dd></div>
+            <div><dt>자주 등장한 향미</dt><dd>{active.notes.slice(0, 3).join(" · ") || "기록 준비 중"}</dd></div>
+            <div><dt>상품명에서 찾을 말</dt><dd>{active.keywords.join(" · ")}</dd></div>
+          </dl>
           <div className="originControls">
             <button aria-label="이전 산지" onClick={() => selectRelative(-1)} type="button">이전</button>
             <span>{activeIndex + 1} / {guides.length}</span>

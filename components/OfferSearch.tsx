@@ -96,7 +96,7 @@ function LoadingRows({ elapsedSeconds }: { elapsedSeconds: number }) {
         <span>{elapsedSeconds}초 경과 · {step}</span>
       </div>
       <div className="offerList loadingList">
-        {Array.from({ length: 4 }, (_, index) => (
+        {Array.from({ length: 8 }, (_, index) => (
           <div className="loadingRow" key={index}>
             <div>
               <span className="skeleton skeletonMeta" />
@@ -314,9 +314,15 @@ export function OfferSearch() {
           <h1>콩값장부</h1>
           <p>커피콩 최종가 모음</p>
         </div>
+        <nav className="heroSectionNav" aria-label="페이지 바로가기">
+          <a href="#prices" aria-current="page">가격표</a>
+          <a href="#guide">산지</a>
+          <a href="#data">읽는 법</a>
+          <a href="#coffee-tips">입문 노트</a>
+        </nav>
         <div className="snapshotFacts" aria-label="현재 가격 요약">
-          <span className="snapshotFact snapshotFactFresh"><small>최근 반영</small><strong>{fetchedAtCompactLabel || "-"}</strong></span>
-          <span className="snapshotFact snapshotFactLowest"><small>{PRODUCT_LABELS[activeProduct].label} 최저가</small><strong>{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "-"}</strong></span>
+          <span className="snapshotFact snapshotFactFresh"><small>최근 반영</small><strong className={fetchedAtCompactLabel ? "" : "summarySkeleton"}>{fetchedAtCompactLabel || "불러오는 중"}</strong></span>
+          <span className="snapshotFact snapshotFactLowest"><small>{PRODUCT_LABELS[activeProduct].label} 최저가</small><strong className={summary.lowestFinalPrice ? "" : "summarySkeleton"}>{summary.lowestFinalPrice ? formatWon(summary.lowestFinalPrice) : "확인 중"}</strong></span>
           <UiButton
             className="snapshotFavorite"
             variant="plain"
@@ -483,7 +489,7 @@ export function OfferSearch() {
               {isRefreshing ? (
                 <LoadingRows elapsedSeconds={elapsedSeconds} />
               ) : filteredOffers.length ? (
-                <div className="offerList scrollList" ref={listRef}>
+                <div className="offerList scrollList" key={`${activeProduct}-${fetchedAt}`} ref={listRef}>
                   {visibleOffers.map((offer) => (
                     <OfferRow
                       key={offer.id}

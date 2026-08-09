@@ -65,6 +65,7 @@ function PourRows({ rows }: { rows: string[][] }) {
 
 export function CoffeeTips() {
   const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState<"next" | "previous">("next");
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const tabListRef = useRef<HTMLElement>(null);
@@ -92,10 +93,12 @@ export function CoffeeTips() {
   };
   const move = (offset: number) => {
     alignDeck();
+    setDirection(offset > 0 ? "next" : "previous");
     setActive((current) => (current + offset + tabs.length) % tabs.length);
   };
   const selectSlide = (index: number) => {
     alignDeck();
+    setDirection(index >= active ? "next" : "previous");
     setActive(index);
   };
   const onPointerUp = (event: React.PointerEvent) => {
@@ -178,7 +181,7 @@ export function CoffeeTips() {
             {tabs.map((tab, index) => <button aria-controls="brew-tip-panel" aria-label={tab} aria-selected={active === index} id={`brew-tip-${index}`} key={tab} onClick={() => selectSlide(index)} ref={(element) => { tabRefs.current[index] = element; }} role="tab" type="button"><b>{String(index + 1).padStart(2, "0")}</b><span>{tab}</span></button>)}
           </nav>
         </header>
-        <article className="brewSlide" id="brew-tip-panel" key={active} role="tabpanel" aria-labelledby={`brew-tip-${active}`}>
+        <article className="brewSlide" data-direction={direction} id="brew-tip-panel" key={active} role="tabpanel" aria-labelledby={`brew-tip-${active}`}>
           <figure className="brewSlideVisual"><img src={`/tips/${slideImages[active]}`} alt={slideAlts[active]} /></figure>
           <div className="brewSlideCopy">{slide}</div>
         </article>

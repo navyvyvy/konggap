@@ -34,33 +34,53 @@ const profiles: Record<string, Pick<OriginGuide, "description" | "acidity" | "bo
   잠비아: { description: "다크 초콜릿과 견과, 은은한 향신료가 중심인 차분한 커피입니다. 산미보다 단맛과 질감이 앞서며 진한 추출에 잘 어울립니다.", acidity: "낮고 차분함", body: "중간 이상", brew: "에스프레소, 프렌치프레스", images: [24] },
 };
 
+const processPatterns = [
+  ["무산소 발효", /무산소|아나에로빅|anaerobic/i],
+  ["웻헐", /웻헐|wet[ -]?hulled|giling basah/i],
+  ["워시드", /워시드|washed/i],
+  ["내추럴", /내추럴|natural/i],
+  ["허니", /허니|honey/i],
+] as const;
+
+function findProcesses(text: string) {
+  return processPatterns.filter(([, pattern]) => pattern.test(text)).map(([label]) => label);
+}
+
 function normalizeOrigin(origin: string) {
   const trimmed = origin.trim();
   return originAliases[trimmed.toLowerCase()] ?? originAliases[trimmed] ?? trimmed;
 }
 
 function buildOriginGuides(): OriginGuide[] {
-  const groups = new Map<string, { count: number; examples: string[]; notes: Map<string, number>; roasts: Map<string, number> }>();
+  const groups = new Map<string, { count: number; examples: string[]; notes: Map<string, number>; roasts: Map<string, number>; processes: Map<string, number> }>();
   for (const bean of coffeeData.beans) {
     const origins = [...new Set([...bean.origins, ...bean.components.map(({ origin }) => origin)].filter(Boolean).map(normalizeOrigin))];
     for (const origin of origins) {
-      const group = groups.get(origin) ?? { count: 0, examples: [] as string[], notes: new Map<string, number>(), roasts: new Map<string, number>() };
+      const group = groups.get(origin) ?? { count: 0, examples: [] as string[], notes: new Map<string, number>(), roasts: new Map<string, number>(), processes: new Map<string, number>() };
       group.count += 1;
       for (const note of bean.notes) group.notes.set(note, (group.notes.get(note) ?? 0) + 1);
       if (bean.roastingPoint) group.roasts.set(bean.roastingPoint, (group.roasts.get(bean.roastingPoint) ?? 0) + 1);
+      const processText = [bean.name, bean.description, ...bean.components.map(({ description }) => description)].filter(Boolean).join(" ");
+      for (const process of findProcesses(processText)) group.processes.set(process, (group.processes.get(process) ?? 0) + 1);
       if (origins.length === 1 && group.examples.length < 1) group.examples.push(bean.name);
       groups.set(origin, group);
     }
   }
 
-  return [...groups.entries()].map(([origin, group]) => ({
-    origin,
-    count: group.count,
-    example: group.examples[0] ?? "기록 준비 중",
-    notes: [...group.notes].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([note]) => note),
-    roast: [...group.roasts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "정보 없음",
-    ...(profiles[origin] ?? { description: "수집된 기록이 늘어나면 산지 특징을 보강합니다.", acidity: "정보 준비 중", body: "정보 준비 중", brew: "드립", images: [0] }),
-  })).sort((a, b) => b.count - a.count || a.origin.localeCompare(b.origin, "ko"));
+  return [...groups.entries()].map(([origin, group]) => {
+    const notes = [...group.notes].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([note]) => note);
+    const process = [...group.processes].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "기록 준비 중";
+    return {
+      origin,
+      count: group.count,
+      example: group.examples[0] ?? "기록 준비 중",
+      notes,
+      roast: [...group.roasts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "정보 없음",
+      process,
+      keywords: [origin, process, ...notes.slice(0, 2)],
+      ...(profiles[origin] ?? { description: "수집된 기록이 늘어나면 산지 특징을 보강합니다.", acidity: "정보 준비 중", body: "정보 준비 중", brew: "드립", images: [0] }),
+    };
+  }).sort((a, b) => b.count - a.count || a.origin.localeCompare(b.origin, "ko"));
 }
 
 export function SiteFooter() {

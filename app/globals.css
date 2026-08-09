@@ -11,20 +11,27 @@
   --amber: #8a5b05;
   --amber-soft: #ffe560;
   --edge: #10130f;
+  --blue-soft: #dce5f5;
+  --blue-soft-alt: #cbd8ee;
+  --shadow-ui: 3px 3px 0 var(--edge);
+  --shadow-panel: 5px 5px 0 var(--edge);
+  --radius-ui: 4px;
 }
 
 * { box-sizing: border-box; }
 html {
   min-height: 100%;
   background: var(--bg);
+  scroll-snap-type: y mandatory;
 }
 body {
   margin: 0;
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   font-size: 14px;
+  font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
 a { color: inherit; text-decoration: none; }
@@ -42,6 +49,9 @@ button, select {
   min-height: 100dvh;
   margin: 0 auto;
   padding: 12px 18px 18px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
 }
 .siteFooter {
   position: relative;
@@ -52,6 +62,8 @@ button, select {
   background: #10281b;
   color: #eef2dd;
   overflow: clip;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 .siteFooterMeta {
   display: flex;
@@ -97,6 +109,46 @@ button, select {
   padding: 9px 14px 14px;
   color: var(--ink);
 }
+.heroSectionNav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 0 1 auto;
+  margin-left: auto;
+  border: 3px solid var(--edge);
+  border-radius: var(--radius-ui);
+  box-shadow: var(--shadow-ui);
+  background: var(--surface);
+  overflow: hidden;
+}
+.heroSectionNav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--edge);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: background-color .16s ease, color .16s ease;
+}
+.heroSectionNav a + a { border-left: 2px solid var(--edge); }
+.heroSectionNav a[aria-current="page"] { background: var(--amber-soft); }
+.heroSectionNav a:hover,
+.heroSectionNav a:focus-visible {
+  background: var(--green-soft);
+  color: var(--edge);
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+}
+.heroSectionNav a:nth-child(3):hover,
+.heroSectionNav a:nth-child(3):focus-visible { background: var(--blue-soft); }
+.heroSectionNav a:nth-child(4):hover,
+.heroSectionNav a:nth-child(4):focus-visible { background: #eadcff; }
 .heroPanel::after {
   content: "";
   position: absolute;
@@ -172,6 +224,15 @@ button, select {
   line-height: 1.1;
   white-space: nowrap;
 }
+.summarySkeleton {
+  width: 82px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,.25), rgba(255,255,255,.75), rgba(255,255,255,.25));
+  background-size: 200% 100%;
+  color: transparent;
+  animation: skeletonPulse 1.2s ease-in-out infinite;
+}
 .snapshotFactFresh { background: #66c5ef; }
 .snapshotFactLowest { background: #ffb36b; }
 .snapshotFavorite.uiButton {
@@ -187,6 +248,31 @@ button, select {
   filter: saturate(1.08);
 }
 .snapshotFavorite span { width: 100%; }
+
+@media (min-width: 721px) and (max-width: 1020px) {
+  .heroCopy {
+    display: block;
+    flex: 0 0 180px;
+  }
+  .heroCopy h1 { font-size: 36px; }
+  .heroCopy p {
+    margin-top: 3px;
+    padding-bottom: 0;
+    font-size: 13px;
+  }
+  .heroSectionNav a {
+    min-height: 32px;
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+  .snapshotFact,
+  .snapshotFavorite {
+    min-width: 92px;
+    padding-inline: 7px;
+  }
+  .snapshotFact strong,
+  .snapshotFavorite strong { font-size: 14px; }
+}
 .sectionTools select:focus-visible,
 .toolButton:focus-visible,
 .filterBar input:focus-visible,
@@ -295,6 +381,17 @@ button, select {
 }
 .loadingBlock {
   margin-top: 10px;
+}
+.toolPanel > .loadingBlock {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  margin-top: 0;
+}
+.toolPanel > .loadingBlock .loadingList,
+.resultsPanel > .loadingBlock .loadingList {
+  min-height: 0;
+  overflow: hidden;
 }
 .filterBar {
   display: flex;
@@ -694,6 +791,7 @@ button, select {
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  animation: listSwapIn .28s cubic-bezier(.16, 1, .3, 1) both;
 }
 .scrollList::-webkit-scrollbar {
   display: none;
@@ -877,6 +975,13 @@ button, select {
   overflow-wrap: break-word;
   cursor: pointer;
 }
+.offerRow,
+.favoriteCard,
+.pricePanel,
+.snapshotFacts,
+.countPill {
+  font-variant-numeric: tabular-nums;
+}
 .tasteNote {
   margin-top: 5px;
   color: var(--muted);
@@ -888,7 +993,7 @@ button, select {
   min-height: 82px;
   margin: -9px -12px -9px 0;
   padding: 8px 12px;
-  background: #fff0a3;
+  background: #f5e79a;
   text-align: right;
   display: flex;
   flex-direction: column;
@@ -936,6 +1041,10 @@ button, select {
   font-variant-numeric: tabular-nums;
   color: #10130f;
   transition: transform .18s cubic-bezier(.16, 1, .3, 1);
+}
+@keyframes listSwapIn {
+  from { opacity: .3; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .offerRow:hover .finalPrice {
   transform: translateX(-4px);
@@ -1007,6 +1116,20 @@ button, select {
     line-height: 1.32;
     white-space: normal;
   }
+  .heroSectionNav {
+    width: 100%;
+    gap: 0;
+    margin: 6px 0 2px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 var(--edge);
+  }
+  .heroSectionNav a {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 29px;
+    padding: 3px 2px;
+    font-size: 11px;
+  }
   .snapshotFacts {
     width: 100%;
     margin-top: 7px;
@@ -1046,12 +1169,13 @@ button, select {
     font-size: 10px;
   }
   .toolPanel {
-    height: auto;
+    height: 100%;
     min-height: 0;
     padding: 8px 0;
     border: 0;
     background: var(--surface);
     box-shadow: none;
+    overflow: hidden;
   }
   .siteFooter {
     margin-top: 0;
@@ -1186,6 +1310,7 @@ button, select {
     grid-template-columns: 1fr;
     gap: 10px;
   }
+  .loadingRow:nth-child(n + 6) { display: none; }
   .loadingPrice {
     align-items: flex-start;
   }
@@ -1213,7 +1338,7 @@ button, select {
     border: 2px solid var(--edge);
     border-radius: 4px;
     background: var(--surface);
-    padding: 12px 10px 11px;
+    padding: 13px 12px 12px;
   }
   .offerRow:nth-child(even) {
     background: var(--surface);
@@ -1250,9 +1375,9 @@ button, select {
     border-left: 0;
     border-top: 2px solid var(--edge);
     min-height: 0;
-    margin: 7px -10px -11px;
-    padding: 8px 9px;
-    background: #fff0a3;
+    margin: 8px -12px -12px;
+    padding: 9px 11px;
+    background: #f5e79a;
     border-radius: 0 0 2px 2px;
     text-align: right;
   }
@@ -1569,6 +1694,33 @@ button, select {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.originSignals {
+  display: grid;
+  grid-template-columns: .8fr 1.1fr 1.35fr;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  border: 1px solid rgba(238, 242, 221, .3);
+  background: rgba(13, 33, 22, .38);
+}
+.originSignals > div {
+  min-width: 0;
+  padding: 10px 11px;
+}
+.originSignals > div + div { border-left: 1px solid rgba(238, 242, 221, .3); }
+.originSignals dt {
+  color: #80e4a5;
+  font-size: 9px;
+  font-weight: 900;
+}
+.originSignals dd {
+  margin: 4px 0 0;
+  color: #fffef8;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1.4;
+  word-break: keep-all;
+}
 .originControls {
   display: flex;
   align-items: center;
@@ -1601,16 +1753,21 @@ button, select {
 }
 .footerClosing {
   width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
   border-top: 7px solid #111b32;
-  background: #cbdcff;
+  background: var(--blue-soft);
   color: #111b32;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
 }
 .footerClosingInner {
   display: grid;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 12px;
   width: min(1240px, 100%);
+  height: calc(100dvh - 7px);
   margin: 0 auto;
   padding: 24px 24px 12px;
 }
@@ -1648,6 +1805,7 @@ button, select {
   grid-template-rows: auto minmax(0, 1fr);
   gap: 8px;
   min-height: 0;
+  overflow: hidden;
 }
 .footerGuideNav {
   display: flex;
@@ -1682,7 +1840,7 @@ button, select {
 .footerGuideControls button:hover { background: rgba(255, 255, 255, .45); }
 .footerTopicTabs button[aria-selected="true"] {
   background: #111b32;
-  color: #cbdcff;
+  color: var(--blue-soft);
   box-shadow: 3px 3px 0 #1d4ed8;
 }
 .footerGuideControls {
@@ -1715,11 +1873,21 @@ button, select {
   grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr);
   min-height: clamp(390px, 55dvh, 470px);
   height: 100%;
-  background: #dce7ff;
+  background: #e7edf7;
 }
 .footerGuidePanel[data-slide="1"],
 .footerGuidePanel[data-slide="3"],
-.footerGuidePanel[data-slide="5"] { background: #c2d3f5; }
+.footerGuidePanel[data-slide="5"] { background: var(--blue-soft-alt); }
+.footerInfoGrid[data-direction="next"] .footerGuidePanel { animation: guidePanelNext .38s cubic-bezier(.16, 1, .3, 1) both; }
+.footerInfoGrid[data-direction="previous"] .footerGuidePanel { animation: guidePanelPrevious .38s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes guidePanelNext {
+  from { opacity: .2; transform: translateX(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes guidePanelPrevious {
+  from { opacity: .2; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
 .footerGuideVisual {
   min-width: 0;
   min-height: 0;
@@ -1804,7 +1972,7 @@ button, select {
   margin: 10px 0 0;
   border-top: 1px solid #111b32;
   border-bottom: 1px solid #111b32;
-  background: #eaf0ff;
+  background: #f0f4fb;
 }
 .priceEquation { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .priceEquation div + div { border-left: 1px solid #111b32; }
@@ -1848,10 +2016,10 @@ button, select {
 
 @media (max-width: 720px) {
   .originAtlas {
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
     gap: 9px;
-    height: auto;
-    min-height: calc(100dvh - 5px);
+    height: calc(100dvh - 7px);
+    min-height: calc(100dvh - 7px);
     padding: 14px;
   }
   .originAtlasHeader {
@@ -1872,12 +2040,14 @@ button, select {
   .originTab { min-height: 30px; padding: 4px 9px; font-size: 11px; }
   .originStage {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(170px, 28dvh) auto;
+    grid-template-rows: minmax(125px, 20dvh) minmax(0, 1fr);
+    overflow: hidden;
     box-shadow: 6px 6px 0 #80e4a5;
   }
   .originVisual { border-right: 0; border-bottom: 2px solid rgba(238, 242, 221, .72); }
   .originPhotoControls { gap: 9px; }
-  .originProfile { padding: 14px; }
+  .originProfile { padding: 12px 14px; overflow-y: auto; scrollbar-width: none; }
+  .originProfile::-webkit-scrollbar { display: none; }
   .originProfileHeading { padding-bottom: 9px; border-bottom-width: 3px; }
   .originProfileHeading h3 { font-size: 30px; }
   .originProfileHeading > strong { max-width: 18ch; font-size: 11px; }
@@ -1891,16 +2061,29 @@ button, select {
   .originProfileMeta strong {
     margin-top: 2px;
     font-size: 11px;
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .originControls { gap: 6px; padding-top: 9px; }
+  .originSignals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 9px;
+  }
+  .originSignals > div { padding: 7px 8px; }
+  .originSignals > div:nth-child(3) {
+    grid-column: 1 / -1;
+    border-top: 1px solid rgba(238, 242, 221, .3);
+    border-left: 0;
+  }
+  .originSignals dt { font-size: 9px; }
+  .originSignals dd { margin-top: 2px; font-size: 10px; line-height: 1.3; }
+  .originControls { display: none; }
   .originControls button { min-width: 52px; min-height: 30px; font-size: 10px; }
   .originControls span { min-width: 42px; font-size: 10px; }
   .footerClosingInner {
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 10px;
+    height: calc(100dvh - 7px);
     min-height: 0;
     padding: 15px 14px 9px;
   }
@@ -1916,28 +2099,43 @@ button, select {
   .footerGuideBrowser { grid-template-rows: auto auto; gap: 7px; }
   .footerGuideNav {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-    gap: 6px;
+    gap: 5px;
   }
-  .footerTopicTabs { display: flex; gap: 5px; }
+  .footerTopicTabs {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: 100%;
+    gap: 5px;
+  }
   .footerTopicTabs button {
-    flex: 0 0 auto;
-    min-width: 54px;
+    min-width: 0;
     min-height: 36px;
-    padding: 4px;
+    padding: 4px 2px;
     font-size: 12px;
   }
-  .footerGuideControls { gap: 4px; }
-  .footerGuideControls button { min-width: 38px; padding: 3px 5px; font-size: 10px; }
-  .footerGuideControls span { display: none; }
-  .footerInfoGrid { min-height: 0; }
-  .footerGuidePanel { grid-template-columns: 1fr; min-height: 0; height: auto; }
-  .footerGuideVisual { height: clamp(138px, 24dvh, 190px); border-right: 0; border-bottom: 2px solid #111b32; }
-  .footerInfoGrid section { gap: 12px; height: auto; padding: 16px 14px 14px; }
-  .footerInfoGrid h3 { font-size: 23px; line-height: 1.2; }
-  .footerSectionContent { gap: 12px; }
-  .footerInfoGrid p { font-size: 13.5px; line-height: 1.65; }
+  .footerGuideControls {
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .footerGuideControls button { min-width: 48px; min-height: 28px; padding: 3px 7px; font-size: 10px; }
+  .footerGuideControls span { display: inline-block; font-size: 10px; }
+  .footerInfoGrid { min-height: 0; height: 100%; }
+  .footerGuidePanel {
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .footerGuidePanel::-webkit-scrollbar { display: none; }
+  .footerGuideVisual { height: 100%; border-right: 2px solid #111b32; border-bottom: 0; }
+  .footerInfoGrid section { gap: 9px; height: auto; padding: 12px 10px 10px; }
+  .footerInfoGrid h3 { font-size: 22px; line-height: 1.15; }
+  .footerSectionContent { gap: 9px; }
+  .footerInfoGrid p { font-size: 13px; line-height: 1.5; }
   .footerInfoGrid ul { gap: 3px; margin-top: 0; }
   .footerInfoGrid ul { grid-template-columns: 1fr; }
   .footerInfoGrid li { font-size: 12.5px; line-height: 1.5; }
@@ -2384,11 +2582,13 @@ button, select {
   display: grid;
   place-items: center;
   min-height: 100dvh;
+  height: 100dvh;
   padding: 14px 18px;
   border-top: 7px solid #ffe560;
   background: #10281b;
   color: #111b16;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   overflow: clip;
   overflow-anchor: none;
 }
@@ -2397,7 +2597,7 @@ button, select {
   grid-template-rows: auto minmax(0, 1fr) auto;
   width: min(1240px, 100%);
   height: min(820px, calc(100dvh - 28px));
-  min-height: 620px;
+  min-height: min(620px, calc(100dvh - 28px));
   border: 3px solid var(--edge);
   border-radius: 4px;
   box-shadow: 7px 7px 0 #80e4a5;
@@ -2457,6 +2657,27 @@ button, select {
 .brewTipsTabs button[aria-selected="true"] { background: #111b16; color: #ffe560; }
 .brewTipsTabs button[aria-selected="true"] b { color: #80e4a5; }
 .brewTipsTabs button:focus-visible { position: relative; z-index: 1; outline: 3px solid #1d4ed8; outline-offset: -3px; }
+
+@media (min-width: 721px) and (max-width: 1250px) {
+  .brewTipsHeader { grid-template-columns: 190px minmax(0, 1fr); }
+  .brewTipsHeader > div { padding-inline: 10px; }
+  .brewTipsHeader > div strong { font-size: 17px; }
+  .brewTipsTabs {
+    display: flex;
+    overflow: hidden;
+  }
+  .brewTipsTabs button {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    min-height: 50px;
+    padding: 3px 1px;
+    font-size: 10px;
+    line-height: 1.1;
+  }
+  .brewTipsTabs button span { min-width: 0; overflow-wrap: anywhere; }
+}
 .brewSlide {
   display: grid;
   grid-template-columns: minmax(280px, .78fr) minmax(0, 1.22fr);
@@ -2464,6 +2685,7 @@ button, select {
   min-height: 0;
   animation: brewSlideIn .45s cubic-bezier(.16, 1, .3, 1) both;
 }
+.brewSlide[data-direction="previous"] { animation-name: brewSlideInPrevious; }
 .brewSlideVisual {
   position: relative;
   min-width: 0;
@@ -2494,8 +2716,11 @@ button, select {
   min-width: 0;
   min-height: 0;
   padding: clamp(18px, 3vw, 38px);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
+.brewSlideCopy::-webkit-scrollbar { display: none; }
 .brewSlideHeading {
   display: grid;
   grid-template-columns: 54px minmax(0, 1fr);
@@ -2515,7 +2740,7 @@ button, select {
   padding: 2px;
   background: var(--edge);
 }
-.brewSequence span { min-width: 0; padding: 8px 5px; background: #cbdcff; font-size: 12px; font-weight: 900; text-align: center; word-break: keep-all; }
+.brewSequence span { min-width: 0; padding: 8px 5px; background: var(--blue-soft); font-size: 12px; font-weight: 900; text-align: center; word-break: keep-all; }
 .brewSequence span:nth-child(2) { background: #80e4a5; }
 .brewSequence span:nth-child(3) { background: #66c5ef; }
 .brewSequence span:nth-child(4) { background: #ffb36b; }
@@ -2553,7 +2778,7 @@ button, select {
 .brewSetupRows dd strong { color: #1d4ed8; font-size: 13px; font-weight: 950; }
 .brewSetupRows dd span { color: #4d584f; font-size: 12px; line-height: 1.35; font-weight: 750; word-break: keep-all; }
 .brewTemperatures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; margin-top: 12px; padding: 2px; background: var(--edge); }
-.brewTemperatures span { padding: 9px 7px; background: #cbdcff; font-size: 11px; font-weight: 850; text-align: center; white-space: nowrap; }
+.brewTemperatures span { padding: 9px 7px; background: var(--blue-soft); font-size: 11px; font-weight: 850; text-align: center; white-space: nowrap; }
 .brewTemperatures span:nth-child(2) { background: #80e4a5; }
 .brewTemperatures span:nth-child(3) { background: #ffb36b; }
 .brewTemperatures strong { display: block; margin-top: 2px; font-size: 14px; }
@@ -2587,7 +2812,7 @@ button, select {
 .brewRules li { border: 2px solid var(--edge); background: #ffe560; padding: 8px; font-size: 11px; line-height: 1.35; font-weight: 850; word-break: keep-all; }
 .brewAdjustGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 14px; }
 .brewAdjustGrid article { min-width: 0; border: 2px solid var(--edge); background: #dff2dc; padding: 13px; }
-.brewAdjustGrid article + article { background: #cbdcff; }
+.brewAdjustGrid article + article { background: var(--blue-soft); }
 .brewAdjustGrid article > span { color: #075d31; font-size: 10px; line-height: 1.3; font-weight: 950; word-break: keep-all; }
 .brewAdjustGrid h3 { margin: 6px 0 8px; font-size: 20px; line-height: 1.12; font-weight: 950; word-break: keep-all; }
 .brewAdjustGrid p { margin: 0; color: #37433a; font-size: 12px; line-height: 1.5; font-weight: 750; word-break: keep-all; }
@@ -2605,17 +2830,32 @@ button, select {
 .brewTipsFooter span { min-width: 0; font-size: 11px; font-weight: 850; text-align: center; white-space: nowrap; }
 .brewTipsFooter span strong { font-size: 15px; }
 @keyframes brewSlideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes brewSlideInPrevious { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
 @keyframes brewImageIn { from { opacity: .45; transform: scale(1.06); } to { opacity: 1; transform: scale(1); } }
 
 @media (max-width: 720px) {
   .brewTips { padding: 6px; border-top-width: 5px; }
-  .brewTipsShell { width: 100%; height: calc(100dvh - 12px); min-height: 610px; box-shadow: 4px 4px 0 #80e4a5; }
+  .brewTipsShell { width: 100%; height: calc(100dvh - 12px); min-height: 0; box-shadow: 4px 4px 0 #80e4a5; }
   .brewTipsHeader { grid-template-columns: 1fr; }
   .brewTipsHeader > div { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 8px; padding: 6px 8px; border-right: 0; border-bottom: 2px solid var(--edge); }
   .brewTipsHeader > div span { font-size: 8px; }
   .brewTipsHeader > div strong { font-size: 14px; }
-  .brewTipsTabs button { flex-direction: column; gap: 0; min-height: 39px; padding: 2px; font-size: 10px; line-height: 1.15; }
-  .brewTipsTabs button { flex-basis: 74px; }
+  .brewTipsTabs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow: hidden;
+  }
+  .brewTipsTabs button {
+    flex-direction: column;
+    gap: 0;
+    min-height: 37px;
+    padding: 2px 1px;
+    font-size: 10px;
+    line-height: 1.1;
+  }
+  .brewTipsTabs button:nth-child(5n) { border-right: 0; }
+  .brewTipsTabs button:nth-child(-n + 5) { border-bottom: 2px solid var(--edge); }
+  .brewTipsTabs button span { min-width: 0; overflow-wrap: anywhere; }
   .brewTipsTabs button b { font-size: 8px; }
   .brewSlide { grid-template-columns: 88px minmax(0, 1fr); }
   .brewSlideVisual { border-right-width: 2px; }
@@ -2658,10 +2898,84 @@ button, select {
 }
 
 @media (max-width: 350px) {
+  .originAtlas {
+    gap: 7px;
+    padding: 10px;
+  }
+  .originAtlasHeader h2 { font-size: 25px; }
+  .originAtlasHeader p { font-size: 10px; line-height: 1.25; }
+  .originTabStep { min-width: 38px; min-height: 28px; }
+  .originTab { min-height: 28px; padding: 3px 8px; }
+  .originStage { grid-template-rows: minmax(92px, 15dvh) minmax(0, 1fr); }
+  .originProfile { padding: 8px 10px; }
+  .originProfileHeading { padding-bottom: 5px; }
+  .originProfileHeading h3 { font-size: 25px; }
+  .originProfileHeading > strong { max-width: 15ch; font-size: 10px; line-height: 1.25; }
+  .originDescription { margin-top: 6px; font-size: 12px; line-height: 1.32; }
+  .originTraits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 6px;
+    padding-inline: 6px;
+  }
+  .originTraits > div { padding-block: 4px; }
+  .originTraits > div:nth-child(3) {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-top: 1px solid rgba(238, 242, 221, .3);
+    border-left: 0;
+  }
+  .originProfileMeta { margin-top: 5px; }
+  .originProfileMeta strong { font-size: 10px; }
+  .originSignals { margin-top: 5px; }
+  .originSignals > div { padding: 4px 6px; }
+  .originSignals dd { font-size: 10px; line-height: 1.2; }
+  .originSignals dt { font-size: 9px; }
+  .footerGuidePanel { grid-template-columns: 46px minmax(0, 1fr); }
+  .footerInfoGrid p { font-size: 13.5px; }
+  .footerInfoGrid li,
+  .priceEquation dt,
+  .priceEquation dd,
+  .flavorIndex dt,
+  .flavorIndex dd { font-size: 13px; }
   .brewSlide { grid-template-columns: 72px minmax(0, 1fr); }
   .brewTipsTabs button { font-size: 9px; }
   .brewSlideCopy { padding-inline: 8px; }
   .brewSlideHeading h2 { font-size: 19px; }
+  .brewSequence span,
+  .brewTemperatures span,
+  .brewRatio span { font-size: 12px; }
+  .brewGearGrid > div,
+  .brewSetupRows > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 6px 1px;
+  }
+  .brewGearGrid dt,
+  .brewSetupRows dt { color: #075d31; font-size: 12px; }
+  .brewGearGrid dd,
+  .brewSetupRows dd strong,
+  .brewSetupRows dd span { font-size: 13px; line-height: 1.3; }
+  .brewPourRows li {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 3px 7px;
+    padding: 7px 1px;
+  }
+  .brewPourRows strong { font-size: 16px; }
+  .brewPourRows span {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: left;
+  }
+}
+
+@media (max-width: 720px) and (max-height: 620px) {
+  .brewSlide { grid-template-columns: 58px minmax(0, 1fr); }
+  .brewSlideCopy { padding: 8px 8px 7px; }
+  .brewSlideHeading { grid-template-columns: 28px minmax(0, 1fr); gap: 5px; }
+  .brewSlideHeading > span { font-size: 21px; }
+  .brewSlideHeading h2 { font-size: 19px; }
+  .brewSlideHeading p { font-size: 11.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

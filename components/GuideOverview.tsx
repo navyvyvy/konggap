@@ -20,11 +20,19 @@ const guideImages = [
 
 export function GuideOverview({ children }: { children: ReactNode }) {
   const [activeTopic, setActiveTopic] = useState(0);
+  const [direction, setDirection] = useState<"next" | "previous">("next");
   const [visible, setVisible] = useState(false);
   const browserRef = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<number | null>(null);
   const slides = Children.toArray(children).flatMap((group) => isValidElement<{ children: ReactNode }>(group) ? Children.toArray(group.props.children) : []);
-  const selectRelative = (step: number) => setActiveTopic((activeTopic + step + slides.length) % slides.length);
+  const selectRelative = (step: number) => {
+    setDirection(step > 0 ? "next" : "previous");
+    setActiveTopic((activeTopic + step + slides.length) % slides.length);
+  };
+  const selectTopic = (index: number) => {
+    setDirection(index >= activeTopic ? "next" : "previous");
+    setActiveTopic(index);
+  };
 
   useEffect(() => {
     const browser = browserRef.current;
@@ -44,7 +52,7 @@ export function GuideOverview({ children }: { children: ReactNode }) {
               aria-selected={activeTopic === index}
               id={`coffee-guide-tab-${index}`}
               key={topic}
-              onClick={() => setActiveTopic(index)}
+              onClick={() => selectTopic(index)}
               role="tab"
               type="button"
             >
@@ -61,6 +69,7 @@ export function GuideOverview({ children }: { children: ReactNode }) {
       <div
         aria-labelledby={`coffee-guide-tab-${activeTopic}`}
         className="footerInfoGrid"
+        data-direction={direction}
         id="coffee-guide-panel"
         key={activeTopic}
         onPointerDown={(event) => { pointerStart.current = event.clientX; }}
