@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 
 const MAX_OFFERS = 400;
 const MAX_REASONABLE_PRICE = 1_000_000;
-const MAX_INFO_SEARCHES_PER_RUN = Number(process.env.COFFEE_INFO_SEARCH_LIMIT) || 30;
+const MAX_INFO_SEARCHES_PER_RUN = Number(process.env.COFFEE_INFO_SEARCH_LIMIT) || 60;
 const MIN_DEFAULT_OFFERS = { green: 50, whole: 20 };
 const DATA_DIR = "data";
 const SHOP_SOURCE_FILE = "shop-sources.json";
@@ -128,7 +128,7 @@ function isBuyableDirectShopOffer(title, productKind = "green") {
 }
 
 function isBlockedShoppingTitle(title, productKind) {
-  if (/([2-9]\d*\s*개|\d+\s*\+\s*\d+|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample|머신|machine|액세서리|accessory|도구|장비|봉투|소분신청|월픽)/i.test(title)) return true;
+  if (/([2-9]\d*\s*개|\d+\s*\+\s*\d+|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample|머신|machine|액세서리|accessory|도구|장비|봉투|소분신청|월픽|강화\s*글라스|유리\s*(컵|잔)|머그|텀블러|드립\s*포트|케틀|주전자|저울|브러시|세정제|클리너)/i.test(title)) return true;
   if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
   return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
 }
@@ -332,11 +332,15 @@ function parseDirectShopOffer(item, shop, productKind = currentProductKind) {
   if (/sold\s*out|품절|구매하실 수 없는|일시품절/i.test(context)) return null;
   if (shop.needsWeight && !/\b1kg\b|1kg|1KG|1kg 소포장/i.test(context)) return null;
 
+  const weight = title.match(/\d+(?:\.\d+)?\s*(?:kg|g)\b/i)?.[0]
+    ?? shop.titleSuffix?.match(/\d+(?:\.\d+)?\s*(?:kg|g)\b/i)?.[0]
+    ?? context.match(/\d+(?:\.\d+)?\s*(?:kg|g)\b/i)?.[0];
+  if (!weight) return null;
+
   const price = directShopPriceFromLines(item.lines);
   if (!price) return null;
 
-  if (shop.titleSuffix && !/\d+\s*(kg|g)/i.test(title)) title = `${title} ${shop.titleSuffix}`;
-  else if (productKind === "green" && !/\d+\s*(kg|g)/i.test(title)) title = `${title} 1kg`;
+  if (!/\d+(?:\.\d+)?\s*(kg|g)/i.test(title)) title = `${title} ${weight}`;
   return {
     title,
     link: item.link,
@@ -472,7 +476,7 @@ async function fillDetailCoffeeInfo(page, offers, info) {
 async function fillSearchCoffeeInfo(page, info) {
   const missing = prioritizeMissingCoffeeInfo(info);
 
-  // ponytail: 30 short lookups keep one crawl bounded; oldest attempts rotate to the front on later runs.
+  // ponytail: bounded lookups keep one crawl finite; oldest attempts rotate to the front on later runs.
   for (const key of missing.slice(0, MAX_INFO_SEARCHES_PER_RUN)) {
     const detail = await fetchCoffeeSearchText(page, key);
     if (detail) {
@@ -678,9 +682,9 @@ function inferMetadata(text) {
     /(무산소|anaerobic)/i.test(text) && "무산소",
   ].filter(Boolean);
   const roastTags = [
-    /(약배전|라이트\s*로스트|light\s*roast)/i.test(text) && "약배전",
-    /(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text) && "중배전",
-    /(강배전|다크\s*로스트|dark\s*roast)/i.test(text) && "강배전",
+    /(약배전|라이트(?:\s*로스트)?|light(?:\s*roast)?)/i.test(text) && "약배전",
+    /(중배전|미디엄(?:\s*로스트)?|medium(?:\s*roast)?)/i.test(text) && "중배전",
+    /(강배전|다크(?:\s*로스트)?|dark(?:\s*roast)?)/i.test(text) && "강배전",
   ].filter(Boolean);
   const tasteText = `${lower} ${englishTasteAliases(lower)}`;
   const tasteNote = ["꽃향", "플로럴", "라벤더", "자스민", "재스민", "베르가못", "베리", "라즈베리", "크랜베리", "블루베리", "딸기", "체리", "시트러스", "레몬", "오렌지", "천혜향", "청사과", "복숭아", "백도", "살구", "자두", "무화과", "포도", "청포도", "애플망고", "파인애플", "열대과일", "사탕수수", "조청", "시럽", "메이플시럽", "캐러멜", "카라멜", "바닐라", "대추야자", "건자두", "레드와인", "초콜릿", "밀크초콜릿", "견과", "아몬드", "헤이즐넛", "피칸", "꿀", "와인", "허브", "삼나무", "산미", "단맛", "바디", "실키", "쥬시"]
@@ -724,10 +728,11 @@ function dedupeOffers(offers) {
 
 function dedupeKeys(offer) {
   const linkKey = canonicalOfferUrl(offer.link ?? "");
+  const canonicalLinkKey = `link:${linkKey}`;
   const title = offer.title.replace(/\s+/g, " ").trim().toLowerCase();
-  if (offer.source !== "naver") return [`link:${linkKey}`, `shop:item:${offer.seller}:${title}:${offer.price}:${offer.shippingFee ?? ""}`];
+  if (offer.source !== "naver") return [canonicalLinkKey, `shop:item:${offer.seller}:${title}:${offer.price}:${offer.shippingFee ?? ""}`];
   const itemKey = `naver:item:${title}:${offer.price}:${offer.shippingFee ?? ""}`;
-  return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
+  return linkKey.startsWith("naver:nv_mid:") ? [canonicalLinkKey, itemKey] : [itemKey];
 }
 
 function canonicalOfferUrl(url) {

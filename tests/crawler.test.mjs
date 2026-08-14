@@ -4,6 +4,7 @@ import {
   assertCrawlQuality,
   canonicalOfferUrl,
   coffeeKey,
+  dedupeOffers,
   directShopPriceFromLines,
   findCommonCoffeeInfo,
   isDefaultCrawlQuery,
@@ -89,6 +90,51 @@ test("direct shop parser rejects navigation links with nearby prices", () => {
   }, "whole");
 
   assert.equal(offer, null);
+});
+
+test("direct shop parser requires a weight and rejects coffee-brand accessories", () => {
+  const shop = { url: "https://wondoobj.com/category/coffee/1/", seller: "원두반점" };
+
+  assert.equal(parseDirectShopOffer({
+    title: "원두반점 에코 강화 글라스 500ml",
+    link: "https://wondoobj.com/product/eco-glass/46/",
+    lines: ["원두반점 에코 강화 글라스 500ml", "12,000원"],
+  }, shop, "whole"), null);
+  assert.equal(parseDirectShopOffer({
+    title: "에티오피아 예가체프 원두",
+    link: "https://wondoobj.com/product/yirgacheffe/47/",
+    lines: ["에티오피아 예가체프 원두", "12,000원"],
+  }, shop, "whole"), null);
+
+  const offer = parseDirectShopOffer({
+    title: "에티오피아 예가체프 원두",
+    link: "https://wondoobj.com/product/yirgacheffe/47/",
+    lines: ["에티오피아 예가체프 원두", "100g", "12,000원"],
+  }, shop, "whole");
+  assert.equal(offer?.title, "에티오피아 예가체프 원두 100g");
+});
+
+test("production crawler removes the same Naver item across source routes", () => {
+  const offers = dedupeOffers([
+    {
+      title: "에티오피아 예가체프 생두 1kg",
+      link: "https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=11962494180&query=a",
+      price: 25000,
+      shippingFee: 3000,
+      seller: "네이버",
+      source: "naver",
+    },
+    {
+      title: "에티오피아 예가체프 생두 1kg",
+      link: "https://shopping.naver.com/v2/bridge/searchGate?query=b&nv_mid=11962494180",
+      price: 25000,
+      shippingFee: 3000,
+      seller: "원두상점",
+      source: "shop",
+    },
+  ]);
+
+  assert.equal(offers.length, 1);
 });
 
 test("direct shop price parser handles split won labels without reading G1 as one won", () => {

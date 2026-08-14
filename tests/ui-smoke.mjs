@@ -105,6 +105,25 @@ try {
       await page.route("**/api/offers?**", (route) => route.fulfill({ json: payload }));
       await page.goto(baseUrl);
       await page.getByText(payload.offers[0].name).waitFor();
+      await page.evaluate(() => {
+        window.open = (url) => {
+          window.__openedSellerUrl = String(url);
+          return null;
+        };
+      });
+      await page.getByRole("button", { name: "찜하기" }).press("Enter");
+      assert.equal(await page.evaluate(() => window.__openedSellerUrl ?? ""), "", "찜 키 입력이 판매처 링크로 전파되지 않음");
+      await page.locator(".offerRow .favoriteButton").press("Enter");
+      await page.locator(".offerRow").press("Enter");
+      assert.equal(await page.evaluate(() => window.__openedSellerUrl), payload.offers[0].sourceUrl, "행 키 입력은 판매처를 엶");
+      await page.close();
+    }
+
+    {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+      await page.route("**/api/offers?**", (route) => route.fulfill({ json: payload }));
+      await page.goto(baseUrl);
+      await page.getByText(payload.offers[0].name).waitFor();
       await page.mouse.move(2, 400);
       await page.mouse.wheel(0, 640);
       await page.waitForTimeout(650);

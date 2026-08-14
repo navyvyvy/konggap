@@ -104,6 +104,33 @@ test("filterOffers filters by final price and tags", () => {
   );
 });
 
+test("filterOffers excludes unconfirmed shipping from final-price ranges", () => {
+  const offers = [
+    { id: "known", finalPrice: 12000, shippingKnown: true, flavorTags: [], roastTags: [], tasteNote: "" },
+    { id: "unknown", finalPrice: 9000, shippingKnown: false, flavorTags: [], roastTags: [], tasteNote: "" },
+  ];
+
+  assert.deepEqual(filterOffers(offers, {}).map((offer) => offer.id), ["known", "unknown"]);
+  assert.deepEqual(filterOffers(offers, { maxPrice: 15000 }).map((offer) => offer.id), ["known"]);
+});
+
+test("sortOffersByFinalPrice keeps unconfirmed shipping after confirmed totals", () => {
+  const offers = [
+    { id: "unknown", finalPrice: 9000, shippingKnown: false },
+    { id: "known-high", finalPrice: 14000, shippingKnown: true },
+    { id: "known-low", finalPrice: 12000, shippingKnown: true },
+  ];
+
+  assert.deepEqual(
+    sortOffersByFinalPrice(offers).map((offer) => offer.id),
+    ["known-low", "known-high", "unknown"],
+  );
+  assert.deepEqual(
+    sortOffersByFinalPrice(offers, "desc").map((offer) => offer.id),
+    ["known-high", "known-low", "unknown"],
+  );
+});
+
 test("getOriginTags extracts country-level origins", () => {
   assert.deepEqual(getOriginTags({ name: "에티오피아 예가체프 G1 워시드 생두 1kg" }), ["에티오피아"]);
   assert.deepEqual(getOriginTags({ name: "Guatemala Antigua SHB 1kg" }), ["과테말라"]);
@@ -217,6 +244,13 @@ test("getStableMetadata extracts process, roast, and taste text when present", (
   assert.deepEqual(metadata.flavorTags, ["내추럴"]);
   assert.deepEqual(metadata.roastTags, ["약배전"]);
   assert.equal(metadata.tasteNote, "꽃향, 시트러스, 꿀, 산미");
+});
+
+test("getStableMetadata recognizes standalone roast labels", () => {
+  assert.deepEqual(
+    getStableMetadata({ name: "에티오피아 원두 200g", rawDescription: "미디엄, 초콜릿" }).roastTags,
+    ["중배전"],
+  );
 });
 
 test("normalizeOffer merges explicit tags with stable metadata", () => {
@@ -394,6 +428,30 @@ test("mapCrawledOffers removes duplicate canonical links", () => {
   assert.equal(offers.length, 1);
 });
 
+test("mapCrawledOffers removes the same Naver item across source routes", () => {
+  const offers = mapCrawledOffers(
+    [
+      {
+        title: "에티오피아 예가체프 생두 1kg",
+        link: "https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=11962494180&query=a",
+        price: 25000,
+        seller: "네이버",
+        source: "naver",
+      },
+      {
+        title: "에티오피아 예가체프 생두 1kg",
+        link: "https://shopping.naver.com/v2/bridge/searchGate?query=b&nv_mid=11962494180",
+        price: 25000,
+        seller: "원두상점",
+        source: "shop",
+      },
+    ],
+    "2026-06-26T12:00:00.000Z",
+  );
+
+  assert.equal(offers.length, 1);
+});
+
 test("mapCrawledOffers removes duplicate shop item listings", () => {
   const offers = mapCrawledOffers(
     [
@@ -486,4 +544,5 @@ test("mapCrawledOffers filters non green-bean shopping results", () => {
   assert.equal(isBuyableOffer("에티오피아 예가체프 생두 홀빈 1kg"), false);
   assert.equal(isBuyableOffer("에티오피아 예가체프 원두 1kg", "naver", "whole"), true);
   assert.equal(isBuyableOffer("에티오피아 예가체프 원두 샘플 100g", "naver", "whole"), false);
+  assert.equal(isBuyableOffer("원두반점 에코 강화 글라스 500g", "shop", "whole"), false);
 });

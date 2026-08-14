@@ -1,10 +1,11 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { canonicalOfferUrl, type RawOffer, type OfferSource } from "../offers";
+import { canonicalOfferUrl, isBuyableOffer, type ProductKind, type RawOffer, type OfferSource } from "../offers";
 
 const execFileAsync = promisify(execFile);
 const MAX_REASONABLE_PRICE = 1_000_000;
-export type ProductKind = "green" | "whole";
+export { isBuyableOffer };
+export type { ProductKind };
 const SHOP_SHIPPING_RULES = [
   { test: /coffeelibre\.kr|커피리브레/, fee: 0 },
   { test: /momos\.co\.kr|모모스커피/, fee: 2500, freeOver: 40_000 },
@@ -38,13 +39,6 @@ export function toProductQuery(query: string, productKind: ProductKind = "green"
   if (productKind === "green") return toGreenBeanQuery(query);
   const trimmed = query.trim() || "원두";
   return /원두|홀빈|whole\s*bean/i.test(trimmed) ? trimmed : `${trimmed} 원두`;
-}
-
-export function isBuyableOffer(title: string, source?: string, productKind: ProductKind = "green") {
-  if (isBlockedShoppingTitle(title, productKind) || !/\d+\s*(kg|g)/i.test(title)) return false;
-  if (productKind === "green" && /생두|커피생두|green\s*bean/i.test(title)) return true;
-  if (productKind === "whole" && /원두|홀빈|whole\s*bean|roasted\s*bean/i.test(title)) return true;
-  return source === "shop" && isCoffeeProductName(title);
 }
 
 export function mapCrawledOffers(items: CrawledOffer[], fetchedAt: string, productKind: ProductKind = "green"): RawOffer[] {
@@ -89,10 +83,11 @@ export function inferShopShippingFee(item: Pick<CrawledOffer, "seller" | "link" 
 
 function dedupeKeys(item: CrawledOffer) {
   const linkKey = canonicalOfferUrl(item.link);
+  const canonicalLinkKey = `link:${linkKey}`;
   const title = item.title.replace(/\s+/g, " ").trim().toLowerCase();
-  if (item.source !== "naver") return [`link:${linkKey}`, `shop:item:${item.seller}:${title}:${item.price}:${item.shippingFee ?? ""}`];
+  if (item.source !== "naver") return [canonicalLinkKey, `shop:item:${item.seller}:${title}:${item.price}:${item.shippingFee ?? ""}`];
   const itemKey = `naver:item:${title}:${item.price}:${item.shippingFee ?? ""}`;
-  return linkKey.startsWith("naver:nv_mid:") ? [linkKey, itemKey] : [itemKey];
+  return linkKey.startsWith("naver:nv_mid:") ? [canonicalLinkKey, itemKey] : [itemKey];
 }
 
 function parseResult(stdout: string) {
@@ -101,16 +96,6 @@ function parseResult(stdout: string) {
   } catch {
     return {};
   }
-}
-
-function isBlockedShoppingTitle(title: string, productKind: ProductKind) {
-  if (/([2-9]\d*\s*개|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample)/i.test(title)) return true;
-  if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
-  return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
-}
-
-function isCoffeeProductName(title: string) {
-  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey)/i.test(title);
 }
 
 async function runEngine(query: string) {

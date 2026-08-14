@@ -65,7 +65,7 @@ export function OfferRow({
       tabIndex={0}
       onClick={() => window.open(offer.sourceUrl, "_blank", "noreferrer")}
       onKeyDown={(event) => {
-        if (event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
+        if (event.target === event.currentTarget && event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
       }}
     >
       <div className="offerInfo">

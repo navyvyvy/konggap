@@ -1594,13 +1594,13 @@ button, select {
   background: transparent;
   color: #80e4a5;
   font: inherit;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
   cursor: pointer;
 }
 .originPhotoControls button:hover:not(:disabled) { background: #80e4a5; color: #10281b; }
 .originPhotoControls button:disabled { opacity: .3; cursor: default; }
-.originPhotoControls span { color: #d4dcc7; font-size: 9px; font-weight: 850; }
+.originPhotoControls span { color: #d4dcc7; font-size: 10px; font-weight: 850; }
 .originProfile {
   display: flex;
   flex-direction: column;
@@ -2075,8 +2075,8 @@ button, select {
     border-top: 1px solid rgba(238, 242, 221, .3);
     border-left: 0;
   }
-  .originSignals dt { font-size: 9px; }
-  .originSignals dd { margin-top: 2px; font-size: 10px; line-height: 1.3; }
+  .originSignals dt { font-size: 10px; }
+  .originSignals dd { margin-top: 2px; font-size: 11px; line-height: 1.3; }
   .originControls { display: none; }
   .originControls button { min-width: 52px; min-height: 30px; font-size: 10px; }
   .originControls span { min-width: 42px; font-size: 10px; }
@@ -2183,398 +2183,6 @@ button, select {
     word-break: normal;
     overflow-wrap: anywhere;
   }
-}
-
-/* Coffee tips */
-.tipsPage {
-  width: min(1240px, 100%);
-  margin: 0 auto;
-  padding: 12px 18px 28px;
-}
-.tipsHero,
-.tipsSection {
-  border: 3px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 6px 6px 0 var(--edge);
-}
-.tipsHero {
-  background: var(--surface);
-  overflow: hidden;
-}
-.tipsHeroGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr);
-  min-height: 510px;
-}
-.tipsHeroCopy {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  padding: clamp(34px, 5vw, 68px);
-}
-.tipsHeroCopy > span {
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 950;
-}
-.tipsHeroCopy h2 {
-  margin: 10px 0 16px;
-  font-size: clamp(48px, 6vw, 76px);
-  line-height: .98;
-  font-weight: 950;
-  letter-spacing: 0;
-  word-break: keep-all;
-}
-.tipsHeroCopy > p {
-  max-width: 31em;
-  margin: 0;
-  color: var(--muted);
-  font-size: 17px;
-  line-height: 1.6;
-  font-weight: 750;
-  word-break: keep-all;
-}
-.tipsQuickRecipe {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 30px 0 0;
-  border: 2px solid var(--edge);
-  background: var(--edge);
-  gap: 2px;
-}
-.tipsQuickRecipe div {
-  min-width: 0;
-  background: #cbdcff;
-  padding: 11px 12px;
-}
-.tipsQuickRecipe div:nth-child(2) { background: #80e4a5; }
-.tipsQuickRecipe div:nth-child(3) { background: #66c5ef; }
-.tipsQuickRecipe div:nth-child(4) { background: #ffb36b; }
-.tipsQuickRecipe dt {
-  font-size: 10px;
-  font-weight: 900;
-}
-.tipsQuickRecipe dd {
-  margin: 4px 0 0;
-  font-size: 18px;
-  font-weight: 950;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.tipsHeroVisual {
-  position: relative;
-  min-width: 0;
-  margin: 0;
-  border-left: 3px solid var(--edge);
-  background: #10281b;
-  overflow: hidden;
-}
-.tipsHeroVisual img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.tipsHeroVisual figcaption {
-  position: absolute;
-  inset: auto 16px 16px;
-  border: 2px solid var(--edge);
-  background: #ffe560;
-  padding: 9px 11px;
-  color: var(--edge);
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 850;
-  word-break: keep-all;
-}
-.tipsSection {
-  margin-top: 16px;
-  padding: clamp(24px, 4vw, 48px);
-  scroll-margin-top: 12px;
-}
-.tipsSectionHeader {
-  display: grid;
-  grid-template-columns: 68px minmax(0, 1fr);
-  align-items: end;
-  gap: 18px;
-  padding-bottom: 18px;
-  border-bottom: 4px solid currentColor;
-}
-.tipsSectionHeader > span {
-  font-size: 46px;
-  line-height: .85;
-  font-weight: 950;
-  font-variant-numeric: tabular-nums;
-}
-.tipsSectionHeader h2 {
-  margin: 0;
-  font-size: clamp(32px, 4vw, 48px);
-  line-height: 1;
-  font-weight: 950;
-}
-.tipsSectionHeader p {
-  max-width: 58em;
-  margin: 7px 0 0;
-  font-size: 14px;
-  line-height: 1.5;
-  font-weight: 750;
-  word-break: keep-all;
-}
-.tipsPrepare { background: #ffe560; }
-.tipsPrepareGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
-  gap: 28px;
-  margin-top: 26px;
-}
-.tipsPrepare article > h3,
-.tipsSetup h3,
-.recipeGrid h3,
-.adjustGrid h3 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 950;
-}
-.tipsBeanPath ol {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2px;
-  margin: 14px 0 16px;
-  padding: 2px;
-  background: var(--edge);
-  list-style: none;
-}
-.tipsBeanPath li {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-height: 112px;
-  background: var(--surface);
-  padding: 13px;
-}
-.tipsBeanPath li strong { font-size: 14px; font-weight: 950; }
-.tipsBeanPath li span { color: var(--muted); font-size: 12px; line-height: 1.4; font-weight: 750; word-break: keep-all; }
-.tipsBeanPath > p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
-  font-weight: 750;
-  word-break: keep-all;
-}
-.tipsGearList dl { margin: 14px 0 0; border-top: 3px solid var(--edge); }
-.tipsGearList dl > div {
-  display: grid;
-  grid-template-columns: minmax(130px, .7fr) minmax(0, 1.3fr);
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 2px solid var(--edge);
-}
-.tipsGearList dt { font-size: 14px; font-weight: 950; }
-.tipsGearList dt span { display: inline-block; min-width: 30px; color: var(--green); font-size: 11px; }
-.tipsGearList dd { margin: 0; font-size: 13px; line-height: 1.4; font-weight: 750; word-break: keep-all; }
-.tipsSetup { background: #cbdcff; }
-.tipsSetupGrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(330px, .9fr);
-  gap: 28px;
-  margin-top: 26px;
-}
-.tipsSetupSteps { border-top: 3px solid var(--edge); }
-.tipsSetupSteps article {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 2px solid var(--edge);
-}
-.tipsSetupSteps article > span {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 2px solid var(--edge);
-  background: #66c5ef;
-  font-weight: 950;
-}
-.tipsSetupSteps h3 { display: flex; justify-content: space-between; gap: 18px; font-size: 17px; }
-.tipsSetupSteps h3 strong { color: #1d4ed8; font-size: 14px; white-space: nowrap; }
-.tipsSetupSteps p { margin: 4px 0 0; color: #24314e; font-size: 13px; line-height: 1.45; font-weight: 700; word-break: keep-all; }
-.temperatureBoard {
-  border: 3px solid var(--edge);
-  box-shadow: 5px 5px 0 var(--edge);
-  background: var(--surface);
-}
-.temperatureBoard > header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-bottom: 3px solid var(--edge);
-  background: #66c5ef;
-}
-.temperatureBoard > header span { font-size: 20px; font-weight: 950; }
-.temperatureBoard > header strong { font-size: 11px; }
-.temperatureBoard dl { margin: 0; }
-.temperatureBoard dl > div {
-  display: grid;
-  grid-template-columns: 70px 94px minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-  padding: 16px 14px;
-  border-bottom: 2px solid var(--edge);
-}
-.temperatureBoard dl > div:last-child { border-bottom: 0; }
-.temperatureBoard dt { font-size: 13px; font-weight: 900; }
-.temperatureBoard dd { margin: 0; font-size: 21px; font-weight: 950; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.temperatureBoard dl span { color: var(--muted); font-size: 11px; line-height: 1.35; font-weight: 750; word-break: keep-all; }
-.tipsRecipe { background: #10281b; color: #eef2dd; }
-.tipsRecipe .tipsSectionHeader { border-color: #80e4a5; }
-.tipsRecipe .tipsSectionHeader > span,
-.tipsRecipe .tipsSectionHeader h2 { color: #ffe560; }
-.tipsRecipe .tipsSectionHeader p { color: #d4dcc7; }
-.recipeGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 26px;
-}
-.recipeGrid > article {
-  border: 3px solid #eef2dd;
-  background: #173524;
-}
-.recipeGrid > article > header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 15px 17px;
-  border-bottom: 3px solid #eef2dd;
-}
-.recipeGrid header span { color: #80e4a5; font-size: 10px; font-weight: 950; }
-.recipeGrid h3 { margin-top: 3px; color: #fffef8; font-size: 25px; }
-.recipeGrid header > strong { color: #ffe560; font-size: 34px; font-weight: 950; }
-.recipeRatio { margin: 0; padding: 10px 17px; border-bottom: 1px solid rgba(238, 242, 221, .5); color: #d4dcc7; font-size: 13px; font-weight: 850; }
-.pourTimeline { margin: 0; padding: 0; list-style: none; }
-.pourTimeline li {
-  display: grid;
-  grid-template-columns: minmax(118px, .85fr) 76px minmax(0, 1.15fr);
-  align-items: center;
-  gap: 10px;
-  min-height: 54px;
-  padding: 9px 17px;
-  border-bottom: 1px solid rgba(238, 242, 221, .35);
-}
-.pourTimeline li:last-child { border-bottom: 0; }
-.pourTimeline time { color: #80e4a5; font-size: 12px; font-weight: 850; }
-.pourTimeline strong { color: #fffef8; font-size: 20px; font-weight: 950; font-variant-numeric: tabular-nums; }
-.pourTimeline span { color: #d4dcc7; font-size: 11px; font-weight: 750; text-align: right; }
-.pourRule {
-  margin: 18px 0 0;
-  border-left: 5px solid #ffe560;
-  padding: 8px 0 8px 13px;
-  color: #d4dcc7;
-  font-size: 13px;
-  line-height: 1.5;
-  font-weight: 750;
-  word-break: keep-all;
-}
-.pourRule strong { color: #ffe560; }
-.tipsAdjust { background: #ffb6d7; }
-.adjustGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(240px, .7fr);
-  gap: 16px;
-  margin-top: 26px;
-}
-.adjustGrid > article,
-.adjustNote {
-  border: 3px solid var(--edge);
-  background: var(--surface);
-  padding: 19px;
-}
-.adjustGrid article > span { color: #a02e61; font-size: 11px; font-weight: 950; }
-.adjustGrid h3 { margin-top: 7px; font-size: 26px; line-height: 1.08; }
-.adjustGrid ol { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: adjust; }
-.adjustGrid li {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 7px;
-  padding: 7px 0;
-  border-top: 1px solid var(--edge);
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 750;
-  word-break: keep-all;
-  counter-increment: adjust;
-}
-.adjustGrid li::before { content: counter(adjust); font-weight: 950; }
-.adjustNote {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: #ffe560;
-}
-.adjustNote > strong { font-size: 13px; font-weight: 950; }
-.adjustNote p { margin: 16px 0; font-size: 17px; line-height: 1.45; font-weight: 900; word-break: keep-all; }
-.adjustNote a {
-  align-self: flex-start;
-  border: 2px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: 3px 3px 0 var(--edge);
-  background: #80e4a5;
-  padding: 7px 10px;
-  font-size: 12px;
-  font-weight: 950;
-}
-.adjustNote a:hover { background: #a7f0c1; }
-
-@media (max-width: 760px) {
-  .tipsPage { padding: 10px 14px 24px; }
-  .tipsHero, .tipsSection { box-shadow: 4px 4px 0 var(--edge); }
-  .tipsHeroGrid { grid-template-columns: 1fr; min-height: 0; }
-  .tipsHeroCopy { padding: 28px 18px 22px; }
-  .tipsHeroCopy > span { font-size: 9px; }
-  .tipsHeroCopy h2 { margin: 7px 0 12px; font-size: 43px; }
-  .tipsHeroCopy > p { font-size: 14px; line-height: 1.5; }
-  .tipsQuickRecipe { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
-  .tipsQuickRecipe div { padding: 8px 9px; }
-  .tipsQuickRecipe dd { font-size: 16px; }
-  .tipsHeroVisual { min-height: 210px; border-top: 3px solid var(--edge); border-left: 0; }
-  .tipsHeroVisual figcaption { inset: auto 10px 10px; font-size: 10px; }
-  .tipsSection { margin-top: 12px; padding: 20px 15px; }
-  .tipsSectionHeader { grid-template-columns: 45px minmax(0, 1fr); gap: 10px; padding-bottom: 12px; border-bottom-width: 3px; }
-  .tipsSectionHeader > span { font-size: 31px; }
-  .tipsSectionHeader h2 { font-size: 28px; }
-  .tipsSectionHeader p { margin-top: 5px; font-size: 11px; line-height: 1.4; }
-  .tipsPrepareGrid, .tipsSetupGrid, .recipeGrid, .adjustGrid { grid-template-columns: 1fr; gap: 16px; margin-top: 18px; }
-  .tipsPrepare article > h3, .tipsSetup h3, .recipeGrid h3, .adjustGrid h3 { font-size: 20px; }
-  .tipsBeanPath ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tipsBeanPath li { min-height: 94px; padding: 10px; }
-  .tipsBeanPath > p { font-size: 12px; line-height: 1.55; }
-  .tipsGearList dl > div { grid-template-columns: 110px minmax(0, 1fr); gap: 10px; padding: 8px 0; }
-  .tipsGearList dt, .tipsGearList dd { font-size: 11px; }
-  .tipsSetupSteps article { grid-template-columns: 35px minmax(0, 1fr); gap: 9px; padding: 10px 0; }
-  .tipsSetupSteps article > span { width: 27px; height: 27px; font-size: 11px; }
-  .tipsSetupSteps h3 { font-size: 14px; }
-  .tipsSetupSteps h3 strong { font-size: 11px; }
-  .tipsSetupSteps p { font-size: 11px; }
-  .temperatureBoard dl > div { grid-template-columns: 55px 82px minmax(0, 1fr); gap: 7px; padding: 12px 10px; }
-  .temperatureBoard dd { font-size: 17px; }
-  .temperatureBoard dl span { font-size: 9px; }
-  .recipeGrid > article > header { padding: 12px; }
-  .recipeGrid h3 { font-size: 21px; }
-  .recipeGrid header > strong { font-size: 28px; }
-  .recipeRatio { padding: 8px 12px; font-size: 11px; }
-  .pourTimeline li { grid-template-columns: minmax(90px, .9fr) 58px minmax(0, 1.1fr); gap: 7px; min-height: 48px; padding: 7px 12px; }
-  .pourTimeline time { font-size: 10px; }
-  .pourTimeline strong { font-size: 16px; }
-  .pourTimeline span { font-size: 9px; }
-  .pourRule { margin-top: 14px; font-size: 11px; }
-  .adjustGrid > article, .adjustNote { padding: 15px; }
-  .adjustGrid h3 { font-size: 23px; }
-  .adjustNote p { font-size: 16px; }
 }
 
 /* Hand-drip guide deck */
@@ -2838,7 +2446,7 @@ button, select {
   .brewTipsShell { width: 100%; height: calc(100dvh - 12px); min-height: 0; box-shadow: 4px 4px 0 #80e4a5; }
   .brewTipsHeader { grid-template-columns: 1fr; }
   .brewTipsHeader > div { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 8px; padding: 6px 8px; border-right: 0; border-bottom: 2px solid var(--edge); }
-  .brewTipsHeader > div span { font-size: 8px; }
+  .brewTipsHeader > div span { font-size: 10px; }
   .brewTipsHeader > div strong { font-size: 14px; }
   .brewTipsTabs {
     display: grid;
@@ -2856,7 +2464,7 @@ button, select {
   .brewTipsTabs button:nth-child(5n) { border-right: 0; }
   .brewTipsTabs button:nth-child(-n + 5) { border-bottom: 2px solid var(--edge); }
   .brewTipsTabs button span { min-width: 0; overflow-wrap: anywhere; }
-  .brewTipsTabs button b { font-size: 8px; }
+  .brewTipsTabs button b { font-size: 9px; }
   .brewSlide { grid-template-columns: 88px minmax(0, 1fr); }
   .brewSlideVisual { border-right-width: 2px; }
   .brewSlideVisual::after { border-width: 5px; }
@@ -2906,11 +2514,11 @@ button, select {
   .originAtlasHeader p { font-size: 10px; line-height: 1.25; }
   .originTabStep { min-width: 38px; min-height: 28px; }
   .originTab { min-height: 28px; padding: 3px 8px; }
-  .originStage { grid-template-rows: minmax(92px, 15dvh) minmax(0, 1fr); }
+  .originStage { grid-template-rows: 92px minmax(0, 1fr); }
   .originProfile { padding: 8px 10px; }
   .originProfileHeading { padding-bottom: 5px; }
   .originProfileHeading h3 { font-size: 25px; }
-  .originProfileHeading > strong { max-width: 15ch; font-size: 10px; line-height: 1.25; }
+  .originProfileHeading > strong { max-width: 15ch; font-size: 11px; line-height: 1.25; }
   .originDescription { margin-top: 6px; font-size: 12px; line-height: 1.32; }
   .originTraits {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2925,11 +2533,11 @@ button, select {
     border-left: 0;
   }
   .originProfileMeta { margin-top: 5px; }
-  .originProfileMeta strong { font-size: 10px; }
+  .originProfileMeta strong { font-size: 11px; }
   .originSignals { margin-top: 5px; }
   .originSignals > div { padding: 4px 6px; }
-  .originSignals dd { font-size: 10px; line-height: 1.2; }
-  .originSignals dt { font-size: 9px; }
+  .originSignals dd { font-size: 11px; line-height: 1.2; }
+  .originSignals dt { font-size: 10px; }
   .footerGuidePanel { grid-template-columns: 46px minmax(0, 1fr); }
   .footerInfoGrid p { font-size: 13.5px; }
   .footerInfoGrid li,
@@ -2938,7 +2546,7 @@ button, select {
   .flavorIndex dt,
   .flavorIndex dd { font-size: 13px; }
   .brewSlide { grid-template-columns: 72px minmax(0, 1fr); }
-  .brewTipsTabs button { font-size: 9px; }
+  .brewTipsTabs button { font-size: 10px; }
   .brewSlideCopy { padding-inline: 8px; }
   .brewSlideHeading h2 { font-size: 19px; }
   .brewSequence span,

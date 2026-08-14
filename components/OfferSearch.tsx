@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { canonicalOfferUrl, filterOffers, getOriginTags, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type RawOffer } from "../src/lib/offers";
+import { canonicalOfferUrl, filterOffers, getOriginTags, isBuyableOffer, normalizeOffer, sortOffersByFinalPrice, toggleFavoriteOffer, type Offer, type ProductKind, type RawOffer } from "../src/lib/offers";
 import { OfferRow } from "./OfferRow";
 import { UiButton } from "./UiButton";
 
@@ -40,8 +40,6 @@ type OfferSnapshot = {
   fetchedAt: string;
   offers: SnapshotOffer[];
 };
-
-type ProductKind = "green" | "whole";
 
 const PRODUCT_LABELS: Record<ProductKind, { label: string; query: string }> = {
   green: { label: "생두", query: "생두" },
@@ -122,7 +120,7 @@ function FavoriteCard({ offer, onRemove }: { offer: Offer; onRemove: (offer: Off
       tabIndex={0}
       onClick={() => window.open(offer.sourceUrl, "_blank", "noreferrer")}
       onKeyDown={(event) => {
-        if (event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
+        if (event.target === event.currentTarget && event.key === "Enter") window.open(offer.sourceUrl, "_blank", "noreferrer");
       }}
     >
       <UiButton
@@ -260,7 +258,7 @@ export function OfferSearch() {
       })()
     : "";
   const summary = useMemo(() => {
-    const cheapest = sortOffersByFinalPrice(offers)[0];
+    const cheapest = sortOffersByFinalPrice(offers.filter((offer) => offer.shippingKnown))[0];
 
     return {
       lowestFinalPrice: cheapest?.finalPrice ?? 0,
@@ -529,20 +527,29 @@ async function fetchStaticSnapshot(productKind: ProductKind, query: string) {
   const response = await fetch(`data/${fileName}`, { cache: "no-store" });
   if (!response.ok) throw new Error("정적 가격 목록을 불러오지 못했습니다.");
   const data = (await response.json()) as OfferSnapshot;
-  const offers = sortOffersByFinalPrice(data.offers.map((item, index) => normalizeOffer({
-    id: `${item.source ?? "snapshot"}-${index}-${item.link}`,
-    name: item.title,
-    seller: item.seller ?? item.source ?? "판매처",
-    source: item.source === "shop" ? "shop" : "naver",
-    sourceUrl: item.link,
-    price: item.price,
-    shippingFee: item.shippingFee ?? null,
-    flavorTags: item.flavorTags,
-    roastTags: item.roastTags,
-    tasteNote: item.tasteNote,
-    rawDescription: item.rawDescription,
-    fetchedAt: data.fetchedAt,
-  } satisfies RawOffer))).filter((offer) => matchesStaticQuery(offer, query, productKind));
+  const seenLinks = new Set<string>();
+  const offers = sortOffersByFinalPrice(data.offers
+    .filter((item) => item.price > 0 && item.price <= 1_000_000 && isBuyableOffer(item.title, item.source, productKind))
+    .filter((item) => {
+      const link = canonicalOfferUrl(item.link);
+      if (seenLinks.has(link)) return false;
+      seenLinks.add(link);
+      return true;
+    })
+    .map((item, index) => normalizeOffer({
+      id: `${item.source ?? "snapshot"}-${index}-${item.link}`,
+      name: item.title,
+      seller: item.seller ?? item.source ?? "판매처",
+      source: item.source === "shop" ? "shop" : "naver",
+      sourceUrl: item.link,
+      price: item.price,
+      shippingFee: item.shippingFee ?? null,
+      flavorTags: item.flavorTags,
+      roastTags: item.roastTags,
+      tasteNote: item.tasteNote,
+      rawDescription: item.rawDescription,
+      fetchedAt: data.fetchedAt,
+    } satisfies RawOffer))).filter((offer) => matchesStaticQuery(offer, query, productKind));
 
   return { fetchedAt: data.fetchedAt, offers };
 }

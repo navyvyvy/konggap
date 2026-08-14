@@ -1,4 +1,5 @@
 export type OfferSource = "naver" | "shop";
+export type ProductKind = "green" | "whole";
 
 export type RawOffer = {
   id: string;
@@ -36,6 +37,13 @@ export function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
 
+export function isBuyableOffer(title: string, source?: string, productKind: ProductKind = "green") {
+  if (isBlockedShoppingTitle(title, productKind) || !/\d+\s*(kg|g)/i.test(title)) return false;
+  if (productKind === "green" && /생두|커피생두|green\s*bean/i.test(title)) return true;
+  if (productKind === "whole" && /원두|홀빈|whole\s*bean|roasted\s*bean/i.test(title)) return true;
+  return source === "shop" && isCoffeeProductName(title);
+}
+
 export function normalizeOffer(raw: RawOffer): Offer {
   const shippingFee = raw.shippingFee ?? 0;
   const inferred = getStableMetadata(raw);
@@ -53,11 +61,16 @@ export function normalizeOffer(raw: RawOffer): Offer {
 
 export function sortOffersByFinalPrice<T extends { finalPrice: number }>(offers: T[], direction: "asc" | "desc" = "asc") {
   const multiplier = direction === "asc" ? 1 : -1;
-  return [...offers].sort((left, right) => (left.finalPrice - right.finalPrice) * multiplier);
+  return [...offers].sort((left, right) => {
+    const shippingOrder = Number((left as T & { shippingKnown?: boolean }).shippingKnown === false) - Number((right as T & { shippingKnown?: boolean }).shippingKnown === false);
+    return shippingOrder || (left.finalPrice - right.finalPrice) * multiplier;
+  });
 }
 
-export function filterOffers<T extends { finalPrice: number; flavorTags: string[]; roastTags: string[]; tasteNote: string; name?: string; rawDescription?: string }>(offers: T[], filters: OfferFilters) {
+export function filterOffers<T extends { finalPrice: number; shippingKnown?: boolean; flavorTags: string[]; roastTags: string[]; tasteNote: string; name?: string; rawDescription?: string }>(offers: T[], filters: OfferFilters) {
+  const filtersByPrice = filters.minPrice !== undefined || filters.maxPrice !== undefined;
   return offers.filter((offer) =>
+    (!filtersByPrice || offer.shippingKnown !== false) &&
     (filters.minPrice === undefined || offer.finalPrice >= filters.minPrice) &&
     (filters.maxPrice === undefined || offer.finalPrice <= filters.maxPrice) &&
     (!filters.originTag || inferOriginTags(`${offer.name ?? ""} ${offer.rawDescription ?? ""}`).includes(filters.originTag)) &&
@@ -132,9 +145,9 @@ function inferFlavorTags(text: string) {
 
 function inferRoastTags(text: string) {
   const tags: string[] = [];
-  if (/(약배전|라이트\s*로스트|light\s*roast)/i.test(text)) tags.push("약배전");
-  if (/(중배전|미디엄\s*로스트|medium\s*roast)/i.test(text)) tags.push("중배전");
-  if (/(강배전|다크\s*로스트|dark\s*roast)/i.test(text)) tags.push("강배전");
+  if (/(약배전|라이트(?:\s*로스트)?|light(?:\s*roast)?)/i.test(text)) tags.push("약배전");
+  if (/(중배전|미디엄(?:\s*로스트)?|medium(?:\s*roast)?)/i.test(text)) tags.push("중배전");
+  if (/(강배전|다크(?:\s*로스트)?|dark(?:\s*roast)?)/i.test(text)) tags.push("강배전");
   return tags.length > 2 ? [] : tags;
 }
 
@@ -152,6 +165,16 @@ function inferTasteNote(text: string) {
   ].filter((note) => tasteText.includes(note.toLowerCase()));
 
   return notes.length ? notes.slice(0, 4).join(", ") : "";
+}
+
+function isBlockedShoppingTitle(title: string, productKind: ProductKind) {
+  if (/([2-9]\d*\s*개|\d+\s*\+\s*\d+|세트|묶음|박스|box|set|드립백|캡슐|콜드브루|더치|분쇄|그라인더|필터|드리퍼|서버|샘플|sample|머신|machine|액세서리|accessory|도구|장비|봉투|소분신청|월픽|강화\s*글라스|유리\s*(컵|잔)|머그|텀블러|드립\s*포트|케틀|주전자|저울|브러시|세정제|클리너)/i.test(title)) return true;
+  if (productKind === "green") return /(원두|홀빈|볶은|볶음|로스팅\s*(망|기|서비스|홀빈)|당일\s*로스팅|당일로스팅)/i.test(title);
+  return /(생두|커피생두|green\s*bean|로스팅\s*(망|기|서비스))/i.test(title);
+}
+
+function isCoffeeProductName(title: string) {
+  return /(브라질|콜롬비아|에티오피아|케냐|과테말라|니카라과|온두라스|페루|동티모르|자메이카|인도|코스타리카|엘살바도르|멕시코|볼리비아|에콰도르|르완다|만델링|로부스타|아라비카|수프리모|예가체프|시다모|안티구아|세하도|워시드|내추럴|Brazil|Colombia|Ethiopia|Kenya|Guatemala|Nicaragua|Honduras|Peru|Costa Rica|Bolivia|Ecuador|Rwanda|Washed|Natural|Honey)/i.test(title);
 }
 
 function inferOriginTags(text: string) {
